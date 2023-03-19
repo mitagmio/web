@@ -1,0 +1,68 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: url(/img/bg.svg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.scene {
+  width: 380px;
+  height: 40vh;
+  perspective: 70vw;
+  position: relative;
+}
+.scene .carousel.keen-slider {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: visible;
+  transform: translateZ(-288px);
+  transform-style: preserve-3d;
+}
+
+.carousel__cell {
+  position: absolute;
+  width: 360px;
+  left: 10px;
+  height: 40vh;
+  filter: brightness(0.95);
+  opacity: 0.25;
+  transition: all 1s;
+}
+
+.carousel__cell.active {
+  filter: unset;
+  opacity: 1;
+}
+
+.dark-theme body {
+  --tg-theme-bg-color: #000;
+  // --tg-theme-text-color: ;
+  // --tg-theme-hint-color: ;
+  // --tg-theme-link-color: ;
+  // --tg-theme-button-color: ;
+  // --tg-theme-button-text-color: ;
+  // --tg-theme-secondary-bg-color: ;
+}
+
+.tlogin-button {
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+}
