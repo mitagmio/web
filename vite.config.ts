@@ -2,24 +2,24 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import mkcert from 'vite-plugin-mkcert'
-
-// https://vitejs.dev/config/
+import tsconfigPaths from 'vite-tsconfig-paths'
+import svgr from "vite-plugin-svgr"
 
 export default defineConfig({
-  define: {
-    global: {},
-  },
   plugins: [
+    svgr(),
     react(),
     mkcert(),
+    tsconfigPaths(),
     VitePWA({
-      injectRegister: 'inline',
+      injectRegister: 'auto',
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
       devOptions: {
         enabled: true,
+        type: 'module',
       },
       includeAssets: [
         'icons/icon-72x72.png',
@@ -97,9 +97,16 @@ export default defineConfig({
       allow: ['../sdk', './'],
     },
     port: 443,
-    https: true
+    https: true,
   },
   preview: {
-    port: 8080
+    port: 8080,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
   },
 })

@@ -1,10 +1,11 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { save } from 'react-cookies'
-import { Navbar, Text, Dropdown, Avatar, Spacer, User } from '@nextui-org/react'
+import { Navbar, Text, Dropdown, Avatar, Spacer, User, Container } from '@nextui-org/react'
 import { TonConnectButton } from '@tonconnect/ui-react'
-import { Box } from './Box'
+
 import { TLoginButton, TLoginButtonSize, TUser } from './TLogin'
-import { useState } from 'react'
+import { ThemeSwitcher } from './ThemeSwitcher';
+import { useContext, useState } from 'react'
+import { AppContext } from 'contexts';
 
 const Layout = () => {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ const Layout = () => {
       case 'logout':
         fetch('https://oauth.telegram.org/auth/logOut?bot_id=6160672395&origin=https://fck.foundation', {
           method: 'POST',
-          credentials: 'omit',
+          mode: 'no-cors',
         })
         setUser(undefined)
         break
@@ -25,10 +26,16 @@ const Layout = () => {
     }
   }
   return (
-    <div>
-      <Navbar isBordered isCompact shouldHideOnScroll variant="sticky">
+    <div className={'ton-background'}>
+      <Navbar
+        className="navbar"
+        isBordered
+        isCompact={{ '@smMax': true, '@smMin': false }}
+        shouldHideOnScroll
+        variant="sticky"
+      >
         <Navbar.Brand>
-          <Navbar.Toggle aria-label="toggle navigation" />
+          <Navbar.Toggle aria-label="toggle navigation" showIn="sm" />
           <Spacer x={1} />
           <img src="/img/logo.svg" alt="logo" height={24} />
           <Spacer x={0.4} />
@@ -40,9 +47,9 @@ const Layout = () => {
             Foundation
           </Text>
         </Navbar.Brand>
-        <Navbar.Content hideIn="xs">
+        <Navbar.Content hideIn="sm">
           {menu.map(({ title, href }, index) => (
-            <Navbar.Link isActive={href === location.pathname} onClick={() => navigate(href)}>
+            <Navbar.Link key={index} isActive={href === location.pathname} onClick={() => navigate(href)}>
               {title}
             </Navbar.Link>
           ))}
@@ -54,6 +61,7 @@ const Layout = () => {
             },
           }}
         >
+          <ThemeSwitcher />
           {!user ? (
             <TLoginButton
               botName="dyorton_bot"
@@ -66,30 +74,31 @@ const Layout = () => {
               requestAccess={'write'}
             />
           ) : (
-            <Dropdown placement="bottom-right">
-              <Navbar.Item>
-                <Dropdown.Trigger>
-                  <User bordered as="button" name={user.first_name} color="secondary" size="sm" src={user.photo_url} />
-                </Dropdown.Trigger>
-              </Navbar.Item>
-              <Dropdown.Menu
-                aria-label="User menu actions"
-                color="secondary"
-                onAction={onAction}
-                disabledKeys={['profile']}
-              >
-                <Dropdown.Item key="profile" withDivider>
-                  <Text color="inherit" css={{ d: 'flex' }}>
-                    Signed in as <Spacer x={0.2} /> <b>{user.username}</b>
-                  </Text>
-                </Dropdown.Item>
-                {/* <Dropdown.Item key="logout" withDivider color="error">
-                  Log Out
-                </Dropdown.Item> */}
-              </Dropdown.Menu>
-            </Dropdown>
+            <User bordered as="button" name={user.first_name} color="secondary" size="sm" src={user.photo_url} />
+            // <Dropdown placement="bottom-right">
+            //   <Navbar.Item>
+            //     <Dropdown.Trigger>
+            //       <User bordered as="button" name={user.first_name} color="secondary" size="sm" src={user.photo_url} />
+            //     </Dropdown.Trigger>
+            //   </Navbar.Item>
+            //   <Dropdown.Menu
+            //     aria-label="User menu actions"
+            //     color="secondary"
+            //     onAction={onAction}
+            //     disabledKeys={['profile']}
+            //   >
+            //     <Dropdown.Item key="profile" withDivider>
+            //       <Text color="inherit" css={{ d: 'flex' }}>
+            //         Signed in as <Spacer x={0.2} /> <b>{user.username}</b>
+            //       </Text>
+            //     </Dropdown.Item>
+            //     <Dropdown.Item key="logout" withDivider color="error">
+            //       Log Out
+            //     </Dropdown.Item>
+            //   </Dropdown.Menu>
+            // </Dropdown>
           )}
-          <TonConnectButton />
+          <TonConnectButton className="tconnect-button" />
         </Navbar.Content>
         <Navbar.Collapse>
           {menu.map(({ title, href }, index) => (
@@ -105,9 +114,9 @@ const Layout = () => {
         </Navbar.Collapse>
       </Navbar>
 
-      <Box css={{ px: '$12', mt: '$8', '@xsMax': { px: '$10' } }}>
+      <Container fluid css={{ p: 0, '@xs': { p: '$8' } }}>
         <Outlet />
-      </Box>
+      </Container>
     </div>
   )
 }

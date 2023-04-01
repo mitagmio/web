@@ -1,9 +1,6 @@
 import { THEME, TonConnectUIProvider } from '@tonconnect/ui-react'
-import { Header } from './components/Header/Header'
-import { TxForm } from './components/TxForm/TxForm'
-import { Footer } from './components/Footer/Footer'
+import { Header, TxForm, TonProofDemo, Footer } from 'components/Ton'
 import { TonProofDemoApi } from './TonProofDemoApi'
-import { TonProofDemo } from './components/TonProofDemo/TonProofDemo'
 
 function Ton() {
   return (

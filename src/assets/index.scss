@@ -66,3 +66,37 @@ code {
   overflow: hidden;
   display: flex;
 }
+
+.tconnect-button {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border-radius: 100px;
+  overflow: hidden;
+
+  button > div {
+    font-size: 14px;
+  }
+}
+
+.navbar {
+  background: var(--nextui--navbarBlurBackgroundColor);
+  border-bottom: var(--nextui--navbarBorderWeight) solid var(--nextui--navbarBorderColor);
+
+  .nextui-navbar-container {
+    background: unset;
+    border-bottom: unset;
+  }
+}
+
+.dark .react-loading-skeleton {
+  --base-color: #121212;
+  --highlight-color: var(--nextui-colors-primaryLight);
+}
+
+.ton-background {
+  // background: url('/img/ton.webp');
+  // background-size: cover;
+  // background-position: top center;
+  // background-repeat: no-repeat;
+}
