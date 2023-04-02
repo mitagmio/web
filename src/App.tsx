@@ -3,32 +3,70 @@ import useDarkMode from 'use-dark-mode'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 import { NextUIProvider } from '@nextui-org/react'
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import { en, ru } from 'locales';
 
 import { AppContext, AppProvider } from './contexts'
-import { darkTheme, lightTheme, T509FFA,
-  T5089FA,
-  T7380FA,
-  T9B78FA,
-  TFA5AAF,
-  TFA5A60,
-  T53DAF5,
-  T8978FA,
-  T5AFACA,
-  TF450FA,
-  T567FF0,
-  TF0AF65 } from './themes'
+import {
+  dark,
+  light,
+  sky,
+  skyLight,
+  arctic,
+  arcticLight,
+  azure,
+  azureLight,
+  iris,
+  irisLight,
+  flamingo,
+  flamingoLight,
+  coral,
+  coralLight,
+  marine,
+  marineLight,
+  ocean,
+  oceanLight,
+  fluid,
+  fluidLight,
+  galaxy,
+  galaxyLight,
+  cosmos,
+  cosmosLight,
+  andromeda,
+  andromedaLight,
+} from './themes'
 import { TonProofDemoApi } from './TonProofDemoApi'
 import Layout from './components/Layout'
-import Home from './Home'
+import { Home, Countdown, OurTeam, RoadMap } from './pages'
 import NotFound from './NotFound'
 import Ton from './Ton'
 
 import 'react-loading-skeleton/dist/skeleton.css'
 import 'keen-slider/keen-slider.min.css'
 import './assets/index.scss'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 
 const queryClient = new QueryClient()
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        translation: en,
+      },
+      ru: {
+        translation: ru,
+      },
+    },
+
+    interpolation: {
+      escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+    },
+  });
 
 const router = createBrowserRouter([
   {
@@ -40,8 +78,16 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: 'ton',
-        element: <Ton />,
+        path: 'events',
+        element: <Countdown />,
+      },
+      {
+        path: 'roadmap',
+        element: <RoadMap />,
+      },
+      {
+        path: 'team',
+        element: <OurTeam />,
       },
     ],
   },
@@ -55,32 +101,78 @@ function App() {
   const { theme } = useContext(AppContext)
   const darkMode = useDarkMode(true)
 
-  const themeName = theme ? `T${theme.color.split('#').pop()}` : 'dark'
+  const themeName = useMemo(
+    () => (theme ? `${theme.color}${!darkMode.value ? 'Light' : ''}` : darkMode.value ? 'dark' : 'light'),
+    [theme, darkMode.value]
+  )
+  const values = useMemo(
+    () => ({
+      light,
+      dark,
+      sky,
+      skyLight,
+      arctic,
+      arcticLight,
+      azure,
+      azureLight,
+      iris,
+      irisLight,
+      flamingo,
+      flamingoLight,
+      coral,
+      coralLight,
+      marine,
+      marineLight,
+      ocean,
+      oceanLight,
+      fluid,
+      fluidLight,
+      galaxy,
+      galaxyLight,
+      cosmos,
+      cosmosLight,
+      andromeda,
+      andromedaLight,
+    }),
+    []
+  )
 
   return (
     <ThemeProvider
       defaultTheme={themeName} //darkMode.value ? 'dark' : 'light'}
       attribute="class"
       forcedTheme={themeName} //theme ? `T${theme.split('#').pop()}` : 'dark'}
-      themes={['light', 'dark', 'T9B78FA']}
-      value={{
-        light: lightTheme.className,
-        dark: darkTheme.className,
-        T509FFA: T509FFA.className, // sky
-        T5089FA: T5089FA.className, // arctic
-        T7380FA: T7380FA.className, // azure
-        T9B78FA: T9B78FA.className, // iris
-        TFA5AAF: TFA5AAF.className, // flamingo
-        TFA5A60: TFA5A60.className, // corral
-        T53DAF5: T53DAF5.className, // marine
-        T8978FA: T8978FA.className, // ocean
-        T5AFACA: T5AFACA.className, // fluid
-        TF450FA: TF450FA.className, // galaxy
-        T567FF0: T567FF0.className, // cosmos
-        TF0AF65: TF0AF65.className, // andromeda
-      }}
+      themes={[
+        'light',
+        'dark',
+        'sky',
+        'skyLight',
+        'arctic',
+        'arcticLight',
+        'azure',
+        'azureLight',
+        'iris',
+        'irisLight',
+        'flamingo',
+        'flamingoLight',
+        'corral',
+        'corralLight',
+        'marine',
+        'marineLight',
+        'ocean',
+        'oceanLight',
+        'fluid',
+        'fluidLight',
+        'galaxy',
+        'galaxyLight',
+        'cosmos',
+        'cosmosLight',
+        'andromeda',
+        'andromedaLight',
+      ]}
+      value={values}
     >
-      <NextUIProvider theme={darkMode.value ? darkTheme : lightTheme}>
+      <NextUIProvider theme={values[themeName]}>
         <RouterProvider router={router} />
       </NextUIProvider>
     </ThemeProvider>

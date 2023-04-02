@@ -1,6 +1,7 @@
 import { createTheme } from '@nextui-org/react'
+import { colors } from './colors'
 
-export const lightTheme = createTheme({
+export const light = createTheme({
   type: 'light',
   theme: {
     colors: {
@@ -23,13 +24,13 @@ export const lightTheme = createTheme({
       secondaryBorderHover: '$blue800',
       secondarySolidHover: '$blue900',
       secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $blue600 100%)',
+      gradient: 'linear-gradient(45deg, #31a6f5 0%, $blue600 100%)',
       link: '#31a6f5',
     }, // optional
   },
-})
+}).className
 
-export const darkTheme = createTheme({
+export const dark = createTheme({
   type: 'dark',
   theme: {
     colors: {
@@ -54,382 +55,200 @@ export const darkTheme = createTheme({
       secondaryBorderHover: '$blue800',
       secondarySolidHover: '$blue900',
       secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $blue600 100%)',
+      gradient: 'linear-gradient(45deg, #31a6f5 0%, $blue600 100%)',
       link: '#31a6f5',
     }, // optional
   },
-})
+}).className
 
-export const T509FFA = createTheme({ // sky
-  className: 'T509FFA',
+export const sky = createTheme({
+  className: 'sky',
   type: 'dark',
   theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '#bddcfd',
-      primaryLightHover: '##94c7fd',
-      primaryLightActive: '$#6bb0fb',
-      primaryLightContrast: '#3d81e9',
-      primary: '#509FFA',
-      primaryBorder: '#3e8ff8',
-      primaryBorderHover: '#3d81e9',
-      primarySolidHover: '#3a6fd5',
-      primarySolidContrast: '$white',
-      primaryShadow: '#3e8ff8',
-      secondary: `#323ea1`,
-      secondaryLight: '$#6bb0fb',
-      secondaryLightHover: '#3e8ff8',
-      secondaryLightActive: '#3d81e9',
-      secondaryLightContrast: '#375dc2',
-      secondaryBorder: '#3a6fd5',
-      secondaryBorderHover: '#375dc2',
-      secondarySolidHover: '#323ea1',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $purple600 100%)',
-      link: '#509FFA',
-    }, // optional
-  },
-})
-export const T5089FA = createTheme({ // arctic
-  className: 'T5089FA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '#bddcfd',
-      primaryLightHover: '#94c7fd',
-      primaryLightActive: '#6bb0fb',
-      primaryLightContrast: '#3d81e9',
-      primary: '#5089FA',
-      primaryBorder: '#3e8ff8',
-      primaryBorderHover: '#3d81e9',
-      primarySolidHover: '#3a6fd5',
-      primarySolidContrast: '$white',
-      primaryShadow: '#3e8ff8',
-      secondary: `#323ea1`,
-      secondaryLight: '#6bb0fb',
-      secondaryLightHover: '#3e8ff8',
-      secondaryLightActive: '#3d81e9',
-      secondaryLightContrast: '#375dc2',
-      secondaryBorder: '#3a6fd5',
-      secondaryBorderHover: '#375dc2',
-      secondarySolidHover: '#323ea1',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, #3d81e9 100%)',
-      link: '#5089FA',
-    }, // optional
-  },
-})
-export const T7380FA = createTheme({ // azure
-  className: 'T7380FA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$purple200',
-      primaryLightHover: '$purple300',
-      primaryLightActive: '$purple400',
-      primaryLightContrast: '$purple600',
-      primary: '#7380FA',
-      primaryBorder: '$purple500',
-      primaryBorderHover: '$purple600',
-      primarySolidHover: '$purple700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$purple500',
-      secondary: `$purple900`,
-      secondaryLight: '$purple400',
-      secondaryLightHover: '$purple500',
-      secondaryLightActive: '$purple600',
-      secondaryLightContrast: '$purple800',
-      secondaryBorder: '$purple700',
-      secondaryBorderHover: '$purple800',
-      secondarySolidHover: '$purple900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $purple600 100%)',
-      link: '#7380FA',
-    }, // optional
-  },
-})
-export const T9B78FA = createTheme({ // iris
-  className: 'T9B78FA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$purple200',
-      primaryLightHover: '$purple300',
-      primaryLightActive: '$purple400',
-      primaryLightContrast: '$purple600',
-      primary: '#9B78FA',
-      primaryBorder: '$purple500',
-      primaryBorderHover: '$purple600',
-      primarySolidHover: '$purple700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$purple500',
-      secondary: `$purple900`,
-      secondaryLight: '$purple400',
-      secondaryLightHover: '$purple500',
-      secondaryLightActive: '$purple600',
-      secondaryLightContrast: '$purple800',
-      secondaryBorder: '$purple700',
-      secondaryBorderHover: '$purple800',
-      secondarySolidHover: '$purple900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $purple600 100%)',
-      link: '#9B78FA',
-    }, // optional
-  },
-})
-export const TFA5AAF = createTheme({ // flamingo
-  className: 'TFA5AAF',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$pink200',
-      primaryLightHover: '$pink300',
-      primaryLightActive: '$pink400',
-      primaryLightContrast: '$pink600',
-      primary: '#FA5AAF',
-      primaryBorder: '$pink500',
-      primaryBorderHover: '$pink600',
-      primarySolidHover: '$pink700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$pink500',
-      secondary: `$pink900`,
-      secondaryLight: '$pink400',
-      secondaryLightHover: '$pink500',
-      secondaryLightActive: '$pink600',
-      secondaryLightContrast: '$pink800',
-      secondaryBorder: '$pink700',
-      secondaryBorderHover: '$pink800',
-      secondarySolidHover: '$pink900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $pink600 100%)',
-      link: '#FA5AAF',
-    }, // optional
-  },
-})
-export const TFA5A60 = createTheme({ // corral
-  className: 'TFA5A60',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$red200',
-      primaryLightHover: '$red300',
-      primaryLightActive: '$red400',
-      primaryLightContrast: '$red600',
-      primary: '#FA5A60',
-      primaryBorder: '$red500',
-      primaryBorderHover: '$red600',
-      primarySolidHover: '$red700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$red500',
-      secondary: `$red900`,
-      secondaryLight: '$red400',
-      secondaryLightHover: '$red500',
-      secondaryLightActive: '$red600',
-      secondaryLightContrast: '$red800',
-      secondaryBorder: '$red700',
-      secondaryBorderHover: '$red800',
-      secondarySolidHover: '$red900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $red600 100%)',
-      link: '#FA5A60',
-    }, // optional
-  },
-})
-export const T53DAF5 = createTheme({ // marine
-  className: 'T53DAF5',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#53DAF5',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#53DAF5',
-    }, // optional
-  },
-})
-export const T8978FA = createTheme({ // ocean
-  className: 'T8978FA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#8978FA',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#8978FA',
-    }, // optional
-  },
-})
-export const T5AFACA = createTheme({ // fluid
-  className: 'T5AFACA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#5AFACA',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#5AFACA',
-    }, // optional
-  },
-})
-export const TF450FA = createTheme({ // galaxy
-  className: 'TF450FA',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#F450FA',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#F450FA',
-    }, // optional
-  },
-})
-export const T567FF0 = createTheme({ // cosmos
-  className: 'T567FF0',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#567FF0',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#567FF0',
-    }, // optional
-  },
-})
-export const TF0AF65 = createTheme({ // andromeda
-  className: 'TF0AF65',
-  type: 'dark',
-  theme: {
-    colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$cyan200',
-      primaryLightHover: '$cyan300',
-      primaryLightActive: '$cyan400',
-      primaryLightContrast: '$cyan600',
-      primary: '#F0AF65',
-      primaryBorder: '$cyan500',
-      primaryBorderHover: '$cyan600',
-      primarySolidHover: '$cyan700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$cyan500',
-      secondary: `$cyan900`,
-      secondaryLight: '$cyan400',
-      secondaryLightHover: '$cyan500',
-      secondaryLightActive: '$cyan600',
-      secondaryLightContrast: '$cyan800',
-      secondaryBorder: '$cyan700',
-      secondaryBorderHover: '$cyan800',
-      secondarySolidHover: '$cyan900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, $green600 0%, $cyan600 100%)',
-      link: '#F0AF65',
-    }, // optional
+    colors: colors.sky,
   },
 })
 
+export const skyLight = createTheme({
+  className: 'sky-light',
+  type: 'light',
+  theme: {
+    colors: colors.sky,
+  },
+})
+
+export const arctic = createTheme({
+  className: 'arctic',
+  type: 'dark',
+  theme: {
+    colors: colors.arctic,
+  },
+}).className
+
+export const arcticLight = createTheme({
+  className: 'arctic-light',
+  type: 'light',
+  theme: {
+    colors: colors.arctic,
+  },
+}).className
+
+export const azure = createTheme({
+  className: 'azure',
+  type: 'dark',
+  theme: {
+    colors: colors.azure,
+  },
+}).className
+
+export const azureLight = createTheme({
+  className: 'azure-light',
+  type: 'light',
+  theme: {
+    colors: colors.azure,
+  },
+}).className
+
+export const iris = createTheme({
+  className: 'iris',
+  type: 'dark',
+  theme: {
+    colors: colors.iris,
+  },
+}).className
+
+export const irisLight = createTheme({
+  className: 'iris-light',
+  type: 'light',
+  theme: {
+    colors: colors.iris,
+  },
+}).className
+
+export const flamingo = createTheme({
+  className: 'flamingo',
+  type: 'dark',
+  theme: {
+    colors: colors.flamingo,
+  },
+}).className
+
+export const flamingoLight = createTheme({
+  className: 'flamingo-light',
+  type: 'light',
+  theme: {
+    colors: colors.flamingo,
+  },
+}).className
+
+export const coral = createTheme({
+  className: 'coral',
+  type: 'dark',
+  theme: {
+    colors: colors.coral,
+  },
+}).className
+
+export const coralLight = createTheme({
+  className: 'coral-light',
+  type: 'light',
+  theme: {
+    colors: colors.coral,
+  },
+}).className
+
+export const marine = createTheme({
+  className: 'marine',
+  type: 'dark',
+  theme: {
+    colors: colors.marine,
+  },
+}).className
+
+export const marineLight = createTheme({
+  className: 'marine-light',
+  type: 'light',
+  theme: {
+    colors: colors.marine,
+  },
+}).className
+
+export const ocean = createTheme({
+  className: 'ocean',
+  type: 'dark',
+  theme: {
+    colors: colors.ocean,
+  },
+}).className
+
+export const oceanLight = createTheme({
+  className: 'ocean-light',
+  type: 'light',
+  theme: {
+    colors: colors.ocean,
+  },
+}).className
+
+export const fluid = createTheme({
+  className: 'fluid',
+  type: 'dark',
+  theme: {
+    colors: colors.fluid,
+  },
+}).className
+
+export const fluidLight = createTheme({
+  className: 'fluid-light',
+  type: 'light',
+  theme: {
+    colors: colors.fluid,
+  },
+}).className
+
+export const galaxy = createTheme({
+  className: 'galaxy',
+  type: 'dark',
+  theme: {
+    colors: colors.galaxy,
+  },
+}).className
+
+export const galaxyLight = createTheme({
+  className: 'galaxy',
+  type: 'light',
+  theme: {
+    colors: colors.galaxy,
+  },
+}).className
+
+export const cosmos = createTheme({
+  className: 'cosmos',
+  type: 'dark',
+  theme: {
+    colors: colors.cosmos,
+  },
+}).className
+
+export const cosmosLight = createTheme({
+  className: 'cosmos-light',
+  type: 'light',
+  theme: {
+    colors: colors.cosmos,
+  },
+}).className
+
+export const andromeda = createTheme({
+  className: 'andromeda',
+  type: 'dark',
+  theme: {
+    colors: colors.andromeda,
+  },
+}).className
+
+export const andromedaLight = createTheme({
+  className: 'andromeda-light',
+  type: 'light',
+  theme: {
+    colors: colors.andromeda,
+  },
+}).className

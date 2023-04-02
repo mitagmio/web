@@ -8,8 +8,8 @@ import { fck } from 'api/fck'
 import { ARR01, FIL21, GEN02, GEN11, GEN20 } from 'assets/icons'
 import { getList } from 'utils/analytics'
 
-import { AppContext, JType } from './contexts'
-import earthConfig from './earth.config'
+import { AppContext, JType } from '../contexts'
+import getEarthConfig from '../earth.config'
 
 type TimeScale = '1M' | '5M' | '30M' | '1H' | '4H' | '1D' | '30D'
 
@@ -22,8 +22,8 @@ const pagination: Record<string, number> = {
   '1D': 86400,
 }
 
-function Home() {
-  const { jettons } = useContext(AppContext)
+export function Home() {
+  const { jettons, theme } = useContext(AppContext)
   const [timescale, setTimescale] = useState<TimeScale>((localStorage.getItem('timescale') as any) || '1D')
 
   const listVerified = useMemo(() => [...(jettons || [])]?.filter((i) => i.verified)?.map(({ id }) => id), [jettons])
@@ -63,6 +63,10 @@ function Home() {
 
   useEffect(() => {
     if (document.getElementById('earth')) {
+      const earthConfig = getEarthConfig(theme.color)
+
+      document.getElementById('earth')!.innerHTML = ''
+
       let e = new Earth('earth', earthConfig.cityList, earthConfig.bizLines, {
         earthRadius: 12,
         autoRotate: true,
@@ -75,7 +79,7 @@ function Home() {
       })
       e.load()
     }
-  }, [])
+  }, [theme])
 
   return (
     <>
@@ -270,5 +274,3 @@ function Home() {
     </>
   )
 }
-
-export default Home

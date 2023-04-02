@@ -64,7 +64,7 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
   const address = useTonAddress()
   const rawAddress = useTonAddress(false)
 
-  const [theme, setTheme] = useState({ color: localStorage.getItem('theme') || '' })
+  const [theme, setTheme] = useState(localStorage.getItem('theme') ? JSON.parse(localStorage.getItem('theme') as string) : { color: 'dark' })
   const [nftItems, setNFTItems] = useState<NftItemRepr[]>([])
 
   const darkMode = useDarkMode(false, {
@@ -138,9 +138,9 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
         const nftApi = new NFTApi()
         // Receive typed array of owner nfts
         const { nftItems } = await nftApi.searchNFTItems({
-          owner: true ? 'EQB5JdVF7RQMlE5amEK2kQ0DF8J7Ykpm_clPgnU19IjBY81O' : address,
+          owner: true ? 'EQDsP4js-X1VVS7mBZAuoeXvKcvOYlkpsdELBHwJOez07ZTW' : address,
           includeOnSale: true,
-          limit: 100,
+          limit: 36,
           offset: 0,
           collection: '0:06d811f426598591b32b2c49f29f66c821368e4acb1de16762b04e0174532465',
         })

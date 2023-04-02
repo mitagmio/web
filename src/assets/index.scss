@@ -94,9 +94,31 @@ code {
   --highlight-color: var(--nextui-colors-primaryLight);
 }
 
+.dark .nextui-popover-content {
+  background: #121212;
+}
+
 .ton-background {
   // background: url('/img/ton.webp');
   // background-size: cover;
   // background-position: top center;
   // background-repeat: no-repeat;
+}
+
+.svgInline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+
+  svg {
+    width: 100vw !important;
+    height: auto !important;
+
+    g > g:last-child {
+      display: none;
+    }
+  }
 }

@@ -3,13 +3,15 @@ import { Navbar, Text, Dropdown, Avatar, Spacer, User, Container } from '@nextui
 import { TonConnectButton } from '@tonconnect/ui-react'
 
 import { TLoginButton, TLoginButtonSize, TUser } from './TLogin'
-import { ThemeSwitcher } from './ThemeSwitcher';
-import { useContext, useState } from 'react'
-import { AppContext } from 'contexts';
+import { ThemeSwitcher } from './ThemeSwitcher'
+import { useContext, useMemo, useState } from 'react'
+import { AppContext } from 'contexts'
+import { SvgInline } from './SvgInline'
 
 const Layout = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { nftItems, theme } = useContext(AppContext)
   const [user, setUser] = useState<TUser>()
 
   const onAction = (actionKey: React.Key) => {
@@ -25,6 +27,12 @@ const Layout = () => {
         break
     }
   }
+
+  const background = useMemo(
+    () => theme && <SvgInline url={nftItems?.find(({ metadata }) => metadata.id === theme.id)?.metadata.image} />,
+    [theme, nftItems]
+  )
+
   return (
     <div className={'ton-background'}>
       <Navbar
@@ -117,6 +125,7 @@ const Layout = () => {
       <Container fluid css={{ p: 0, '@xs': { p: '$8' } }}>
         <Outlet />
       </Container>
+      {background}
     </div>
   )
 }
