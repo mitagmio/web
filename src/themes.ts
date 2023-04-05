@@ -1,254 +1,260 @@
-import { createTheme } from '@nextui-org/react'
-import { colors } from './colors'
+import { createTheme } from "@nextui-org/react";
+import { colors } from "./colors";
 
 export const light = createTheme({
-  type: 'light',
+  type: "light",
   theme: {
     colors: {
-      primaryLight: '$blue200',
-      primaryLightHover: '$blue300',
-      primaryLightActive: '$blue400',
-      primaryLightContrast: '$blue600',
-      primary: '#31a6f5',
-      primaryBorder: '$blue500',
-      primaryBorderHover: '$blue600',
-      primarySolidHover: '$blue700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$blue500',
+      primaryLight: "$blue200",
+      primaryLightHover: "$blue300",
+      primaryLightActive: "$blue400",
+      primaryLightContrast: "$blue600",
+      primary: "#31a6f5",
+      primaryBorder: "$blue500",
+      primaryBorderHover: "$blue600",
+      primarySolidHover: "$blue700",
+      primarySolidContrast: "$white",
+      primaryShadow: "$blue500",
       secondary: `#1b3c51`,
-      secondaryLight: '$blue400',
-      secondaryLightHover: '$blue500',
-      secondaryLightActive: '$blue600',
-      secondaryLightContrast: '$blue800',
-      secondaryBorder: '$blue700',
-      secondaryBorderHover: '$blue800',
-      secondarySolidHover: '$blue900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, #31a6f5 0%, $blue600 100%)',
-      link: '#31a6f5',
+      secondaryLight: "$blue400",
+      secondaryLightHover: "$blue500",
+      secondaryLightActive: "$blue600",
+      secondaryLightContrast: "$blue800",
+      secondaryBorder: "$blue700",
+      secondaryBorderHover: "$blue800",
+      secondarySolidHover: "$blue900",
+      secondarySolidContrast: "$white",
+      gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
+      link: "#31a6f5",
     }, // optional
   },
-}).className
+}).className;
 
 export const dark = createTheme({
-  type: 'dark',
+  type: "dark",
   theme: {
     colors: {
-      background: 'transparent',
-      backgroundContrast: 'rgb(0, 0, 0, 0.25)',
-      primaryLight: '$blue200',
-      primaryLightHover: '$blue300',
-      primaryLightActive: '$blue400',
-      primaryLightContrast: '$blue600',
-      primary: '#31a6f5',
-      primaryBorder: '$blue500',
-      primaryBorderHover: '$blue600',
-      primarySolidHover: '$blue700',
-      primarySolidContrast: '$white',
-      primaryShadow: '$blue500',
+      background: "transparent",
+      backgroundContrast: "rgb(0, 0, 0, 0.5)",
+      primaryLight: "$blue200",
+      primaryLightHover: "$blue300",
+      primaryLightActive: "$blue400",
+      primaryLightContrast: "$blue600",
+      primary: "#31a6f5",
+      primaryBorder: "$blue500",
+      primaryBorderHover: "$blue600",
+      primarySolidHover: "$blue700",
+      primarySolidContrast: "$white",
+      primaryShadow: "$blue500",
       secondary: `#1b3c51`,
-      secondaryLight: '$blue400',
-      secondaryLightHover: '$blue500',
-      secondaryLightActive: '$blue600',
-      secondaryLightContrast: '$blue800',
-      secondaryBorder: '$blue700',
-      secondaryBorderHover: '$blue800',
-      secondarySolidHover: '$blue900',
-      secondarySolidContrast: '$white',
-      gradient: 'linear-gradient(45deg, #31a6f5 0%, $blue600 100%)',
-      link: '#31a6f5',
+      secondaryLight: "$blue400",
+      secondaryLightHover: "$blue500",
+      secondaryLightActive: "$blue600",
+      secondaryLightContrast: "$blue800",
+      secondaryBorder: "$blue700",
+      secondaryBorderHover: "$blue800",
+      secondarySolidHover: "$blue900",
+      secondarySolidContrast: "$white",
+      gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
+      link: "#31a6f5",
     }, // optional
   },
-}).className
+}).className;
 
 export const sky = createTheme({
-  className: 'sky',
-  type: 'dark',
+  className: "sky",
+  type: "dark",
   theme: {
     colors: colors.sky,
   },
-})
+});
 
 export const skyLight = createTheme({
-  className: 'sky-light',
-  type: 'light',
+  className: "sky-light",
+  type: "light",
   theme: {
     colors: colors.sky,
   },
-})
+});
 
 export const arctic = createTheme({
-  className: 'arctic',
-  type: 'dark',
+  className: "arctic",
+  type: "dark",
   theme: {
     colors: colors.arctic,
   },
-}).className
+}).className;
 
 export const arcticLight = createTheme({
-  className: 'arctic-light',
-  type: 'light',
+  className: "arctic-light",
+  type: "light",
   theme: {
     colors: colors.arctic,
   },
-}).className
+}).className;
 
 export const azure = createTheme({
-  className: 'azure',
-  type: 'dark',
+  className: "azure",
+  type: "dark",
   theme: {
     colors: colors.azure,
   },
-}).className
+}).className;
 
 export const azureLight = createTheme({
-  className: 'azure-light',
-  type: 'light',
+  className: "azure-light",
+  type: "light",
   theme: {
     colors: colors.azure,
   },
-}).className
+}).className;
 
 export const iris = createTheme({
-  className: 'iris',
-  type: 'dark',
+  className: "iris",
+  type: "dark",
   theme: {
     colors: colors.iris,
   },
-}).className
+}).className;
 
 export const irisLight = createTheme({
-  className: 'iris-light',
-  type: 'light',
+  className: "iris-light",
+  type: "light",
   theme: {
     colors: colors.iris,
   },
-}).className
+}).className;
 
 export const flamingo = createTheme({
-  className: 'flamingo',
-  type: 'dark',
+  className: "flamingo",
+  type: "dark",
   theme: {
     colors: colors.flamingo,
   },
-}).className
+}).className;
 
 export const flamingoLight = createTheme({
-  className: 'flamingo-light',
-  type: 'light',
+  className: "flamingo-light",
+  type: "light",
   theme: {
     colors: colors.flamingo,
   },
-}).className
+}).className;
 
 export const coral = createTheme({
-  className: 'coral',
-  type: 'dark',
+  className: "coral",
+  type: "dark",
   theme: {
     colors: colors.coral,
   },
-}).className
+}).className;
 
 export const coralLight = createTheme({
-  className: 'coral-light',
-  type: 'light',
+  className: "coral-light",
+  type: "light",
   theme: {
     colors: colors.coral,
   },
-}).className
+}).className;
 
 export const marine = createTheme({
-  className: 'marine',
-  type: 'dark',
+  className: "marine",
+  type: "dark",
   theme: {
-    colors: colors.marine,
+    colors: {
+      white: "#000",
+      ...colors.marine,
+    },
   },
-}).className
+}).className;
 
 export const marineLight = createTheme({
-  className: 'marine-light',
-  type: 'light',
+  className: "marine-light",
+  type: "light",
   theme: {
     colors: colors.marine,
   },
-}).className
+}).className;
 
 export const ocean = createTheme({
-  className: 'ocean',
-  type: 'dark',
+  className: "ocean",
+  type: "dark",
   theme: {
     colors: colors.ocean,
   },
-}).className
+}).className;
 
 export const oceanLight = createTheme({
-  className: 'ocean-light',
-  type: 'light',
+  className: "ocean-light",
+  type: "light",
   theme: {
     colors: colors.ocean,
   },
-}).className
+}).className;
 
 export const fluid = createTheme({
-  className: 'fluid',
-  type: 'dark',
+  className: "fluid",
+  type: "dark",
   theme: {
-    colors: colors.fluid,
+    colors: {
+      white: "#000",
+      ...colors.fluid,
+    },
   },
-}).className
+}).className;
 
 export const fluidLight = createTheme({
-  className: 'fluid-light',
-  type: 'light',
+  className: "fluid-light",
+  type: "light",
   theme: {
-    colors: colors.fluid,
+    colors: { ...colors.fluid, primary: "#008c50" },
   },
-}).className
+}).className;
 
 export const galaxy = createTheme({
-  className: 'galaxy',
-  type: 'dark',
+  className: "galaxy",
+  type: "dark",
   theme: {
     colors: colors.galaxy,
   },
-}).className
+}).className;
 
 export const galaxyLight = createTheme({
-  className: 'galaxy',
-  type: 'light',
+  className: "galaxy",
+  type: "light",
   theme: {
     colors: colors.galaxy,
   },
-}).className
+}).className;
 
 export const cosmos = createTheme({
-  className: 'cosmos',
-  type: 'dark',
+  className: "cosmos",
+  type: "dark",
   theme: {
     colors: colors.cosmos,
   },
-}).className
+}).className;
 
 export const cosmosLight = createTheme({
-  className: 'cosmos-light',
-  type: 'light',
+  className: "cosmos-light",
+  type: "light",
   theme: {
     colors: colors.cosmos,
   },
-}).className
+}).className;
 
 export const andromeda = createTheme({
-  className: 'andromeda',
-  type: 'dark',
+  className: "andromeda",
+  type: "dark",
   theme: {
     colors: colors.andromeda,
   },
-}).className
+}).className;
 
 export const andromedaLight = createTheme({
-  className: 'andromeda-light',
-  type: 'light',
+  className: "andromeda-light",
+  type: "light",
   theme: {
     colors: colors.andromeda,
   },
-}).className
+}).className;

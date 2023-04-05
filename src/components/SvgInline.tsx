@@ -7,11 +7,11 @@ export const SvgInline = (props) => {
 
   useEffect(() => {
     setIsLoaded(false)
-    fetch(props.url, { mode: 'no-cors' })
+    fetch(props.url)
       .then((res) => res.text())
       .then(setSvg)
       .catch(setIsErrored)
-      .then(() => setIsLoaded(true))
+      .finally(() => setIsLoaded(true))
   }, [props.url])
 
   return (

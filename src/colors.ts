@@ -139,9 +139,9 @@ export const colors = {
   },
   marine: {
     primaryLight: '#b6effb',
-    primaryLightHover: '#85e5f9',
-    primaryLightActive: '#2dd2f0',
-    primaryLightContrast: '#16b9d8',
+    primaryLightHover: '#0ca3bc',
+    primaryLightActive: '#068fa3',
+    primaryLightContrast: '#006c76',
     primary: '#53DAF5',
     primaryBorder: '#1bc9ec',
     primaryBorderHover: '#16b9d8',
@@ -158,7 +158,7 @@ export const colors = {
     secondarySolidHover: '#006c76',
     secondarySolidContrast: '$white',
     gradient: 'linear-gradient(45deg, #53DAF5 0%, #16b9d8 100%)',
-    link: '#53DAF5',
+    link: '#006c76',
   },
   ocean: {
     primaryLight: '#cfc6fb',
@@ -185,9 +185,9 @@ export const colors = {
   },
   fluid: {
     primaryLight: '#a9fcdf',
-    primaryLightHover: '#00f5b5',
-    primaryLightActive: '#00eea5',
-    primaryLightContrast: '#00d586',
+    primaryLightHover: '#00c177',
+    primaryLightActive: '#00ae69',
+    primaryLightContrast: '#008c50',
     primary: '#5AFACA',
     primaryBorder: '#00e694',
     primaryBorderHover: '#00d586',
@@ -204,7 +204,7 @@ export const colors = {
     secondarySolidHover: '#008c50',
     secondarySolidContrast: '$white',
     gradient: 'linear-gradient(45deg, #5AFACA 0%, #00d586 100%)',
-    link: '#5AFACA',
+    link: '#008c50',
   },
   galaxy: {
     primaryLight: '#fbbdfc',

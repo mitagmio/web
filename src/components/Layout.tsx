@@ -1,51 +1,71 @@
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Navbar, Text, Dropdown, Avatar, Spacer, User, Container } from '@nextui-org/react'
-import { TonConnectButton } from '@tonconnect/ui-react'
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navbar,
+  Text,
+  Dropdown,
+  Avatar,
+  Spacer,
+  User,
+  Container,
+} from "@nextui-org/react";
+import { TonConnectButton } from "@tonconnect/ui-react";
 
-import { TLoginButton, TLoginButtonSize, TUser } from './TLogin'
-import { ThemeSwitcher } from './ThemeSwitcher'
-import { useContext, useMemo, useState } from 'react'
-import { AppContext } from 'contexts'
-import { SvgInline } from './SvgInline'
+import { TLoginButton, TLoginButtonSize, TUser } from "./TLogin";
+import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useContext, useMemo, useState } from "react";
+import { AppContext } from "contexts";
+import { default as Logo } from "assets/logo.svg";
+import { SvgInline } from "./SvgInline";
 
 const Layout = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { nftItems, theme } = useContext(AppContext)
-  const [user, setUser] = useState<TUser>()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { nftItems, theme } = useContext(AppContext);
+  const [user, setUser] = useState<TUser>();
 
   const onAction = (actionKey: React.Key) => {
     switch (actionKey) {
-      case 'logout':
-        fetch('https://oauth.telegram.org/auth/logOut?bot_id=6160672395&origin=https://fck.foundation', {
-          method: 'POST',
-          mode: 'no-cors',
-        })
-        setUser(undefined)
-        break
+      case "logout":
+        fetch(
+          "https://oauth.telegram.org/auth/logOut?bot_id=6160672395&origin=https://fck.foundation",
+          {
+            method: "POST",
+            mode: "no-cors",
+          }
+        );
+        setUser(undefined);
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   const background = useMemo(
-    () => theme && <SvgInline url={nftItems?.find(({ metadata }) => metadata.id === theme.id)?.metadata.image} />,
+    () =>
+      theme && (
+        <SvgInline
+          url={
+            nftItems?.find(({ metadata }) => metadata.id === theme.id)?.metadata
+              .image
+          }
+        />
+      ),
     [theme, nftItems]
-  )
+  );
 
   return (
-    <div className={'ton-background'}>
+    <div className={"ton-background"}>
       <Navbar
         className="navbar"
         isBordered
-        isCompact={{ '@smMax': true, '@smMin': false }}
+        isCompact={{ "@smMax": true, "@smMin": false }}
         shouldHideOnScroll
         variant="sticky"
       >
         <Navbar.Brand>
           <Navbar.Toggle aria-label="toggle navigation" showIn="sm" />
           <Spacer x={1} />
-          <img src="/img/logo.svg" alt="logo" height={24} />
+          <img src={Logo.toString()} alt="logo" height={24} />
           <Spacer x={0.4} />
           <Text b color="inherit" hideIn="xs">
             FCK
@@ -57,15 +77,19 @@ const Layout = () => {
         </Navbar.Brand>
         <Navbar.Content hideIn="sm">
           {menu.map(({ title, href }, index) => (
-            <Navbar.Link key={index} isActive={href === location.pathname} onClick={() => navigate(href)}>
+            <Navbar.Link
+              key={index}
+              isActive={href === location.pathname}
+              onClick={() => navigate(href)}
+            >
               {title}
             </Navbar.Link>
           ))}
         </Navbar.Content>
         <Navbar.Content
           css={{
-            '@xs': {
-              jc: 'flex-end',
+            "@xs": {
+              jc: "flex-end",
             },
           }}
         >
@@ -79,10 +103,17 @@ const Layout = () => {
               redirectUrl="https://fck.foundation"
               cornerRadius={0}
               onAuthCallback={setUser}
-              requestAccess={'write'}
+              requestAccess={"write"}
             />
           ) : (
-            <User bordered as="button" name={user.first_name} color="secondary" size="sm" src={user.photo_url} />
+            <User
+              bordered
+              as="button"
+              name={user.first_name}
+              color="secondary"
+              size="sm"
+              src={user.photo_url}
+            />
             // <Dropdown placement="bottom-right">
             //   <Navbar.Item>
             //     <Dropdown.Trigger>
@@ -114,7 +145,7 @@ const Layout = () => {
               key={index}
               isActive={href === location.pathname}
               onClick={() => navigate(href)}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             >
               {title}
             </Navbar.CollapseItem>
@@ -122,19 +153,19 @@ const Layout = () => {
         </Navbar.Collapse>
       </Navbar>
 
-      <Container fluid css={{ p: 0, '@xs': { p: '$8' } }}>
+      <Container fluid css={{ p: 0, "@xs": { p: "$8" } }}>
         <Outlet />
       </Container>
       {background}
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;
 
 const menu = [
-  { title: 'Analytics', href: '/' },
-  { title: 'Events', href: '/events' },
-  { title: 'Roadmap', href: '/roadmap' },
-  { title: 'Team', href: '/team' },
-]
+  { title: "Analytics", href: "/" },
+  { title: "Events", href: "/events" },
+  { title: "Roadmap", href: "/roadmap" },
+  { title: "Team", href: "/team" },
+];
