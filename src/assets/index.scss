@@ -25,7 +25,6 @@ code {
 
 .scene {
   width: 380px;
-  height: 40vh;
   perspective: 70vw;
   position: relative;
 }
@@ -42,7 +41,6 @@ code {
   position: absolute;
   width: 360px;
   left: 10px;
-  height: 40vh;
   filter: brightness(0.95);
   opacity: 0.25;
   transition: all 1s;
@@ -91,6 +89,17 @@ code {
     border-bottom: unset;
   }
 }
+body {
+  --line-color: var(--nextui--navbarBorderColor);
+
+  .vertical-timeline-element-content {
+    box-shadow: 0 3px 0 var(--nextui--navbarBorderColor);
+  }
+  .vertical-timeline-element-icon {
+    box-shadow: 0 0 0 4px var(--nextui--navbarBorderColor),
+      inset 0 2px 0 rgba(0, 0, 0, 0.08), 0 3px 0 4px rgba(0, 0, 0, 0.05);
+  }
+}
 
 .dark .react-loading-skeleton {
   --base-color: #121212;
@@ -110,16 +119,14 @@ code {
 
 .svgInline {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: -50%;
+  left: -50%;
   z-index: -1;
   width: 100vw;
   height: 100vh;
+  zoom: 2;
 
   svg {
-    width: 100vw !important;
-    height: auto !important;
-
     g > g:last-child {
       display: none;
     }
@@ -131,9 +138,45 @@ code {
 }
 
 .diamond-item {
-  border: 1px solid var(--nextui-colors-blue100); 
+  cursor: pointer;
+  border: 1px solid var(--nextui-colors-blue100);
+  transition: all 300ms;
+  background-color: #fff;
+
+  img {
+    opacity: 0.75;
+    transition: all 300ms;
+  }
+
+  &.selected img {
+    opacity: 1;
+    transform: scale3d(1.2, 1.2, 1.2) translate3d(0, 5px, 0);
+  }
+
+  &.selected img, img:hover {
+    border: 1px solid var(--nextui-colors-primary);
+    opacity: 1;
+    transform: scale3d(1.2, 1.2, 1.2) translate3d(0, 5px, 0);
+  }
 }
 
 .dark .diamond-item {
-  border-color: var(--nextui--navbarBorderColor); 
+  border-color: var(--nextui--navbarBorderColor);
+  background-color: #000;
+}
+
+.vertical-timeline-line::before {
+  content: "";
+  width: 3px;
+  height: 100%;
+  background: #131b26;
+  position: absolute;
+  top: 0;
+  left: 30px;
+}
+
+.roadmap-body {
+  padding-top: 0;
+  max-height: 50vh;
+  overflow-y: auto;
 }

@@ -89,6 +89,10 @@ const router = createBrowserRouter([
         path: 'team',
         element: <OurTeam />,
       },
+      {
+        path: 'ton',
+        element: <Ton />,
+      },
     ],
   },
   {

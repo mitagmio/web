@@ -4,6 +4,8 @@ import App from './App'
 import './assets/index.scss'
 import './patch-local-storage-for-github-pages'
 
+window.global = window
+
 render(
   <StrictMode>
     <App />

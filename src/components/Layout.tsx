@@ -21,6 +21,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { nftItems, theme } = useContext(AppContext);
+  const [toggle, setToggle] = useState(false);
   const [user, setUser] = useState<TUser>();
 
   const onAction = (actionKey: React.Key) => {
@@ -53,6 +54,11 @@ const Layout = () => {
     [theme, nftItems]
   );
 
+  const onChangeHref = (href) => {
+    navigate(href);
+    setToggle(false);
+  };
+
   return (
     <div className={"ton-background"}>
       <Navbar
@@ -60,12 +66,20 @@ const Layout = () => {
         isBordered
         isCompact={{ "@smMax": true, "@smMin": false }}
         shouldHideOnScroll
+        disableScrollHandler
         variant="sticky"
       >
         <Navbar.Brand>
-          <Navbar.Toggle aria-label="toggle navigation" showIn="sm" />
+          <Navbar.Toggle
+            isSelected={toggle}
+            aria-label="toggle navigation"
+            showIn="sm"
+            onChange={(value) => setToggle(!!value)}
+          />
           <Spacer x={1} />
-          <img src={Logo.toString()} alt="logo" height={24} />
+          <Text>
+            <img src={Logo.toString()} alt="logo" height={24} />
+          </Text>
           <Spacer x={0.4} />
           <Text b color="inherit" hideIn="xs">
             FCK
@@ -94,7 +108,7 @@ const Layout = () => {
           }}
         >
           <ThemeSwitcher />
-          {!user ? (
+          {/* {!user ? (
             <TLoginButton
               botName="dyorton_bot"
               buttonSize={TLoginButtonSize.Medium}
@@ -136,15 +150,15 @@ const Layout = () => {
             //     </Dropdown.Item>
             //   </Dropdown.Menu>
             // </Dropdown>
-          )}
+          )} */}
           <TonConnectButton className="tconnect-button" />
         </Navbar.Content>
-        <Navbar.Collapse>
+        <Navbar.Collapse isOpen={toggle}>
           {menu.map(({ title, href }, index) => (
             <Navbar.CollapseItem
               key={index}
               isActive={href === location.pathname}
-              onClick={() => navigate(href)}
+              onClick={() => onChangeHref(href)}
               style={{ cursor: "pointer" }}
             >
               {title}

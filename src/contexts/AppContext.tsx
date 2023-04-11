@@ -116,7 +116,7 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
 
   useEffect(() => {
     const getData = async () => {
-      if (address) {
+      // if (address) {
         // Get list of transactions
         const blockchainApi = new RawBlockchainApi(
           new Configuration({
@@ -140,14 +140,14 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
         const { nftItems } = await nftApi.searchNFTItems({
           owner: true ? 'EQDsP4js-X1VVS7mBZAuoeXvKcvOYlkpsdELBHwJOez07ZTW' : address,
           includeOnSale: true,
-          limit: 100,
+          limit: 27,
           offset: 0,
           collection: '0:06d811f426598591b32b2c49f29f66c821368e4acb1de16762b04e0174532465',
         })
 
         setNFTItems(nftItems)
         console.log(nftItems)
-      }
+      // }
     }
 
     getData()

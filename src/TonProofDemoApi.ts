@@ -1,79 +1,89 @@
-import {Account, ConnectAdditionalRequest, TonProofItemReplySuccess} from "@tonconnect/sdk";
-import './patch-local-storage-for-github-pages';
+import {
+  Account,
+  ConnectAdditionalRequest,
+  TonProofItemReplySuccess,
+} from "@tonconnect/sdk";
+import "./patch-local-storage-for-github-pages";
 
 class TonProofDemoApiService {
-	private localStorageKey = 'demo-api-access-token';
+  private localStorageKey = "demo-api-access-token";
 
-	private host = 'https://demo.tonconnect.dev';
+  private host = "https://demo.tonconnect.dev";
 
-	public accessToken: string | null = null;
+  public accessToken: string | null = null;
 
-	public connectWalletRequest: Promise<ConnectAdditionalRequest> = Promise.resolve({});
+  public connectWalletRequest: Promise<ConnectAdditionalRequest> =
+    Promise.resolve({});
 
-	constructor() {
-		this.accessToken = localStorage.getItem(this.localStorageKey);
+  constructor() {
+    this.accessToken = localStorage.getItem(this.localStorageKey);
 
-		if (!this.accessToken) {
-			this.generatePayload();
-		}
-	}
+    if (!this.accessToken) {
+      this.generatePayload();
+    }
+  }
 
-	generatePayload() {
-		this.connectWalletRequest = new Promise(async resolve => {
-			const response = await (
-				await fetch(`${this.host}/ton-proof/generatePayload`, {
-					method: 'POST',
-				})
-			).json();
-			resolve({ tonProof: response.payload as string });
-		})
-	}
+  generatePayload() {
+    this.connectWalletRequest = new Promise(async (resolve) => {
+      const response = await (
+        await fetch(`${this.host}/ton-proof/generatePayload`, {
+          method: "POST",
+        })
+      ).json();
+      resolve({ tonProof: response.payload as string });
+    });
+  }
 
-	async checkProof(proof: TonProofItemReplySuccess['proof'], account: Account) {
-		try {
-			const reqBody = {
-				address: account.address,
-				network: account.chain,
-				proof: {
-					...proof,
-					state_init: account.walletStateInit,
-				},
-			};
+  async checkProof(proof: TonProofItemReplySuccess["proof"], account: Account) {
+    try {
+      const reqBody = {
+        address: account.address,
+        network: account.chain,
+        proof: {
+          ...proof,
+          state_init: account.walletStateInit,
+        },
+      };
 
-			const response = await (
-				await fetch(`${this.host}/ton-proof/checkProof`, {
-					method: 'POST',
-					body: JSON.stringify(reqBody),
-				})
-			).json();
+      const response = await (
+        await fetch(`https://api.fck.foundation/ton-connect/auth`, {
+          method: "POST",
+          body: JSON.stringify(reqBody),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+      ).json();
 
-			if (response?.token) {
-				localStorage.setItem(this.localStorageKey, response.token);
-				this.accessToken = response.token;
-			}
-		} catch (e) {
-			console.log('checkProof error:', e);
-		}
-	}
+      console.log("PROF RESPONSE:", response);
 
-	async getAccountInfo(account: Account) {
-		const response = await (
-			await fetch(`${this.host}/dapp/getAccountInfo?network=${account.chain}`, {
-				headers: {
-					Authorization: `Bearer ${this.accessToken}`,
-					'Content-Type': 'application/json',
-				},
-			})
-		).json();
+      if (response?.token) {
+        localStorage.setItem(this.localStorageKey, response.token);
+        this.accessToken = response.token;
+      }
+    } catch (e) {
+      console.log("checkProof error:", e);
+    }
+  }
 
-		return response as {};
-	}
+  async getAccountInfo(account: Account) {
+    const response = await (
+      await fetch(`${this.host}/dapp/getAccountInfo?network=${account.chain}`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
+        },
+      })
+    ).json();
 
-	reset() {
-		this.accessToken = null;
-		localStorage.removeItem(this.localStorageKey);
-		this.generatePayload();
-	}
+    return response as {};
+  }
+
+  reset() {
+    this.accessToken = null;
+    localStorage.removeItem(this.localStorageKey);
+    this.generatePayload();
+  }
 }
 
 export const TonProofDemoApi = new TonProofDemoApiService();

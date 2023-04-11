@@ -4,60 +4,14 @@ import { colors } from "./colors";
 export const light = createTheme({
   type: "light",
   theme: {
-    colors: {
-      primaryLight: "$blue200",
-      primaryLightHover: "$blue300",
-      primaryLightActive: "$blue400",
-      primaryLightContrast: "$blue600",
-      primary: "#31a6f5",
-      primaryBorder: "$blue500",
-      primaryBorderHover: "$blue600",
-      primarySolidHover: "$blue700",
-      primarySolidContrast: "$white",
-      primaryShadow: "$blue500",
-      secondary: `#1b3c51`,
-      secondaryLight: "$blue400",
-      secondaryLightHover: "$blue500",
-      secondaryLightActive: "$blue600",
-      secondaryLightContrast: "$blue800",
-      secondaryBorder: "$blue700",
-      secondaryBorderHover: "$blue800",
-      secondarySolidHover: "$blue900",
-      secondarySolidContrast: "$white",
-      gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
-      link: "#31a6f5",
-    }, // optional
+    colors: colors.light, // optional
   },
 }).className;
 
 export const dark = createTheme({
   type: "dark",
   theme: {
-    colors: {
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primaryLight: "$blue200",
-      primaryLightHover: "$blue300",
-      primaryLightActive: "$blue400",
-      primaryLightContrast: "$blue600",
-      primary: "#31a6f5",
-      primaryBorder: "$blue500",
-      primaryBorderHover: "$blue600",
-      primarySolidHover: "$blue700",
-      primarySolidContrast: "$white",
-      primaryShadow: "$blue500",
-      secondary: `#1b3c51`,
-      secondaryLight: "$blue400",
-      secondaryLightHover: "$blue500",
-      secondaryLightActive: "$blue600",
-      secondaryLightContrast: "$blue800",
-      secondaryBorder: "$blue700",
-      secondaryBorderHover: "$blue800",
-      secondarySolidHover: "$blue900",
-      secondarySolidContrast: "$white",
-      gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
-      link: "#31a6f5",
-    }, // optional
+    colors: colors.dark, // optional
   },
 }).className;
 

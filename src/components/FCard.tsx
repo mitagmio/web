@@ -128,7 +128,7 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                       <Table.Cell>
                         <FJetton
                           data={
-                            chart.length
+                            chart.length > 1
                               ? chart.map((v) => ({ pv: v.value }))
                               : [{ pv: 0 }, { pv: 0 }]
                           }

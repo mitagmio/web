@@ -12,7 +12,7 @@ export const ThemeSwitcher = () => {
       <Popover.Trigger>
         <Button
           icon={
-            theme ? (
+            theme && nftItems.length ? (
               <Image
                 showSkeleton
                 src={
@@ -107,7 +107,9 @@ export const ThemeSwitcher = () => {
                   content={theme.id === item.metadata.id && color}
                 >
                   <div
-                    className="diamond-item"
+                    className={`diamond-item ${
+                      theme.id === item.metadata.id ? "selected" : ""
+                    }`}
                     style={{
                       ...(theme.id === item.metadata.id && {
                         borderColor: item.metadata.theme.main,
@@ -120,13 +122,6 @@ export const ThemeSwitcher = () => {
                       width={98}
                       height={98}
                       alt=""
-                      css={{
-                        transition: "1s",
-                        ...(theme.id === item.metadata.id && {
-                          transform:
-                            "scale3d(1.2, 1.2, 1.2) translate3d(0, 5px, 0)",
-                        }),
-                      }}
                       onClick={() =>
                         setTheme({
                           color: color.toLowerCase(),
