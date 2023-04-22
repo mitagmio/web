@@ -80,15 +80,16 @@ code {
 }
 
 .navbar {
+  z-index: 999;
   background: var(--nextui--navbarBlurBackgroundColor);
   border-bottom: var(--nextui--navbarBorderWeight) solid
     var(--nextui--navbarBorderColor);
 
   .nextui-navbar-container {
-    background: unset;
     border-bottom: unset;
   }
 }
+
 body {
   --line-color: var(--nextui--navbarBorderColor);
 
@@ -153,7 +154,8 @@ body {
     transform: scale3d(1.2, 1.2, 1.2) translate3d(0, 5px, 0);
   }
 
-  &.selected img, img:hover {
+  &.selected img,
+  img:hover {
     border: 1px solid var(--nextui-colors-primary);
     opacity: 1;
     transform: scale3d(1.2, 1.2, 1.2) translate3d(0, 5px, 0);

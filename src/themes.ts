@@ -11,7 +11,11 @@ export const light = createTheme({
 export const dark = createTheme({
   type: "dark",
   theme: {
-    colors: colors.dark, // optional
+    colors: {
+      ...colors.dark,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -19,7 +23,11 @@ export const sky = createTheme({
   className: "sky",
   type: "dark",
   theme: {
-    colors: colors.sky,
+    colors: {
+      ...colors.sky,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 });
 
@@ -35,7 +43,11 @@ export const arctic = createTheme({
   className: "arctic",
   type: "dark",
   theme: {
-    colors: colors.arctic,
+    colors: {
+      ...colors.arctic,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -51,7 +63,11 @@ export const azure = createTheme({
   className: "azure",
   type: "dark",
   theme: {
-    colors: colors.azure,
+    colors: {
+      ...colors.azure,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -67,7 +83,11 @@ export const iris = createTheme({
   className: "iris",
   type: "dark",
   theme: {
-    colors: colors.iris,
+    colors: {
+      ...colors.iris,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -83,7 +103,11 @@ export const flamingo = createTheme({
   className: "flamingo",
   type: "dark",
   theme: {
-    colors: colors.flamingo,
+    colors: {
+      ...colors.flamingo,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -99,7 +123,11 @@ export const coral = createTheme({
   className: "coral",
   type: "dark",
   theme: {
-    colors: colors.coral,
+    colors: {
+      ...colors.coral,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -116,8 +144,10 @@ export const marine = createTheme({
   type: "dark",
   theme: {
     colors: {
-      white: "#000",
+      white: "$dark",
       ...colors.marine,
+        primarySolidContrast: "$dark",
+        secondarySolidContrast: "$dark",
     },
   },
 }).className;
@@ -134,7 +164,11 @@ export const ocean = createTheme({
   className: "ocean",
   type: "dark",
   theme: {
-    colors: colors.ocean,
+    colors: {
+      ...colors.ocean,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -151,8 +185,10 @@ export const fluid = createTheme({
   type: "dark",
   theme: {
     colors: {
-      white: "#000",
+      white: "$dark",
       ...colors.fluid,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
     },
   },
 }).className;
@@ -169,7 +205,11 @@ export const galaxy = createTheme({
   className: "galaxy",
   type: "dark",
   theme: {
-    colors: colors.galaxy,
+    colors: {
+      ...colors.galaxy,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -185,7 +225,11 @@ export const cosmos = createTheme({
   className: "cosmos",
   type: "dark",
   theme: {
-    colors: colors.cosmos,
+    colors: {
+      ...colors.cosmos,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 
@@ -201,7 +245,11 @@ export const andromeda = createTheme({
   className: "andromeda",
   type: "dark",
   theme: {
-    colors: colors.andromeda,
+    colors: {
+      ...colors.andromeda,
+      primarySolidContrast: "$dark",
+      secondarySolidContrast: "$dark",
+    },
   },
 }).className;
 

@@ -9,24 +9,25 @@
     <meta name="theme-color" content="#121212" />
     <meta name="color-scheme" content="light dark" />
     <title>FCK.Foundation</title>
-    <script
-      data-consolejs-channel="57e95ad4-4a89-7cf9-106a-51106eb4d73d"
-      src="https://remotejs.com/agent/agent.js"
-    ></script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.googletagmanager.com/gtag/js?id=G-0734WGRSVS"></script>
-    <script id="google-analytics">
-      window.dataLayer = window.dataLayer || []
+    <script crossorigin type="module" src="/src/main.tsx"></script>
+    <script
+      src="https://telegram.org/js/telegram-web-app.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://www.googletagmanager.com/gtag/js?id=G-0734WGRSVS"
+    ></script>
+    <script crossorigin id="google-analytics">
+      window.dataLayer = window.dataLayer || [];
       function gtag() {
-        dataLayer.push(arguments)
+        dataLayer.push(arguments);
       }
-      gtag('js', new Date())
+      gtag("js", new Date());
 
-      gtag('config', 'G-0734WGRSVS')
+      gtag("config", "G-0734WGRSVS");
     </script>
   </body>
 </html>

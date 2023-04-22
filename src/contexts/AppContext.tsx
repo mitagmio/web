@@ -138,7 +138,7 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
         const nftApi = new NFTApi()
         // Receive typed array of owner nfts
         const { nftItems } = await nftApi.searchNFTItems({
-          owner: true ? 'EQDsP4js-X1VVS7mBZAuoeXvKcvOYlkpsdELBHwJOez07ZTW' : address,
+          owner: address,
           includeOnSale: true,
           limit: 27,
           offset: 0,

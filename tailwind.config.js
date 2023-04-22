@@ -3,7 +3,6 @@ const colors = require('tailwindcss/colors')
 
 module.exports = {
   content: ["./public/index.html", "./src/**/*.{html,js,tsx}"],
-  purge: [],
   theme: {
     fontFamily: {
       sans: ['Roboto Flex', 'sans-serif'],

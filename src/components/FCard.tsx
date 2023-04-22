@@ -10,6 +10,7 @@ import {
 import Skeleton from "react-loading-skeleton";
 
 import { FJetton } from "./FJetton";
+import { Link } from "react-router-dom";
 
 type Item = {
   name: string;
@@ -108,19 +109,21 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                   ) => (
                     <Table.Row key={i.toString()}>
                       <Table.Cell>
-                        <Grid.Container wrap="nowrap">
-                          <Grid>
-                            <Image
-                              src={image}
-                              width={24}
-                              style={{ borderRadius: 100 }}
-                            />
-                          </Grid>
-                          <Spacer x={0.4} />
-                          <Grid>
-                            <Text>{name}</Text>
-                          </Grid>
-                        </Grid.Container>
+                        <Link to={`/analytics/price/${name}`}>
+                          <Grid.Container wrap="nowrap">
+                            <Grid>
+                              <Image
+                                src={image}
+                                width={24}
+                                style={{ borderRadius: 100 }}
+                              />
+                            </Grid>
+                            <Spacer x={0.4} />
+                            <Grid>
+                              <Text>{name}</Text>
+                            </Grid>
+                          </Grid.Container>
+                        </Link>
                       </Table.Cell>
                       <Table.Cell>
                         <Text color="primary">{price} TON</Text>

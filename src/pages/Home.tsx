@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState, useEffect } from "react";
+import { useContext, useMemo, useState, useEffect, lazy } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Earth from "3d-earth";
 import { axios } from "libs";
@@ -14,7 +14,7 @@ import {
 } from "@nextui-org/react";
 import { FCard } from "components";
 import { fck } from "api/fck";
-import { ARR01, FIL21, GEN02, GEN11, GEN20 } from "assets/icons";
+import { ARR01, ARR07, FIL21, GEN02, GEN11, GEN20 } from "assets/icons";
 import { getList } from "utils/analytics";
 
 import { AppContext, JType } from "../contexts";
@@ -34,7 +34,7 @@ const pagination: Record<string, number> = {
 export function Home() {
   const { jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<TimeScale>(
-    (localStorage.getItem("timescale") as any) || "1D"
+    (localStorage.getItem("timescale") as any) || "1H"
   );
 
   const listVerified = useMemo(
@@ -82,30 +82,34 @@ export function Home() {
     },
   });
 
-  useEffect(() => {
-    if (document.getElementById("earth")) {
-      const earthConfig = getEarthConfig(theme.color);
+  // useEffect(() => {
+  //   if (document.getElementById("earth")) {
+  //     const earthConfig = getEarthConfig(theme.color);
 
-      document.getElementById("earth")!.innerHTML = "";
+  //     document.getElementById("earth")!.innerHTML = "";
 
-      let e = new Earth("earth", earthConfig.cityList, earthConfig.bizLines, {
-        earthRadius: 12,
-        autoRotate: true,
-        zoomChina: false,
-        starBackground: false,
-        orbitControlConfig: {
-          enableRotate: true,
-          enableZoom: false,
-        },
-      });
-      e.load();
-    }
-  }, [theme]);
+  //     const load = async () => {
+  //       let e = new Earth("earth", earthConfig.cityList, earthConfig.bizLines, {
+  //         earthRadius: 12,
+  //         autoRotate: true,
+  //         zoomChina: false,
+  //         starBackground: false,
+  //         orbitControlConfig: {
+  //           enableRotate: true,
+  //           enableZoom: false,
+  //         },
+  //       });
+  //       e.load();
+  //     }
+
+  //     load();
+  //   }
+  // }, [theme]);
 
   return (
     <>
-      <Grid.Container gap={2}>
-        <Grid xs={12} md={8}>
+      <Grid.Container gap={2} alignItems="center">
+        <Grid xs={12} sm={6} md={7}>
           <Grid.Container direction="column">
             <Grid>
               <Text size={16} color="success" weight="bold">
@@ -150,6 +154,13 @@ export function Home() {
                 <Grid>
                   <Button color="primary" size="lg" css={{ minWidth: "auto" }}>
                     Get Started
+                    <Spacer x={0.4} />
+                    <ARR07
+                      style={{
+                        fill: "currentColor",
+                        fontSize: 24,
+                      }}
+                    />
                   </Button>
                 </Grid>
                 <Spacer x={1} />
@@ -165,7 +176,7 @@ export function Home() {
                         fill: "var(--nextui-colors-link)",
                         fontSize: 24,
                       }}
-                    />{" "}
+                    />
                     <Spacer x={0.4} /> Download App
                   </Button>
                 </Grid>
@@ -173,9 +184,130 @@ export function Home() {
             </Grid>
           </Grid.Container>
         </Grid>
-        <Grid md={4}>
-          <div id="earth" style={{ width: 400, height: 400 }} />
+        <Grid xs={12} sm={6} md={5}>
+          <Card css={{ height: 'fit-content' }}>
+            <Card.Body>
+              <Grid.Container gap={2} justify="space-between">
+                <Grid>
+                  <Grid.Container direction="column">
+                    <Grid>
+                      <Text
+                        size={32}
+                        css={{
+                          textGradient: "45deg, $blue600 -20%, $green600 50%",
+                          marginTop: -16,
+                        }}
+                        weight="bold"
+                      >
+                        Buy & trade on the
+                      </Text>
+                      <Text
+                        size={32}
+                        color="light"
+                        weight="bold"
+                        css={{
+                          marginTop: -16,
+                        }}
+                      >
+                        original crypto exchange.
+                      </Text>
+                    </Grid>
+                    <Grid>
+                      <Text size={14} color="light">
+                        Buy now and get 40% extra bonus Minimum pre-sale amount
+                        25 Crypto Coin. We accept BTC crypto-currency
+                      </Text>
+                    </Grid>
+                    <Spacer y={2} />
+                    <Grid>
+                      <Grid.Container
+                        wrap="nowrap"
+                        alignItems="center"
+                        justify="space-between"
+                      >
+                        <Grid>
+                          <Grid.Container gap={1}>
+                            <Grid>
+                              <Input
+                                clearable
+                                underlined
+                                color="primary"
+                                labelPlaceholder="Amount"
+                                width="75px"
+                                size="sm"
+                              />
+                            </Grid>
+
+                            <Grid>
+                              <Dropdown>
+                                <Dropdown.Button color="gradient" size="sm">
+                                  TON
+                                </Dropdown.Button>
+                                <Dropdown.Menu aria-label="Static Actions">
+                                  {jettons
+                                    ?.filter(({ verified }) => verified)
+                                    ?.map(({ symbol }) => (
+                                      <Dropdown.Item key={symbol}>
+                                        {symbol}
+                                      </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                              </Dropdown>
+                            </Grid>
+                          </Grid.Container>
+                        </Grid>
+                        <Spacer x={1} />
+                        <Grid>
+                          <ARR01
+                            style={{
+                              fill: "var(--nextui-colors-link)",
+                              fontSize: 32,
+                            }}
+                          />
+                        </Grid>
+                        <Spacer x={1} />
+                        <Grid>
+                          <Grid.Container gap={1}>
+                            <Grid>
+                              <Input
+                                clearable
+                                underlined
+                                color="primary"
+                                labelPlaceholder="Get"
+                                width="75px"
+                                size="sm"
+                              />
+                            </Grid>
+
+                            <Grid>
+                              <Dropdown>
+                                <Dropdown.Button color="gradient" size="sm">
+                                  TON
+                                </Dropdown.Button>
+                                <Dropdown.Menu aria-label="Static Actions">
+                                  {jettons
+                                    ?.filter(({ verified }) => verified)
+                                    ?.map(({ symbol }) => (
+                                      <Dropdown.Item key={symbol}>
+                                        {symbol}
+                                      </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                              </Dropdown>
+                            </Grid>
+                          </Grid.Container>
+                        </Grid>
+                      </Grid.Container>
+                    </Grid>
+                  </Grid.Container>
+                </Grid>
+              </Grid.Container>
+            </Card.Body>
+          </Card>
         </Grid>
+        {/* <Grid md={4}>
+          <div id="earth" style={{ width: 400, height: 400 }} />
+        </Grid> */}
         <Grid xs={12} md={4}>
           <FCard
             isLoading={isLoading}
@@ -217,121 +349,6 @@ export function Home() {
             }
             list={data?.recent || []}
           />
-        </Grid>
-      </Grid.Container>
-      <Grid.Container gap={2} justify="space-between">
-        <Grid>
-          <Card>
-            <Card.Body>
-              <Grid.Container gap={2} justify="space-between">
-                <Grid>
-                  <Grid.Container direction="column">
-                    <Grid>
-                      <Text
-                        size={32}
-                        css={{
-                          textGradient: "45deg, $blue600 -20%, $green600 50%",
-                          marginTop: -16,
-                        }}
-                        weight="bold"
-                      >
-                        Buy & trade on the
-                      </Text>
-                      <Text
-                        size={32}
-                        color="light"
-                        weight="bold"
-                        css={{
-                          marginTop: -16,
-                        }}
-                      >
-                        original crypto exchange.
-                      </Text>
-                    </Grid>
-                    <Grid>
-                      <Text size={14} color="light">
-                        Buy now and get 40% extra bonus Minimum pre-sale amount
-                        25 Crypto Coin. We accept BTC crypto-currency
-                      </Text>
-                    </Grid>
-                    <Spacer y={2} />
-                    <Grid>
-                      <Grid.Container wrap="nowrap" alignItems="center" justify="space-between">
-                        <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Amount"
-                                width="75px"
-                                size="sm"
-                              />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">TON</Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                        <Spacer x={1} />
-                        <Grid>
-                          <ARR01
-                            style={{
-                              fill: "var(--nextui-colors-link)",
-                              fontSize: 32,
-                            }}
-                          />
-                        </Grid>
-                        <Spacer x={1} />
-                        <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Get"
-                                width="75px"
-                                size="sm"
-                              />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">TON</Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                      </Grid.Container>
-                    </Grid>
-                  </Grid.Container>
-                </Grid>
-              </Grid.Container>
-            </Card.Body>
-          </Card>
         </Grid>
       </Grid.Container>
     </>

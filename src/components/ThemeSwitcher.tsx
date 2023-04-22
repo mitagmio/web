@@ -1,5 +1,13 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Popover, Image, Grid, Badge, Text } from "@nextui-org/react";
+import {
+  Button,
+  Popover,
+  Image,
+  Grid,
+  Badge,
+  Text,
+  Spacer,
+} from "@nextui-org/react";
 import { AppContext } from "contexts/AppContext";
 import { ABS13, ABS14 } from "assets/icons";
 
@@ -61,14 +69,13 @@ export const ThemeSwitcher = () => {
               <Button
                 flat
                 size="sm"
-                icon={
-                  <ABS14
-                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                  />
-                }
                 css={{ minWidth: "100%", borderRadius: 0 }}
                 onClick={() => setEnabled(false)}
               >
+                <ABS14
+                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                />
+                <Spacer x={0.4} />
                 Switch to light
               </Button>
             </Grid>
@@ -77,14 +84,13 @@ export const ThemeSwitcher = () => {
               <Button
                 flat
                 size="sm"
-                icon={
-                  <ABS13
-                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                  />
-                }
                 css={{ minWidth: "100%", borderRadius: 0 }}
                 onClick={() => setEnabled(true)}
               >
+                <ABS13
+                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                />
+                <Spacer x={0.4} />
                 Switch to dark
               </Button>
             </Grid>

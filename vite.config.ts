@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import mkcert from 'vite-plugin-mkcert'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import svgr from "vite-plugin-svgr"
+import viteCompression from 'vite-plugin-compression'
+import { ViteMinifyPlugin } from 'vite-plugin-minify'
 
 export default defineConfig({
   plugins: [
@@ -11,6 +13,8 @@ export default defineConfig({
     react(),
     mkcert(),
     tsconfigPaths(),
+    viteCompression(),
+    ViteMinifyPlugin(),
     VitePWA({
       injectRegister: 'auto',
       registerType: 'autoUpdate',
