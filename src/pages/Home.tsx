@@ -11,18 +11,20 @@ import {
   Input,
   Dropdown,
   Card,
+  Link,
 } from "@nextui-org/react";
-import { FCard } from "components";
+import { Calc, FCard } from "components";
 import { fck } from "api/fck";
 import { ARR01, ARR07, FIL21, GEN02, GEN11, GEN20 } from "assets/icons";
 import { getList } from "utils/analytics";
 
 import { AppContext, JType } from "../contexts";
 import getEarthConfig from "../earth.config";
+import { useNavigate } from "react-router-dom";
 
-type TimeScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D";
+export type TimeScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D";
 
-const pagination: Record<string, number> = {
+export const pagination: Record<string, number> = {
   "1M": 60,
   "5M": 300,
   "30M": 1800,
@@ -32,10 +34,23 @@ const pagination: Record<string, number> = {
 };
 
 export function Home() {
-  const { jettons, theme } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { ton, jettons, theme } = useContext(AppContext);
+  const [calcValue, setCalcValue] = useState<Record<string, any>>({});
   const [timescale, setTimescale] = useState<TimeScale>(
-    (localStorage.getItem("timescale") as any) || "1H"
+    (localStorage.getItem("timescale") as any) || "1D"
   );
+
+  const displayCalcValue = useMemo(() => {
+    const val = (
+      (ton?.market_data?.current_price?.usd || 1) *
+      (calcValue?.from === "TON"
+        ? parseInt(calcValue?.valueX)
+        : parseInt(calcValue?.valueY))
+    ).toFixed(2);
+
+    return !isNaN(parseFloat(val)) ? val : 0;
+  }, [ton, calcValue]);
 
   const listVerified = useMemo(
     () => [...(jettons || [])]?.filter((i) => i.verified)?.map(({ id }) => id),
@@ -55,11 +70,11 @@ export function Home() {
     enabled: !![...(jettons || [])]?.length,
     cacheTime: 60 * 1000,
     select: (results) => {
-      results = results.data.sources.DeDust.jettons.price[0];
+      results = results.data.sources.DeDust.jettons;
 
       const transform = (list) =>
         list.reduce((acc, curr) => {
-          acc[curr] = results[curr];
+          acc[curr] = results[curr].prices;
           return acc;
         }, {});
 
@@ -68,16 +83,18 @@ export function Home() {
           .sort((a, b) =>
             a.volume > b.volume ? -1 : a.volume < b.volume ? 1 : 0
           )
-          .slice(0, 5),
+          .slice(0, 9)
+          .sort((x, y) => y.percent - x.percent),
         gainer: getList(transform([...listVerified]), jettons)
           .sort((a, b) =>
             a.percent > b.percent ? -1 : a.percent < b.percent ? 1 : 0
           )
-          .slice(0, 5),
+          .slice(0, 9)
+          .sort((x, y) => y.percent - x.percent),
         recent: getList(
-          transform([...listVerified].reverse().slice(0, 5)),
+          transform([...listVerified].reverse().slice(0, 9)),
           jettons
-        ),
+        ).sort((x, y) => y.percent - x.percent),
       };
     },
   });
@@ -108,21 +125,19 @@ export function Home() {
 
   return (
     <>
-      <Grid.Container gap={2} alignItems="center">
+      <Grid.Container gap={2} alignItems="center" css={{ minHeight: "70vh" }}>
         <Grid xs={12} sm={6} md={7}>
-          <Grid.Container direction="column">
+          <Grid.Container gap={2} direction="column">
             <Grid>
               <Text size={16} color="success" weight="bold">
                 SIGN UP TODAY
               </Text>
-            </Grid>
-            <Grid>
-              <Text size={48} color="light" weight="bold">
+              <Text size={36} color="light" weight="bold">
                 The World's
               </Text>
 
               <Text
-                size={48}
+                size={36}
                 css={{
                   textGradient: "45deg, $blue600 -20%, $green600 50%",
                   marginTop: -16,
@@ -132,7 +147,7 @@ export function Home() {
                 Fastest Growing
               </Text>
               <Text
-                size={48}
+                size={36}
                 color="light"
                 weight="bold"
                 css={{
@@ -141,18 +156,19 @@ export function Home() {
               >
                 TON Analytics app
               </Text>
-            </Grid>
-            <Grid>
               <Text size={14} color="light">
-                Buy and sell {jettons?.length || 0}+ cryptocurrencies with TON /
-                Scale using DeDust.io card.
+                Buy and sell {jettons?.length || 0}+ cryptocurrencies with TON
+                using DeDust.io.
               </Text>
             </Grid>
-            <Spacer y={1} />
             <Grid>
-              <Grid.Container>
+              <Grid.Container wrap="nowrap">
                 <Grid>
-                  <Button color="primary" size="lg" css={{ minWidth: "auto" }}>
+                  <Button
+                    color="primary"
+                    css={{ minWidth: "auto" }}
+                    onClick={() => navigate("/analytics")}
+                  >
                     Get Started
                     <Spacer x={0.4} />
                     <ARR07
@@ -163,7 +179,7 @@ export function Home() {
                     />
                   </Button>
                 </Grid>
-                <Spacer x={1} />
+                {/* <Spacer x={1} />
                 <Grid>
                   <Button
                     color="primary"
@@ -179,125 +195,75 @@ export function Home() {
                     />
                     <Spacer x={0.4} /> Download App
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid.Container>
             </Grid>
           </Grid.Container>
         </Grid>
         <Grid xs={12} sm={6} md={5}>
-          <Card css={{ height: 'fit-content' }}>
+          <Card css={{ height: "fit-content" }}>
             <Card.Body>
               <Grid.Container gap={2} justify="space-between">
                 <Grid>
                   <Grid.Container direction="column">
                     <Grid>
-                      <Text
-                        size={32}
-                        css={{
-                          textGradient: "45deg, $blue600 -20%, $green600 50%",
-                          marginTop: -16,
-                        }}
-                        weight="bold"
-                      >
-                        Buy & trade on the
-                      </Text>
-                      <Text
-                        size={32}
-                        color="light"
-                        weight="bold"
-                        css={{
-                          marginTop: -16,
-                        }}
-                      >
-                        original crypto exchange.
-                      </Text>
-                    </Grid>
-                    <Grid>
-                      <Text size={14} color="light">
-                        Buy now and get 40% extra bonus Minimum pre-sale amount
-                        25 Crypto Coin. We accept BTC crypto-currency
-                      </Text>
-                    </Grid>
-                    <Spacer y={2} />
-                    <Grid>
-                      <Grid.Container
-                        wrap="nowrap"
-                        alignItems="center"
-                        justify="space-between"
-                      >
+                      <Grid.Container justify="space-between">
                         <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Amount"
-                                width="75px"
-                                size="sm"
-                              />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">
-                                  TON
-                                </Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                        <Spacer x={1} />
-                        <Grid>
-                          <ARR01
-                            style={{
-                              fill: "var(--nextui-colors-link)",
-                              fontSize: 32,
+                          <Text
+                            size={32}
+                            css={{
+                              textGradient:
+                                "45deg, $blue600 -20%, $green600 50%",
+                              marginTop: -16,
                             }}
-                          />
+                            weight="bold"
+                          >
+                            Buy & trade on the
+                          </Text>
+                          <Text
+                            size={32}
+                            color="light"
+                            weight="bold"
+                            css={{
+                              marginTop: -16,
+                            }}
+                          >
+                            TON network
+                          </Text>
                         </Grid>
-                        <Spacer x={1} />
                         <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Get"
-                                width="75px"
-                                size="sm"
+                          <Grid.Container alignItems="center">
+                            <Text size={24} color="primary">
+                              ~
+                            </Text>
+                            <Spacer x={0.4} />
+                            <Button
+                              flat
+                              color="secondary"
+                              css={{ minWidth: "auto", overflow: "visible" }}
+                              onClick={() =>
+                                globalThis.open(
+                                  "https://dedust.io/swap",
+                                  "_blank"
+                                )
+                              }
+                            >
+                              {displayCalcValue}
+                              $
+                              <Spacer x={0.4} />
+                              <img
+                                src="/img/dedust.webp"
+                                alt="DeDust.io"
+                                style={{ height: 32 }}
                               />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">
-                                  TON
-                                </Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
+                            </Button>
                           </Grid.Container>
                         </Grid>
                       </Grid.Container>
+                    </Grid>
+                    <Spacer y={2} />
+                    <Grid>
+                      <Calc onChange={setCalcValue} />
                     </Grid>
                   </Grid.Container>
                 </Grid>
@@ -308,42 +274,42 @@ export function Home() {
         {/* <Grid md={4}>
           <div id="earth" style={{ width: 400, height: 400 }} />
         </Grid> */}
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN20
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
+                />
                 <Spacer x={0.4} /> Trending
               </>
             }
             list={data?.trend || []}
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN02
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
+                />
                 <Spacer x={0.4} /> Top Gainers
               </>
             }
             list={data?.gainer || []}
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN11
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
+                />
                 <Spacer x={0.4} /> Recently Added
               </>
             }

@@ -151,6 +151,7 @@ export const RoadMap = () => {
   return (
     <Grid.Container
       justify="center"
+      css={{ minHeight: '70vh' }}
     >
       <Grid>
         <Grid.Container

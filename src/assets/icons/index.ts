@@ -161,3 +161,8 @@ export { ReactComponent as GRA09 } from './gra009.svg'
 export { ReactComponent as GRA10 } from './gra010.svg'
 export { ReactComponent as GRA11 } from './gra011.svg'
 export { ReactComponent as GRA12 } from './gra012.svg'
+
+export { ReactComponent as Discord } from './discord.svg'
+export { ReactComponent as TG } from './tg.svg'
+export { ReactComponent as TW } from './tw.svg'
+

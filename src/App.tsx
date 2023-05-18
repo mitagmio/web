@@ -41,8 +41,7 @@ import {
   andromeda,
   andromedaLight,
 } from "./themes";
-import { TonProofDemoApi } from "./TonProofDemoApi";
-import Layout from "./components/Layout";
+import { Layout } from "./components";
 import {
   Home,
   Countdown,
@@ -121,7 +120,13 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: <Layout />,
+    children: [
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
 ]);
 

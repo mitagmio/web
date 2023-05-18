@@ -11,4 +11,10 @@ export const fck = {
     )
     return data
   },
+  getSwapsCount: async (jetton_ids: string, time: number) => {
+    const { data } = await axios.get(
+      `https://api.fck.foundation/api/v2/analytics/swaps/count?jetton_ids=${jetton_ids}&time_min=${time}`
+    )
+    return data
+  },
 }

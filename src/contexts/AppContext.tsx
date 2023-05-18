@@ -116,7 +116,7 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
 
   useEffect(() => {
     const getData = async () => {
-      // if (address) {
+      if (address) {
         // Get list of transactions
         const blockchainApi = new RawBlockchainApi(
           new Configuration({
@@ -146,8 +146,7 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
         })
 
         setNFTItems(nftItems)
-        console.log(nftItems)
-      // }
+      }
     }
 
     getData()

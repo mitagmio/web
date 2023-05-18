@@ -55,7 +55,7 @@ export const OurTeam = () => {
     },
   ];
   return (
-    <Grid.Container justify="center" css={{ minHeight: "calc(100vh - 57px)", p: 16 }}>
+    <Grid.Container justify="center" css={{ minHeight: "70vh", p: 16 }}>
       <Grid>
         <Card>
           <Card.Header css={{ pl: 24 }}>

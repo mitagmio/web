@@ -20,13 +20,17 @@ import {
   Link,
   Avatar,
   Text,
+  Dropdown,
+  Container,
 } from "@nextui-org/react";
 import {
   ChartOptions,
   createChart,
+  CrosshairMode,
   DeepPartial,
   IChartApi,
   ISeriesApi,
+  LineStyle,
   Time,
 } from "lightweight-charts";
 import moment from "moment";
@@ -36,6 +40,32 @@ import { _ } from "utils/time";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toFixed } from "utils/price";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  ARR01,
+  ARR02,
+  ARR12,
+  ARR20,
+  ARR36,
+  ARR40,
+  ARR42,
+  ARR43,
+  ARR58,
+  ARR59,
+  FIL02,
+  GEN02,
+  GEN13,
+  GEN15,
+  GEN20,
+  GRA01,
+  GRA03,
+  GRA04,
+  GRA05,
+  GRA06,
+  GRA07,
+  GRA11,
+  GRA12,
+} from "assets/icons";
+import { colors } from "colors";
 
 const pagination = {
   "1M": 60,
@@ -56,18 +86,19 @@ export const AnalyticsPrice = () => {
   const chartRef = useRef<IChartApi>();
   const volumeSeries = useRef<ISeriesApi<"Histogram">>();
   const candlestickSeries = useRef<ISeriesApi<"Candlestick">>();
-  const { jettons } = useContext(AppContext);
+  const { jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<
     "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D"
-  >((localStorage.getItem("timescale") as any) || "1H");
+  >((localStorage.getItem("timescale") as any) || "1D");
 
   const [isFull, setIsFull] = useState(false);
   const [page, setPage] = useState<number>();
   const [loadingPage, setLoadingPage] = useState(1);
   const [info, setInfo] = useState<Record<string, any>>();
-  const [decimals, setDecimals] = useState(9);
+  const [metadata, setMetadata] = useState<Record<string, any>>({});
   const [jetton, setJetton] = useState<Record<string, any>>({});
-  const [results, setResult] = useState<Record<string, any>>([]);
+  const [results, setResults] = useState<Record<string, any>>([]);
+  const [seeMore, setSeeMore] = useState(false);
 
   // const [] = useDebounce(
   //   () => {
@@ -154,6 +185,8 @@ export const AnalyticsPrice = () => {
             high: _(item.price_high),
             low: _(item.price_low),
             close: _(item.price_close),
+            buy: _(item.volume),
+            sell: _(item.jetton_volume),
           }))
         );
 
@@ -237,6 +270,28 @@ export const AnalyticsPrice = () => {
   useEffect(() => {
     chartRef.current = createChart(ref.current!, chartOptions);
 
+    chartRef.current.applyOptions({
+      crosshair: {
+        // Change mode from default 'magnet' to 'normal'.
+        // Allows the crosshair to move freely without snapping to datapoints
+        mode: CrosshairMode.Normal,
+
+        // Vertical crosshair line (showing Date in Label)
+        vertLine: {
+          width: 8 as any,
+          color: "#C3BCDB44",
+          style: LineStyle.Solid,
+          labelBackgroundColor: colors[theme.color].primary,
+        },
+
+        // Horizontal crosshair line (showing Price in Label)
+        horzLine: {
+          color: colors[theme.color].primary,
+          labelBackgroundColor: colors[theme.color].primary,
+        },
+      },
+    });
+
     volumeSeries.current = chartRef.current.addHistogramSeries({
       priceFormat: {
         type: "volume",
@@ -255,7 +310,7 @@ export const AnalyticsPrice = () => {
     if (chartRef.current) {
       candlestickSeries.current = chartRef.current.addCandlestickSeries({
         priceFormat: {
-          precision: jetton.symbol === "STYC" ? 9 : decimals,
+          precision: jetton.symbol === "STYC" ? 9 : jetton.decimals,
           minMove: 0.000000001,
         },
         upColor: "#26a69a",
@@ -274,7 +329,7 @@ export const AnalyticsPrice = () => {
       chartRef.current!.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jetton.id, timescale, decimals, chartOptions, location?.pathname]);
+  }, [jetton.id, timescale, chartOptions, location?.pathname]);
 
   useEffect(() => {
     if (hasNextPage) {
@@ -309,15 +364,15 @@ export const AnalyticsPrice = () => {
             `https://tonobserver.com/api/v2/jetton_top_holders/${dataJetton.address}?limit=100`
           )
           .then(({ data: { result } }) => {
-            setResult(result);
+            setResults(result);
           });
 
         axios
           .get(
             `https://tonapi.io/v1/jetton/getInfo?account=${dataJetton.address}`
           )
-          .then(({ data: { metadata } }) => {
-            setDecimals(metadata?.decimals);
+          .then(({ data: { metadata, total_supply, mintable } }) => {
+            setMetadata({ ...metadata, total_supply, mintable });
           });
       }
     }
@@ -346,357 +401,619 @@ export const AnalyticsPrice = () => {
     [jettons, jetton]
   );
 
+  const stats = useMemo(() => {
+    const results = data?.pages
+      ?.reverse()
+      ?.flat()
+      ?.sort((x: any, y: any) => x.time - y.time)
+      ?.filter((i: any) => i && i?.price_close !== "0.000000000")
+      .map((item: any) => ({
+        price_open: _(item?.price_open),
+        price_close: _(item?.price_close),
+        price_low: _(item?.price_low),
+        price_high: _(item?.price_high),
+        buy: _(item?.volume),
+        sell: _(item?.jetton_volume),
+      }));
+
+    let low = (results?.length && results[0].price_low) || 0,
+      high = (results?.length && results[results.length - 1].price_low) || 0,
+      open = 0,
+      close = 0,
+      sell = 0,
+      buy = 0;
+
+    if (results?.length && results[0].price_high > high) {
+      high = results[0].price_high;
+    }
+    if (results?.length && results[0].price_low < low) {
+      low = results[0].price_low;
+    }
+
+    results?.forEach((result) => {
+      buy += result.buy;
+      sell += result.sell;
+    });
+
+    open = (results?.length && results[0].price_open) || 0;
+    close = (results?.length && results[results.length - 1].price_close) || 0;
+
+    return {
+      low,
+      high,
+      open,
+      close,
+      sell,
+      buy,
+    };
+  }, [data]);
+
+  console.log(metadata);
+
   return (
-    <>
-      <Grid.Container justify="center">
-        {!isFull && (
-          <Grid xs={12} sm={8}>
-            <Grid.Container justify="space-between" alignItems="center">
-              <Grid>
-                {t("analytics")} - {jetton.name}
+    <Grid.Container gap={2} direction="row-reverse" css={{ minHeight: "70vh" }}>
+      <Grid xs={12} sm={4}>
+        <Grid.Container justify="center">
+          <Grid xs={12} css={{ height: "fit-content" }}>
+            <Grid.Container gap={1}>
+              <Grid xs={12}>
+                <Grid.Container justify="space-between">
+                  <Grid>
+                    <Grid.Container wrap="nowrap">
+                      <Grid>
+                        <Grid.Container alignItems="center" wrap="nowrap">
+                          <Grid>
+                            {isLoading ? (
+                              <Loading size="lg" />
+                            ) : jetton?.verified ? (
+                              <Badge
+                                size="xs"
+                                css={{ p: 0, background: "transparent" }}
+                                content={
+                                  <ARR20
+                                    style={{
+                                      fill: "var(--nextui-colors-primary)",
+                                      fontSize: 16,
+                                      borderRadius: 100,
+                                      overflow: "hidden",
+                                    }}
+                                  />
+                                }
+                              >
+                                <Avatar bordered src={jetton?.image} />
+                              </Badge>
+                            ) : (
+                              <Avatar bordered src={jetton?.image} />
+                            )}
+                          </Grid>
+                          <Spacer x={0.5} />
+                          <Grid>{jetton?.symbol}</Grid>
+                        </Grid.Container>
+                      </Grid>
+                    </Grid.Container>
+                  </Grid>
+                </Grid.Container>
               </Grid>
-            </Grid.Container>
-          </Grid>
-        )}
-        <Grid xs={12} sm={isFull ? 12 : 8}>
-          <Grid.Container>
-            <Spacer y={0.5} />
-            <Grid xs={12}>
-              <Grid.Container wrap="nowrap" justify="space-between">
-                <Grid>
-                  <Grid.Container
-                    gap={1}
-                    style={{ margin: "calc(-2 * var(--nextui--gridGapUnit))" }}
-                  >
-                    <Grid>
-                      {prevJetton && (
-                        <Button
-                          onClick={() =>
-                            navigate(`/analytics/price/${prevJetton.symbol}`)
-                          }
-                          css={{ minWidth: "auto" }}
-                          flat
-                          color="secondary"
-                        >
-                          arrowBackOutline
-                        </Button>
-                      )}
-                    </Grid>
-                    <Grid>
-                      <Grid.Container alignItems="center">
-                        <Grid>
-                          {isLoading ? (
-                            <Loading size="lg" />
-                          ) : (
-                            <Avatar bordered src={jetton?.image} />
-                          )}
-                        </Grid>
-                        <Spacer x={0.5} />
-                        <Grid>{jetton?.symbol}</Grid>
-                      </Grid.Container>
-                    </Grid>
-                    <Grid>
-                      <Grid.Container>
-                        <Grid
-                          css={{ display: "flex", justifyContent: "center" }}
-                        >
-                          <Button
-                            onClick={() =>
-                              location.pathname.includes("volume") &&
-                              navigate(
-                                `/analytics/price/${location.pathname
-                                  .split("/analytics/volume/")
-                                  .pop()}`
-                              )
-                            }
-                            css={{
-                              minWidth: "auto",
-                              borderTopRightRadius: 0,
-                              borderBottomRightRadius: 0,
-                            }}
-                          >
-                            statsChartOutline
-                            <Text hideIn="xs" color="white">
-                              <div style={{ display: "flex" }}>
-                                <Spacer x={0.5} />
-                                {t("price")}
-                              </div>
-                            </Text>
-                          </Button>
-                        </Grid>
-                        <Grid
-                          css={{ display: "flex", justifyContent: "center" }}
-                        >
-                          <Button
-                            color="secondary"
-                            flat={!location.pathname.includes("volume")}
-                            css={{
-                              minWidth: "auto",
-                              borderTopLeftRadius: 0,
-                              borderBottomLeftRadius: 0,
-                            }}
-                            onClick={() =>
-                              location.pathname.includes("price") &&
-                              navigate(
-                                `/analytics/volume/${location.pathname
-                                  .split("/analytics/price/")
-                                  .pop()}`
-                              )
-                            }
-                          >
-                            pieChartOutline
-                            <Text
-                              hideIn="xs"
-                              color={
-                                !location.pathname.includes("volume")
-                                  ? "secondaryLight"
-                                  : "white"
-                              }
-                            >
-                              <div style={{ display: "flex" }}>
-                                <Spacer x={0.5} />
-                                {t("volumeL")}
-                              </div>
-                            </Text>
-                          </Button>
-                        </Grid>
-                      </Grid.Container>
-                    </Grid>
-                    <Grid css={{ display: "flex", justifyContent: "center" }}>
-                      <Button
-                        color={isFull ? "warning" : "secondary"}
-                        flat
-                        css={{
-                          minWidth: "auto",
-                        }}
-                        onClick={() => setIsFull((i) => !i)}
-                      >
-                        Icon
-                        {/* {isFull ? navigateOutline : expandOutline} */}
-                      </Button>
-                    </Grid>
-
-                    <Grid>
-                      <Grid.Container
-                        justify="space-between"
-                        alignItems="center"
-                      >
-                        timerOutline
-                        {/* <IonSelect
-                          interface="popover"
-                          value={timescale}
-                          onIonChange={e => setTimescale(e.detail.value)}
-                        >
-                          {['1M', '5M', '30M', '1H', '4H', '1D'].map(n => (
-                            <IonSelectOption value={n} key={n}>
-                              {t(n)}
-                            </IonSelectOption>
-                          ))}
-                        </IonSelect> */}
-                      </Grid.Container>
-                    </Grid>
-                  </Grid.Container>
-                </Grid>
-
-                <Grid>
-                  {nextJetton && (
+              <Grid>
+                <Grid.Container>
+                  <Grid css={{ display: "flex", justifyContent: "center" }}>
                     <Button
                       onClick={() =>
-                        navigate(`/analytics/price/${nextJetton.symbol}`)
+                        location.pathname.includes("volume") &&
+                        navigate(
+                          `/analytics/price/${location.pathname
+                            .split("/analytics/volume/")
+                            .pop()}`
+                        )
                       }
-                      css={{ minWidth: "auto" }}
-                      flat
-                      color="secondary"
+                      css={{
+                        minWidth: "auto",
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0,
+                      }}
                     >
-                      arrowForwardOutline
+                      <GRA01 style={{ fill: "currentColor", fontSize: 24 }} />
+                      <Text hideIn="xs" color="white">
+                        <div style={{ display: "flex" }}>
+                          <Spacer x={0.5} />
+                          {t("price")}
+                        </div>
+                      </Text>
                     </Button>
-                  )}
+                  </Grid>
+                  <Grid css={{ display: "flex", justifyContent: "center" }}>
+                    <Button
+                      color="secondary"
+                      flat={!location.pathname.includes("volume")}
+                      css={{
+                        minWidth: "auto",
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                      }}
+                      onClick={() =>
+                        location.pathname.includes("price") &&
+                        navigate(
+                          `/analytics/volume/${location.pathname
+                            .split("/analytics/price/")
+                            .pop()}`
+                        )
+                      }
+                    >
+                      <GRA03 style={{ fill: "currentColor", fontSize: 24 }} />
+                      <Text
+                        hideIn="xs"
+                        color={
+                          !location.pathname.includes("volume")
+                            ? "secondaryLight"
+                            : "white"
+                        }
+                      >
+                        <div style={{ display: "flex" }}>
+                          <Spacer x={0.5} />
+                          {t("volumeL")}
+                        </div>
+                      </Text>
+                    </Button>
+                  </Grid>
+                </Grid.Container>
+              </Grid>
+
+              <Grid>
+                <Card variant="flat">
+                  <Card.Body css={{ p: 0 }}>
+                    <Grid.Container>
+                      <Grid className="chart-table">
+                        <Table
+                          aria-label="Stats"
+                          bordered={false}
+                          shadow={false}
+                          css={{ border: "none", padding: 0 }}
+                        >
+                          <Table.Header>
+                            <Table.Column>1</Table.Column>
+                            <Table.Column>2</Table.Column>
+                          </Table.Header>
+                          <Table.Body>
+                            <Table.Row key="1">
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <GEN20
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      1 TON
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {(info?.price
+                                      ? 1 / parseFloat(info?.price)
+                                      : 0
+                                    ).toFixed(2)}{" "}
+                                    {jetton.symbol}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <GEN02
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      Source
+                                    </Text>
+                                  </Grid>
+                                  <Grid>
+                                    <Link
+                                      href="https://dedust.io/"
+                                      target="_blank"
+                                    >
+                                      DeDust.io
+                                    </Link>
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                            </Table.Row>
+                          </Table.Body>
+                        </Table>
+                      </Grid>
+                      <Grid className="chart-table">
+                        <Table
+                          aria-label="Stats"
+                          bordered={false}
+                          shadow={false}
+                          css={{ border: "none", padding: 0 }}
+                        >
+                          <Table.Header>
+                            <Table.Column>1</Table.Column>
+                            <Table.Column>2</Table.Column>
+                          </Table.Header>
+                          <Table.Body>
+                            <Table.Row key="1">
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <ARR36
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      Open
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(
+                                      stats.open.toFixed(jetton.decimals)
+                                    )}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <ARR42
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      Close
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(
+                                      stats.close.toFixed(jetton.decimals)
+                                    )}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                            </Table.Row>
+                          </Table.Body>
+                        </Table>
+                      </Grid>
+                      <Grid className="chart-table">
+                        <Table
+                          aria-label="Stats"
+                          bordered={false}
+                          shadow={false}
+                          css={{ border: "none", padding: 0 }}
+                        >
+                          <Table.Header>
+                            <Table.Column>1</Table.Column>
+                            <Table.Column>2</Table.Column>
+                          </Table.Header>
+                          <Table.Body>
+                            <Table.Row key="1">
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <GRA12
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      High
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(
+                                      stats.high.toFixed(jetton.decimals)
+                                    )}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <GRA11
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      Low
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(
+                                      stats.low.toFixed(jetton.decimals)
+                                    )}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                            </Table.Row>
+                          </Table.Body>
+                        </Table>
+                      </Grid>
+                      <Grid className="chart-table">
+                        <Table
+                          aria-label="Stats"
+                          bordered={false}
+                          shadow={false}
+                          css={{ border: "none", padding: 0 }}
+                        >
+                          <Table.Header>
+                            <Table.Column>1</Table.Column>
+                            <Table.Column>2</Table.Column>
+                          </Table.Header>
+                          <Table.Body>
+                            <Table.Row key="1">
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <ARR59
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />{" "}
+                                      Sell
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(stats.sell.toFixed(0))}{" "}
+                                    {jetton.symbol}
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                              <Table.Cell>
+                                <Grid.Container gap={1}>
+                                  <Grid>
+                                    <Text
+                                      css={{
+                                        textGradient:
+                                          "45deg, $primary -20%, $secondary 100%",
+                                      }}
+                                      className="chart-label"
+                                    >
+                                      <GRA04
+                                        style={{
+                                          fill: "currentColor",
+                                          fontSize: 24,
+                                        }}
+                                      />
+                                      Buy
+                                    </Text>
+                                  </Grid>
+                                  <Grid
+                                    css={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {toFixed(stats.buy.toFixed(0))} TON
+                                  </Grid>
+                                </Grid.Container>
+                              </Table.Cell>
+                            </Table.Row>
+                          </Table.Body>
+                        </Table>
+                      </Grid>
+                    </Grid.Container>
+                  </Card.Body>
+                </Card>
+              </Grid>
+
+              {!seeMore && (
+                <Grid>
+                  <Button flat css={{ minWidth: 'auto' }} onClick={() => setSeeMore(true)}>See more</Button>
                 </Grid>
-              </Grid.Container>
-            </Grid>
-            <Spacer y={1} />
-            <Grid className="chart-table">
-              <Table
-                aria-label="Stats"
-                compact
-                bordered={false}
-                shadow={false}
-                css={{ border: "none", padding: 0 }}
-              >
-                <Table.Header>
-                  <Table.Column>
-                    <div className="chart-label">scaleOutline 1 TON</div>
-                  </Table.Column>
-                  <Table.Column>
-                    <div className="chart-label">
-                      diamondOutline {t("closePrice")}
-                    </div>
-                  </Table.Column>
-                </Table.Header>
-                <Table.Body>
-                  <Table.Row key="1">
-                    <Table.Cell>
-                      {(info?.price ? 1 / parseFloat(info?.price) : 0).toFixed(
-                        2
-                      )}{" "}
-                      {jetton.symbol}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {toFixed(
-                        (parseFloat(info?.price || 0) as number).toFixed(9)
-                      )}{" "}
-                      {jetton.symbol}
-                    </Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-              </Table>
-            </Grid>
-            <Spacer y={0.5} />
-            <Grid xs={12}>
-              <Card variant="bordered">
-                <Card.Header>
-                  <Grid.Container justify="space-between">
-                    {/* <Grid>
+              )}
+
+              {seeMore && (
+                <Grid>
+                  <Spacer y={0.4} />
+                  <Card variant="flat">
+                    <Card.Body>
                       <Grid.Container alignItems="center">
                         <Grid>
-                          <Popover isBordered>
-                            <Popover.Trigger>
-                              <Button
-                                css={{ background: 'transparent', minWidth: 'auto' }}
-                                icon={<IonIcon icon={cogOutline} size="large" />}
-                              />
-                            </Popover.Trigger>
-                            <Popover.Content css={{ p: 0 }}>
-                              <Text size={12} color="gray" css={{ px: '$8' }}>
-                                {t('chartType')}</div>
-                              </Text>
-                              <Button
-                                size="lg"
-                                disabled={type === 'price'}
-                                css={{
-                                  ...(type !== 'price' && {
-                                    background: 'transparent',
-                                    ...(!darkMode.value && { color: '$accents10' }),
-                                  }),
-                                  minWidth: '100%',
-                                }}
-                                icon={<div className="bar-price" />}
-                                onClick={() => setType('price')}
-                              >
-                                <Spacer x={1.5} />
-                                {t('price')} Свечной график
-                              </Button>
-                              <Button
-                                size="lg"
-                                disabled={type === 'volume'}
-                                css={{
-                                  ...(type !== 'volume' && {
-                                    background: 'transparent',
-                                    ...(!darkMode.value && { color: '$accents10' }),
-                                  }),
-                                  minWidth: '100%',
-                                }}
-                                icon={<div className="bar-volume" />}
-                                onClick={() => setType('volume')}
-                              >
-                                <Spacer x={1.5} />
-                                {t('volume')}
-                              </Button>
-                            </Popover.Content>
-                          </Popover>
+                          <ARR58
+                            style={{
+                              fill: "currentColor",
+                              fontSize: 32,
+                            }}
+                          />
+                        </Grid>
+                        <Spacer x={0.4} />
+                        <Grid>
+                          <Text
+                            size={24}
+                            css={{
+                              textGradient:
+                                "45deg, $primary -20%, $secondary 100%",
+                            }}
+                            weight="bold"
+                          >
+                            {metadata?.total_supply
+                              .slice(
+                                0,
+                                metadata?.total_supply.length -
+                                  metadata?.decimals
+                              )
+                              .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}
+                          </Text>
+                        </Grid>
+                        <Spacer x={0.4} />
+                        <Grid>
+                          <Text size={18}>{metadata?.symbol}</Text>
                         </Grid>
                       </Grid.Container>
-                    </Grid> */}
-                  </Grid.Container>
-                </Card.Header>
-                <Card.Body>
-                  <div
-                    ref={ref}
-                    key={timescale}
-                    style={{
-                      width: "100%",
-                      height: isFull ? "calc(100vh - 350px)" : "30vh",
-                    }}
-                  />
-                </Card.Body>
-              </Card>
-            </Grid>
-            <Spacer y={1} />
-            {!isFull && (
-              <>
-                <Grid xs={12}>
-                  <Table
-                    aria-label="Example table with static content"
-                    css={{
-                      height: "auto",
-                      minWidth: "100%",
-                      w: "100%",
-                    }}
-                    bordered
-                  >
-                    <Table.Header>
-                      <Table.Column>Address</Table.Column>
-                      <Table.Column>{jetton.symbol}</Table.Column>
-                    </Table.Header>
-                    <Table.Body>
-                      {results
-                        ?.filter((result) => !result.info.jettonWallet.isFake)
-                        ?.map((result, i) => (
-                          <Table.Row key={i}>
-                            <Table.Cell>
-                              <Link
-                                href={`https://tonapi.io/account/${result.address}`}
-                                target="_blank"
-                              >
-                                {infoAddress[result.address] ? (
-                                  <Badge
-                                    content={infoAddress[result.address].text}
-                                    color={infoAddress[result.address].color}
-                                  >
-                                    <div className="holder-address">
-                                      {result.address}
-                                    </div>
-                                  </Badge>
-                                ) : (
-                                  <div className="holder-address">
-                                    {result.address}
-                                  </div>
-                                )}
-                              </Link>
-                            </Table.Cell>
-                            <Table.Cell>
-                              {parseInt(
-                                result.info.jettonWallet.balance.slice(
-                                  0,
-                                  -decimals
-                                )
-                              ).toLocaleString()}
-                            </Table.Cell>
-                          </Table.Row>
-                        ))}
-                    </Table.Body>
-                    <Table.Pagination
-                      shadow
-                      noMargin
-                      align="center"
-                      rowsPerPage={5}
-                      // onPageChange={page => console.log({ page })}
-                    />
-                  </Table>
+                      <Text css={{ overflowWrap: "anywhere" }}>
+                        {metadata?.description}
+                      </Text>
+                      {metadata.websites?.map((site) => (
+                        <Link href={site} target="_blank">
+                          {site}
+                        </Link>
+                      ))}
+                      {metadata.social?.map((social) => (
+                        <Link href={social} target="_blank">
+                          {social}
+                        </Link>
+                      ))}
+                    </Card.Body>
+                  </Card>
                 </Grid>
-                <Spacer y={1} />
-              </>
-            )}
-          </Grid.Container>
-        </Grid>
-      </Grid.Container>
-    </>
+              )}
+            </Grid.Container>
+          </Grid>
+        </Grid.Container>
+      </Grid>
+      <Grid xs={12} sm={8}>
+        <Card variant="flat">
+          <Card.Body>
+            <div
+              ref={ref}
+              key={timescale}
+              style={{
+                width: "100%",
+                height: isFull ? "calc(100vh - 350px)" : "100%",
+              }}
+            />
+          </Card.Body>
+        </Card>
+      </Grid>
+      <Grid xs={12}>
+        <Table aria-label="Example table with static content" bordered>
+          <Table.Header>
+            <Table.Column>Address</Table.Column>
+            <Table.Column>{jetton.symbol}</Table.Column>
+          </Table.Header>
+          <Table.Body>
+            {results
+              ?.filter((result) => !result.info.jettonWallet.isFake)
+              ?.map((result, i) => (
+                <Table.Row key={i}>
+                  <Table.Cell>
+                    <Link
+                      href={`https://tonapi.io/account/${result.address}`}
+                      target="_blank"
+                    >
+                      {infoAddress[result.address] ? (
+                        <Badge
+                          content={infoAddress[result.address].text}
+                          color={infoAddress[result.address].color}
+                        >
+                          <div className="holder-address">{result.address}</div>
+                        </Badge>
+                      ) : (
+                        <div className="holder-address">{result.address}</div>
+                      )}
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {parseInt(
+                      result.info.jettonWallet.balance.slice(
+                        0,
+                        -jetton.decimals
+                      )
+                    ).toLocaleString()}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+          </Table.Body>
+          <Table.Pagination
+            shadow
+            noMargin
+            align="center"
+            rowsPerPage={5}
+            // onPageChange={page => console.log({ page })}
+          />
+        </Table>
+      </Grid>
+    </Grid.Container>
   );
 };
 
 const infoAddress = {
   "EQB-7nZY_Onatn-_s5J2Y9jDOxCjWFzwMOa4_MeuSbgPgnVO": {
-    color: "primary",
+    color: "secondary",
     text: "Development",
   },
   "EQDzIMlFI2-f-hWlVqoxFmFCo7nIA5YN0q3V6zg2DN2aEpmR": {
