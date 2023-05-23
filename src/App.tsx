@@ -1,14 +1,18 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import useDarkMode from 'use-dark-mode'
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
-import { ThemeProvider } from 'next-themes'
-import { NextUIProvider } from '@nextui-org/react'
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import { en, ru } from 'locales';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import useDarkMode from "use-dark-mode";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
+import { Loading, NextUIProvider } from "@nextui-org/react";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { en, ru } from "locales";
 
-import { AppContext, AppProvider } from './contexts'
+import { AppContext, AppProvider } from "./contexts";
 import {
   dark,
   light,
@@ -36,19 +40,26 @@ import {
   cosmosLight,
   andromeda,
   andromedaLight,
-} from './themes'
-import { TonProofDemoApi } from './TonProofDemoApi'
-import Layout from './components/Layout'
-import { Home, Countdown, OurTeam, RoadMap } from './pages'
-import NotFound from './NotFound'
-import Ton from './Ton'
+} from "./themes";
+import { Layout } from "./components";
+import {
+  Home,
+  Countdown,
+  OurTeam,
+  RoadMap,
+  Analytics,
+  AnalyticsPrice,
+  AnalyticsVolume,
+} from "./pages";
+import NotFound from "./NotFound";
+import Ton from "./Ton";
 
-import 'react-loading-skeleton/dist/skeleton.css'
-import 'keen-slider/keen-slider.min.css'
-import './assets/index.scss'
-import { useContext, useMemo } from 'react'
+import "react-loading-skeleton/dist/skeleton.css";
+import "keen-slider/keen-slider.min.css";
+import "./assets/index.scss";
+import { Suspense, useContext, useMemo } from "react";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 i18n
   .use(LanguageDetector)
@@ -70,7 +81,7 @@ i18n
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     children: [
       {
@@ -78,37 +89,60 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: 'events',
+        path: "events",
         element: <Countdown />,
       },
       {
-        path: 'roadmap',
+        path: "roadmap",
         element: <RoadMap />,
       },
       {
-        path: 'team',
+        path: "team",
         element: <OurTeam />,
       },
       {
-        path: 'ton',
+        path: "ton",
         element: <Ton />,
+      },
+      {
+        path: "analytics",
+        element: <Analytics />,
+      },
+      {
+        path: "analytics/price/:id",
+        element: <Analytics />,
+      },
+      {
+        path: "analytics/volume/:ID",
+        element: <Analytics />,
       },
     ],
   },
   {
-    path: '*',
-    element: <NotFound />,
+    path: "*",
+    element: <Layout />,
+    children: [
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
-])
+]);
 
 function App() {
-  const { theme } = useContext(AppContext)
-  const darkMode = useDarkMode(true)
+  const { theme } = useContext(AppContext);
+  const darkMode = useDarkMode(true);
 
   const themeName = useMemo(
-    () => (theme ? `${theme.color}${!darkMode.value ? 'Light' : ''}` : darkMode.value ? 'dark' : 'light'),
+    () =>
+      theme
+        ? `${theme.color}${!darkMode.value ? "Light" : ""}`
+        : darkMode.value
+        ? "dark"
+        : "light",
     [theme, darkMode.value]
-  )
+  );
   const values = useMemo(
     () => ({
       light,
@@ -139,7 +173,7 @@ function App() {
       andromedaLight,
     }),
     []
-  )
+  );
 
   return (
     <ThemeProvider
@@ -147,40 +181,42 @@ function App() {
       attribute="class"
       forcedTheme={themeName} //theme ? `T${theme.split('#').pop()}` : 'dark'}
       themes={[
-        'light',
-        'dark',
-        'sky',
-        'skyLight',
-        'arctic',
-        'arcticLight',
-        'azure',
-        'azureLight',
-        'iris',
-        'irisLight',
-        'flamingo',
-        'flamingoLight',
-        'corral',
-        'corralLight',
-        'marine',
-        'marineLight',
-        'ocean',
-        'oceanLight',
-        'fluid',
-        'fluidLight',
-        'galaxy',
-        'galaxyLight',
-        'cosmos',
-        'cosmosLight',
-        'andromeda',
-        'andromedaLight',
+        "light",
+        "dark",
+        "sky",
+        "skyLight",
+        "arctic",
+        "arcticLight",
+        "azure",
+        "azureLight",
+        "iris",
+        "irisLight",
+        "flamingo",
+        "flamingoLight",
+        "corral",
+        "corralLight",
+        "marine",
+        "marineLight",
+        "ocean",
+        "oceanLight",
+        "fluid",
+        "fluidLight",
+        "galaxy",
+        "galaxyLight",
+        "cosmos",
+        "cosmosLight",
+        "andromeda",
+        "andromedaLight",
       ]}
       value={values}
     >
       <NextUIProvider theme={values[themeName]}>
-        <RouterProvider router={router} />
+        <Suspense fallback={<Loading />}>
+          <RouterProvider router={router} />
+        </Suspense>
       </NextUIProvider>
     </ThemeProvider>
-  )
+  );
 }
 
 export default () => (
@@ -189,4 +225,4 @@ export default () => (
       <App />
     </AppProvider>
   </QueryClientProvider>
-)
+);

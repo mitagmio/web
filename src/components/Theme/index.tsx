@@ -1,7 +1,16 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Popover, Image, Grid, Badge, Text } from "@nextui-org/react";
+import {
+  Button,
+  Popover,
+  Image,
+  Grid,
+  Badge,
+  Text,
+  Spacer,
+} from "@nextui-org/react";
 import { AppContext } from "contexts/AppContext";
 import { ABS13, ABS14 } from "assets/icons";
+import { default as Logo } from "assets/logo.svg";
 
 export const ThemeSwitcher = () => {
   const { nftItems, enabled, theme, setEnabled, setTheme } =
@@ -12,25 +21,19 @@ export const ThemeSwitcher = () => {
       <Popover.Trigger>
         <Button
           icon={
-            theme && nftItems.length ? (
+            theme.id && !!nftItems?.length ? (
               <Image
                 showSkeleton
                 src={
                   nftItems?.find(({ metadata }) => metadata.id === theme.id)
                     ?.metadata.image_diamond
                 }
-                width={48}
-                height={48}
+                width={50}
+                height={50}
                 alt=""
               />
-            ) : enabled ? (
-              <ABS13
-                style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-              />
             ) : (
-              <ABS14
-                style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-              />
+              <img src={Logo.toString()} alt="logo" style={{ minWidth: 24 }} />
             )
           }
           color="secondary"
@@ -40,7 +43,7 @@ export const ThemeSwitcher = () => {
             minWidth: "auto",
             padding: "$4",
             background: "transparent",
-            border: "1px solid $blue100",
+            // border: "1px solid $blue100",
           }}
           auto
           onClick={() => setEnabled((i) => !i)}
@@ -61,14 +64,13 @@ export const ThemeSwitcher = () => {
               <Button
                 flat
                 size="sm"
-                icon={
-                  <ABS14
-                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                  />
-                }
                 css={{ minWidth: "100%", borderRadius: 0 }}
                 onClick={() => setEnabled(false)}
               >
+                <ABS14
+                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                />
+                <Spacer x={0.4} />
                 Switch to light
               </Button>
             </Grid>
@@ -77,19 +79,18 @@ export const ThemeSwitcher = () => {
               <Button
                 flat
                 size="sm"
-                icon={
-                  <ABS13
-                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                  />
-                }
                 css={{ minWidth: "100%", borderRadius: 0 }}
                 onClick={() => setEnabled(true)}
               >
+                <ABS13
+                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                />
+                <Spacer x={0.4} />
                 Switch to dark
               </Button>
             </Grid>
           )}
-          {nftItems.map((item, i) => {
+          {nftItems?.map((item, i) => {
             const color = item.metadata.attributes.find(
               ({ trait_type }) => trait_type === "Color"
             )?.value;

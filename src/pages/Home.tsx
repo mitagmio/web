@@ -1,4 +1,6 @@
-import { useContext, useMemo, useState, useEffect } from "react";
+import { useContext, useMemo, useState, useEffect, lazy } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import Earth from "3d-earth";
 import { axios } from "libs";
@@ -11,18 +13,19 @@ import {
   Input,
   Dropdown,
   Card,
+  Link,
 } from "@nextui-org/react";
-import { FCard } from "components";
+import { Calc, FCard } from "components";
 import { fck } from "api/fck";
-import { ARR01, FIL21, GEN02, GEN11, GEN20 } from "assets/icons";
+import { ARR01, ARR07, FIL21, GEN02, GEN11, GEN20 } from "assets/icons";
 import { getList } from "utils/analytics";
 
 import { AppContext, JType } from "../contexts";
 import getEarthConfig from "../earth.config";
 
-type TimeScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D";
+export type TimeScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D";
 
-const pagination: Record<string, number> = {
+export const pagination: Record<string, number> = {
   "1M": 60,
   "5M": 300,
   "30M": 1800,
@@ -32,13 +35,19 @@ const pagination: Record<string, number> = {
 };
 
 export function Home() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<TimeScale>(
     (localStorage.getItem("timescale") as any) || "1D"
   );
 
   const listVerified = useMemo(
-    () => [...(jettons || [])]?.filter((i) => i.verified)?.map(({ id }) => id),
+    () =>
+      [...(jettons || [])]
+        ?.filter((i) => i.verified)
+        ?.map(({ id }) => id)
+        .slice(0, 14),
     [jettons]
   );
 
@@ -53,13 +62,12 @@ export function Home() {
     refetchOnMount: false,
     refetchOnReconnect: false,
     enabled: !![...(jettons || [])]?.length,
-    cacheTime: 60 * 1000,
     select: (results) => {
-      results = results.data.sources.DeDust.jettons.price[0];
+      results = results.data.sources.DeDust.jettons;
 
       const transform = (list) =>
         list.reduce((acc, curr) => {
-          acc[curr] = results[curr];
+          acc[curr] = results[curr].prices;
           return acc;
         }, {});
 
@@ -68,91 +76,132 @@ export function Home() {
           .sort((a, b) =>
             a.volume > b.volume ? -1 : a.volume < b.volume ? 1 : 0
           )
-          .slice(0, 5),
+          .slice(0, 9)
+          .sort((x, y) => y.percent - x.percent),
         gainer: getList(transform([...listVerified]), jettons)
           .sort((a, b) =>
             a.percent > b.percent ? -1 : a.percent < b.percent ? 1 : 0
           )
-          .slice(0, 5),
+          .slice(0, 9)
+          .sort((x, y) => y.percent - x.percent),
         recent: getList(
-          transform([...listVerified].reverse().slice(0, 5)),
+          transform([...listVerified].reverse().slice(0, 9)),
           jettons
-        ),
+        ).sort((x, y) => y.percent - x.percent),
       };
     },
   });
 
-  useEffect(() => {
-    if (document.getElementById("earth")) {
-      const earthConfig = getEarthConfig(theme.color);
+  const { data: dataRecently, isLoading: isLoadingRecently } = useQuery({
+    queryKey: ["recently-added"],
+    queryFn: async () => await fck.getRecentlyAdded(),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    select: (results) => {
+      return getList(results.data, jettons)
+        .sort((a, b) =>
+          a.volume > b.volume ? -1 : a.volume < b.volume ? 1 : 0
+        )
+        .slice(0, 9)
+        .sort((x, y) => y.percent - x.percent);
+    },
+  });
 
-      document.getElementById("earth")!.innerHTML = "";
+  console.log("dataRecently", dataRecently);
 
-      let e = new Earth("earth", earthConfig.cityList, earthConfig.bizLines, {
-        earthRadius: 12,
-        autoRotate: true,
-        zoomChina: false,
-        starBackground: false,
-        orbitControlConfig: {
-          enableRotate: true,
-          enableZoom: false,
-        },
-      });
-      e.load();
-    }
-  }, [theme]);
+  // useEffect(() => {
+  //   if (document.getElementById("earth")) {
+  //     const earthConfig = getEarthConfig(theme.color);
+
+  //     document.getElementById("earth")!.innerHTML = "";
+
+  //     const load = async () => {
+  //       let e = new Earth("earth", earthConfig.cityList, earthConfig.bizLines, {
+  //         earthRadius: 12,
+  //         autoRotate: true,
+  //         zoomChina: false,
+  //         starBackground: false,
+  //         orbitControlConfig: {
+  //           enableRotate: true,
+  //           enableZoom: false,
+  //         },
+  //       });
+  //       e.load();
+  //     }
+
+  //     load();
+  //   }
+  // }, [theme]);
 
   return (
     <>
-      <Grid.Container gap={2}>
-        <Grid xs={12} md={8}>
-          <Grid.Container direction="column">
+      <Grid.Container gap={2} alignItems="center" css={{ minHeight: "70vh" }}>
+        <Grid xs={12} sm={6} md={7}>
+          <Grid.Container gap={2} direction="column">
             <Grid>
-              <Text size={16} color="success" weight="bold">
-                SIGN UP TODAY
+              <Text
+                size={16}
+                color="success"
+                weight="bold"
+                css={{ lineHeight: 1.2 }}
+              >
+                {t("signUpToday")}
               </Text>
-            </Grid>
-            <Grid>
-              <Text size={48} color="light" weight="bold">
-                The World's
+              <Text
+                size={36}
+                color="light"
+                weight="bold"
+                css={{ lineHeight: 1.2 }}
+              >
+                {t("header1")}
               </Text>
 
               <Text
-                size={48}
+                size={36}
                 css={{
-                  textGradient: "45deg, $blue600 -20%, $green600 50%",
-                  marginTop: -16,
+                  textGradient: "45deg, $primary -20%, $secondary 50%",
+                  lineHeight: 1.2,
                 }}
                 weight="bold"
               >
-                Fastest Growing
+                {t("header2")}
               </Text>
               <Text
-                size={48}
+                size={36}
                 color="light"
                 weight="bold"
                 css={{
-                  marginTop: -16,
+                  lineHeight: 1.2,
                 }}
               >
-                TON Analytics app
+                {t("header3")}
               </Text>
-            </Grid>
-            <Grid>
               <Text size={14} color="light">
-                Buy and sell {jettons?.length || 0}+ cryptocurrencies with TON /
-                Scale using DeDust.io card.
+                {t("headerDesc").replace(
+                  "$1",
+                  (jettons?.length || 0).toString()
+                )}
               </Text>
             </Grid>
-            <Spacer y={1} />
             <Grid>
-              <Grid.Container>
+              <Grid.Container wrap="nowrap">
                 <Grid>
-                  <Button color="primary" size="lg" css={{ minWidth: "auto" }}>
-                    Get Started
+                  <Button
+                    color="primary"
+                    css={{ minWidth: "auto" }}
+                    onClick={() => navigate("/analytics")}
+                  >
+                    {t("getStarted")}
+                    <Spacer x={0.4} />
+                    <ARR07
+                      style={{
+                        fill: "currentColor",
+                        fontSize: 24,
+                      }}
+                    />
                   </Button>
                 </Grid>
-                <Spacer x={1} />
+                {/* <Spacer x={1} />
                 <Grid>
                   <Button
                     color="primary"
@@ -165,173 +214,69 @@ export function Home() {
                         fill: "var(--nextui-colors-link)",
                         fontSize: 24,
                       }}
-                    />{" "}
+                    />
                     <Spacer x={0.4} /> Download App
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid.Container>
             </Grid>
           </Grid.Container>
         </Grid>
-        <Grid md={4}>
-          <div id="earth" style={{ width: 400, height: 400 }} />
+        <Grid xs={12} sm={6} md={5}>
+          <Card css={{ height: "fit-content" }}>
+            <Card.Body>
+              <Grid.Container gap={2} justify="space-between">
+                <Grid>
+                  <Calc />
+                </Grid>
+              </Grid.Container>
+            </Card.Body>
+          </Card>
         </Grid>
-        <Grid xs={12} md={4}>
+        {/* <Grid md={4}>
+          <div id="earth" style={{ width: 400, height: 400 }} />
+        </Grid> */}
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN20
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
-                <Spacer x={0.4} /> Trending
+                />
+                <Spacer x={0.4} /> {t("trending")}
               </>
             }
             list={data?.trend || []}
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN02
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
-                <Spacer x={0.4} /> Top Gainers
+                />
+                <Spacer x={0.4} /> {t("topGainers")}
               </>
             }
             list={data?.gainer || []}
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={4}>
           <FCard
             isLoading={isLoading}
             title={
               <>
                 <GEN11
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />{" "}
-                <Spacer x={0.4} /> Recently Added
+                />
+                <Spacer x={0.4} /> {t("recentlyAdded")}
               </>
             }
             list={data?.recent || []}
           />
-        </Grid>
-      </Grid.Container>
-      <Grid.Container gap={2} justify="space-between">
-        <Grid>
-          <Card>
-            <Card.Body>
-              <Grid.Container gap={2} justify="space-between">
-                <Grid>
-                  <Grid.Container direction="column">
-                    <Grid>
-                      <Text
-                        size={32}
-                        css={{
-                          textGradient: "45deg, $blue600 -20%, $green600 50%",
-                          marginTop: -16,
-                        }}
-                        weight="bold"
-                      >
-                        Buy & trade on the
-                      </Text>
-                      <Text
-                        size={32}
-                        color="light"
-                        weight="bold"
-                        css={{
-                          marginTop: -16,
-                        }}
-                      >
-                        original crypto exchange.
-                      </Text>
-                    </Grid>
-                    <Grid>
-                      <Text size={14} color="light">
-                        Buy now and get 40% extra bonus Minimum pre-sale amount
-                        25 Crypto Coin. We accept BTC crypto-currency
-                      </Text>
-                    </Grid>
-                    <Spacer y={2} />
-                    <Grid>
-                      <Grid.Container wrap="nowrap" alignItems="center" justify="space-between">
-                        <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Amount"
-                                width="75px"
-                                size="sm"
-                              />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">TON</Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                        <Spacer x={1} />
-                        <Grid>
-                          <ARR01
-                            style={{
-                              fill: "var(--nextui-colors-link)",
-                              fontSize: 32,
-                            }}
-                          />
-                        </Grid>
-                        <Spacer x={1} />
-                        <Grid>
-                          <Grid.Container gap={1}>
-                            <Grid>
-                              <Input
-                                clearable
-                                underlined
-                                color="primary"
-                                labelPlaceholder="Get"
-                                width="75px"
-                                size="sm"
-                              />
-                            </Grid>
-
-                            <Grid>
-                              <Dropdown>
-                                <Dropdown.Button color="gradient" size="sm">TON</Dropdown.Button>
-                                <Dropdown.Menu aria-label="Static Actions">
-                                  {jettons
-                                    ?.filter(({ verified }) => verified)
-                                    ?.map(({ symbol }) => (
-                                      <Dropdown.Item key={symbol}>
-                                        {symbol}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                      </Grid.Container>
-                    </Grid>
-                  </Grid.Container>
-                </Grid>
-              </Grid.Container>
-            </Card.Body>
-          </Card>
         </Grid>
       </Grid.Container>
     </>

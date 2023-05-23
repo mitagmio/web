@@ -1,10 +1,11 @@
 export const colors = {
   light: {
+    background: "#F7F9FB",
     primaryLight: "$blue200",
     primaryLightHover: "$blue300",
     primaryLightActive: "$blue400",
     primaryLightContrast: "$blue600",
-    primary: "#31a6f5",
+    primary: "#0088CC",
     primaryBorder: "$blue500",
     primaryBorderHover: "$blue600",
     primarySolidHover: "$blue700",
@@ -19,7 +20,7 @@ export const colors = {
     secondaryBorderHover: "$blue800",
     secondarySolidHover: "$blue900",
     secondarySolidContrast: "$white",
-    gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
+    gradient: "linear-gradient(45deg, #6AAEFF 0%, #B2D4FC 100%)",
     link: "#31a6f5",
   },
   dark: {
@@ -29,7 +30,7 @@ export const colors = {
     primaryLightHover: "$blue300",
     primaryLightActive: "$blue400",
     primaryLightContrast: "$blue600",
-    primary: "#31a6f5",
+    primary: "#0088CC",
     primaryBorder: "$blue500",
     primaryBorderHover: "$blue600",
     primarySolidHover: "$blue700",
@@ -44,7 +45,7 @@ export const colors = {
     secondaryBorderHover: "$blue800",
     secondarySolidHover: "$blue900",
     secondarySolidContrast: "$white",
-    gradient: "linear-gradient(45deg, #31a6f5 0%, $blue600 100%)",
+    gradient: "linear-gradient(45deg, #6AAEFF 0%, #B2D4FC 100%)",
     link: "#31a6f5",
   },
   sky: {

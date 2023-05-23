@@ -1,14 +1,17 @@
-import { StrictMode } from 'react'
-import { render } from 'react-dom'
-import App from './App'
-import './assets/index.scss'
-import './patch-local-storage-for-github-pages'
+import { lazy, StrictMode, Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import "./assets/index.scss";
+import "./patch-local-storage-for-github-pages";
+import { Spinner } from "@nextui-org/react";
 
-window.global = window
+const App = lazy(() => import("./App"));
 
-render(
+window.global = window;
+
+createRoot(document.getElementById("root") as any).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-  document.getElementById('root') as HTMLElement
-)
+    <Suspense fallback={<Spinner />}>
+      <App />
+    </Suspense>
+  </StrictMode>
+);

@@ -52,6 +52,7 @@ export class TLoginButton extends Component<TLoginButtonProps> {
     script.src = 'https://telegram.org/js/telegram-widget.js?21';
     script.async = true;
 
+    script.setAttribute('crossorigin', "")
     script.setAttribute('data-telegram-login', botName)
     script.setAttribute('data-init-auth', "true")
     if (buttonSize != null) {

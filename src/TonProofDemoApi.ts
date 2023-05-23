@@ -46,20 +46,21 @@ class TonProofDemoApiService {
       };
 
       const response = await (
-        await fetch(`https://api.fck.foundation/ton-connect/auth`, {
+        await fetch(`https://api.fck.foundation/api/v2/ton-connect/auth`, {
           method: "POST",
           body: JSON.stringify(reqBody),
           headers: {
             "Content-Type": "application/json",
+            "Accept": "application/json"
           },
         })
       ).json();
 
       console.log("PROF RESPONSE:", response);
 
-      if (response?.token) {
-        localStorage.setItem(this.localStorageKey, response.token);
-        this.accessToken = response.token;
+      if (response?.data?.token) {
+        localStorage.setItem(this.localStorageKey, response?.data?.token);
+        this.accessToken = response?.data?.token;
       }
     } catch (e) {
       console.log("checkProof error:", e);
