@@ -1,10 +1,22 @@
-import { createContext, ReactNode, ReactElement, useEffect, useState, Dispatch } from 'react'
-import { THEME, TonConnectUIProvider, useTonAddress } from '@tonconnect/ui-react'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'libs/axios'
-import { coingecko } from 'api'
-import { fck } from 'api/fck'
-import useDarkMode from 'use-dark-mode'
+import {
+  createContext,
+  ReactNode,
+  ReactElement,
+  useEffect,
+  useState,
+  Dispatch,
+} from "react";
+import {
+  THEME,
+  TonConnectUIProvider,
+  useTonAddress,
+  useTonConnectUI,
+} from "@tonconnect/ui-react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "libs/axios";
+import { coingecko } from "api";
+import { fck } from "api/fck";
+import useDarkMode from "use-dark-mode";
 import {
   JettonApi,
   DNSApi,
@@ -15,37 +27,38 @@ import {
   WalletApi,
   Configuration,
   NftItemRepr,
-} from 'tonapi-sdk-js'
-import { TonProofDemoApi } from 'TonProofDemoApi'
+} from "tonapi-sdk-js";
+import { TonProofDemoApi } from "TonProofDemoApi";
+import { useTranslation } from "react-i18next";
 
 export type JType = {
-  id: number
-  name: string
-  image: string
-  symbol: string
-  address: string
-  decimals: number
-  verified: number
-}
+  id: number;
+  name: string;
+  image: string;
+  symbol: string;
+  address: string;
+  decimals: number;
+  verified: number;
+};
 
 interface AppProps {
-  address: string
-  rawAddress: string
-  nftItems: NftItemRepr[]
-  theme: { color: string; id?: number }
-  ton: Record<string, any>
-  isTLoading: boolean
-  jettons: JType[]
-  isJLoading: boolean
-  enabled: boolean
-  setEnabled: Dispatch<any>
-  setTheme: Dispatch<any>
+  address: string;
+  rawAddress: string;
+  nftItems?: NftItemRepr[];
+  theme: { color: string; id?: number };
+  ton: Record<string, any>;
+  isTLoading: boolean;
+  jettons: JType[];
+  isJLoading: boolean;
+  enabled: boolean;
+  setEnabled: Dispatch<any>;
+  setTheme: Dispatch<any>;
 }
 
 const defaultAppContext: AppProps = {
-  address: '',
-  rawAddress: '',
-  theme: { color: '' },
+  address: "",
+  rawAddress: "",
+  theme: { color: "" },
   nftItems: [],
   ton: {},
   isTLoading: false,
@@ -54,65 +67,82 @@ const defaultAppContext: AppProps = {
   enabled: false,
   setEnabled: () => null,
   setTheme: () => null,
-}
+};
 
-const key = 'is-dark'
+const key = "is-dark";
 
-export const AppContext = createContext<AppProps>(defaultAppContext)
+export const AppContext = createContext<AppProps>(defaultAppContext);
 
-const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement => {
-  const address = useTonAddress()
-  const rawAddress = useTonAddress(false)
+const AppProviderWrapper = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => {
+  const { i18n } = useTranslation();
+  const address = useTonAddress();
+  const rawAddress = useTonAddress(false);
+  const [tonConnectUI, setOptions] = useTonConnectUI();
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') ? JSON.parse(localStorage.getItem('theme') as string) : { color: 'dark' })
-  const [nftItems, setNFTItems] = useState<NftItemRepr[]>([])
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme")
+      ? JSON.parse(localStorage.getItem("theme") as string)
+      : { color: "dark" }
+  );
+  const [nftItems, setNFTItems] = useState<NftItemRepr[]>();
 
   const darkMode = useDarkMode(false, {
-    classNameDark: 'dark',
-    classNameLight: 'light',
-  })
+    classNameDark: "dark",
+    classNameLight: "light",
+  });
   const [enabled, setEnabled] = useState(
-    globalThis.localStorage?.getItem(key)
-      ? JSON.parse(globalThis.localStorage?.getItem(key) as string)
-      : globalThis?.window?.matchMedia('(prefers-color-scheme: dark)').matches
-  )
+    localStorage?.getItem(key)
+      ? JSON.parse(localStorage?.getItem(key) as string)
+      : globalThis?.window?.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  console.log("theme", theme);
 
   useEffect(() => {
     if (theme) {
-      localStorage.setItem('theme', JSON.stringify(theme))
+      localStorage.setItem("theme", JSON.stringify(theme));
     }
-  }, [theme])
+
+    setOptions({
+      language: i18n.language as any,
+      uiPreferences: { theme: (enabled ? "DARK" : "LIGHT") as any },
+    });
+  }, [theme, i18n.language]);
 
   useEffect(() => {
-    globalThis.localStorage.setItem(key, JSON.stringify(enabled))
+    globalThis.localStorage.setItem(key, JSON.stringify(enabled));
     if (enabled) {
-      document.body.classList.add('dark')
-      document.body.classList.remove('light')
+      document.body.classList.add("dark");
+      document.body.classList.remove("light");
     } else {
-      document.body.classList.add('light')
-      document.body.classList.remove('dark')
+      document.body.classList.add("light");
+      document.body.classList.remove("dark");
     }
 
     if (enabled) {
-      darkMode.enable()
+      darkMode.enable();
     } else {
-      darkMode.disable()
+      darkMode.disable();
     }
-  }, [enabled])
+  }, [enabled]);
 
   const { data: ton, isLoading: isTLoading } = useQuery({
-    queryKey: ['ton'],
+    queryKey: ["ton"],
     queryFn: coingecko.getData,
     refetchOnMount: false,
     refetchOnReconnect: false,
-  })
+  });
 
   const { data: jettons, isLoading: isJLoading } = useQuery({
-    queryKey: ['jettons'],
+    queryKey: ["jettons"],
     queryFn: fck.getJettons,
     refetchOnMount: false,
     refetchOnReconnect: false,
-  })
+  });
 
   useEffect(() => {
     const getData = async () => {
@@ -123,36 +153,39 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
             headers: {
               // To get unlimited requests
               Authorization:
-                'Bearer eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGF0YWRldiJdLCJleHAiOjE4MzgwNDc0ODYsImlzcyI6IkB0b25hcGlfYm90IiwianRpIjoiMkFHREdMR09OSUMyVVo3MkNVS0lVUkJXIiwic2NvcGUiOiJjbGllbnQiLCJzdWIiOiJ0b25hcGkifQ.MzApNKLvc9ZHCquoCfXZ-3CXg2-DZLdRrTXjHqk2c1uZt4VPJeQTFvjFtHMtyWi59v1FTCWjYcRUr8viVpXZCA',
+                "Bearer eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGF0YWRldiJdLCJleHAiOjE4MzgwNDc0ODYsImlzcyI6IkB0b25hcGlfYm90IiwianRpIjoiMkFHREdMR09OSUMyVVo3MkNVS0lVUkJXIiwic2NvcGUiOiJjbGllbnQiLCJzdWIiOiJ0b25hcGkifQ.MzApNKLvc9ZHCquoCfXZ-3CXg2-DZLdRrTXjHqk2c1uZt4VPJeQTFvjFtHMtyWi59v1FTCWjYcRUr8viVpXZCA",
             },
           })
-        )
+        );
 
         // Receive typed array of transactions
         const { transactions } = await blockchainApi.getTransactions({
           account: address,
           limit: 10,
-        })
+        });
 
         // Get list of nfts by owner address
-        const nftApi = new NFTApi()
+        const nftApi = new NFTApi();
         // Receive typed array of owner nfts
         const { nftItems } = await nftApi.searchNFTItems({
           owner: address,
           includeOnSale: true,
           limit: 27,
           offset: 0,
-          collection: '0:06d811f426598591b32b2c49f29f66c821368e4acb1de16762b04e0174532465',
-        })
+          collection:
+            "0:06d811f426598591b32b2c49f29f66c821368e4acb1de16762b04e0174532465",
+        });
 
-        setNFTItems(nftItems)
+        setNFTItems(nftItems);
+      } else {
+        setNFTItems([]);
       }
-    }
+    };
 
-    getData()
-  }, [address])
+    getData();
+  }, [address]);
 
-  console.log('App', { ton, jettons })
+  console.log("App", { ton, jettons });
 
   return (
     <AppContext.Provider
@@ -172,8 +205,8 @@ const AppProviderWrapper = ({ children }: { children: ReactNode }): ReactElement
     >
       {children}
     </AppContext.Provider>
-  )
-}
+  );
+};
 
 export const AppProvider = ({ children }) => {
   return (
@@ -184,5 +217,5 @@ export const AppProvider = ({ children }) => {
     >
       <AppProviderWrapper>{children}</AppProviderWrapper>
     </TonConnectUIProvider>
-  )
-}
+  );
+};

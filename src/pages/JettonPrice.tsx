@@ -66,6 +66,7 @@ import {
   GRA12,
 } from "assets/icons";
 import { colors } from "colors";
+import { AnalyticsVolume } from "./JettonVolume";
 
 const pagination = {
   "1M": 60,
@@ -126,7 +127,7 @@ export const AnalyticsPrice = () => {
 
   const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: ["jetton-analytics"],
+      queryKey: ["jetton-analytics", location],
       queryFn: ({ pageParam = 1 }) => {
         return (
           jetton.id &&
@@ -350,7 +351,7 @@ export const AnalyticsPrice = () => {
 
   useEffect(() => {
     if (jettons?.length) {
-      const jettonName = location.pathname.split("/analytics/price/").pop();
+      const jettonName = location.pathname.includes('price') ? location.pathname.split("/analytics/price/").pop() : location.pathname.split("/analytics/volume/").pop();
 
       const dataJetton = jettons.find(
         ({ symbol }) => symbol?.toUpperCase() === jettonName?.toUpperCase()
@@ -376,7 +377,7 @@ export const AnalyticsPrice = () => {
           });
       }
     }
-  }, [jettons]);
+  }, [jettons, location.pathname]);
 
   const prevJetton = useMemo(() => {
     const list = jettons?.filter((i) => i.verified);
@@ -451,113 +452,37 @@ export const AnalyticsPrice = () => {
   console.log(metadata);
 
   return (
-    <Grid.Container gap={2} direction="row-reverse" css={{ minHeight: "70vh" }}>
-      <Grid xs={12} sm={4}>
+    <Grid.Container gap={2} wrap="wrap" css={{ height: "fit-content" }}>
+      <Grid xs={12} css={{ minHeight: 280 }}>
+        <Card variant="flat">
+          <Card.Body>
+            <div
+              ref={ref}
+              key={timescale}
+              style={{
+                width: "100%",
+                height: "100%",
+                display: !location.pathname.includes("price")
+                  ? "none"
+                  : undefined,
+              }}
+            />
+            <div
+              style={{
+                display: !location.pathname.includes("volume")
+                  ? "none"
+                  : undefined,
+              }}
+            >
+              <AnalyticsVolume />
+            </div>
+          </Card.Body>
+        </Card>
+      </Grid>
+      <Grid xs={12}>
         <Grid.Container justify="center">
           <Grid xs={12} css={{ height: "fit-content" }}>
             <Grid.Container gap={1}>
-              <Grid xs={12}>
-                <Grid.Container justify="space-between">
-                  <Grid>
-                    <Grid.Container wrap="nowrap">
-                      <Grid>
-                        <Grid.Container alignItems="center" wrap="nowrap">
-                          <Grid>
-                            {isLoading ? (
-                              <Loading size="lg" />
-                            ) : jetton?.verified ? (
-                              <Badge
-                                size="xs"
-                                css={{ p: 0, background: "transparent" }}
-                                content={
-                                  <ARR20
-                                    style={{
-                                      fill: "var(--nextui-colors-primary)",
-                                      fontSize: 16,
-                                      borderRadius: 100,
-                                      overflow: "hidden",
-                                    }}
-                                  />
-                                }
-                              >
-                                <Avatar bordered src={jetton?.image} />
-                              </Badge>
-                            ) : (
-                              <Avatar bordered src={jetton?.image} />
-                            )}
-                          </Grid>
-                          <Spacer x={0.5} />
-                          <Grid>{jetton?.symbol}</Grid>
-                        </Grid.Container>
-                      </Grid>
-                    </Grid.Container>
-                  </Grid>
-                </Grid.Container>
-              </Grid>
-              <Grid>
-                <Grid.Container>
-                  <Grid css={{ display: "flex", justifyContent: "center" }}>
-                    <Button
-                      onClick={() =>
-                        location.pathname.includes("volume") &&
-                        navigate(
-                          `/analytics/price/${location.pathname
-                            .split("/analytics/volume/")
-                            .pop()}`
-                        )
-                      }
-                      css={{
-                        minWidth: "auto",
-                        borderTopRightRadius: 0,
-                        borderBottomRightRadius: 0,
-                      }}
-                    >
-                      <GRA01 style={{ fill: "currentColor", fontSize: 24 }} />
-                      <Text hideIn="xs" color="white">
-                        <div style={{ display: "flex" }}>
-                          <Spacer x={0.5} />
-                          {t("price")}
-                        </div>
-                      </Text>
-                    </Button>
-                  </Grid>
-                  <Grid css={{ display: "flex", justifyContent: "center" }}>
-                    <Button
-                      color="secondary"
-                      flat={!location.pathname.includes("volume")}
-                      css={{
-                        minWidth: "auto",
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                      }}
-                      onClick={() =>
-                        location.pathname.includes("price") &&
-                        navigate(
-                          `/analytics/volume/${location.pathname
-                            .split("/analytics/price/")
-                            .pop()}`
-                        )
-                      }
-                    >
-                      <GRA03 style={{ fill: "currentColor", fontSize: 24 }} />
-                      <Text
-                        hideIn="xs"
-                        color={
-                          !location.pathname.includes("volume")
-                            ? "secondaryLight"
-                            : "white"
-                        }
-                      >
-                        <div style={{ display: "flex" }}>
-                          <Spacer x={0.5} />
-                          {t("volumeL")}
-                        </div>
-                      </Text>
-                    </Button>
-                  </Grid>
-                </Grid.Container>
-              </Grid>
-
               <Grid>
                 <Card variant="flat">
                   <Card.Body css={{ p: 0 }}>
@@ -882,7 +807,13 @@ export const AnalyticsPrice = () => {
 
               {!seeMore && (
                 <Grid>
-                  <Button flat css={{ minWidth: 'auto' }} onClick={() => setSeeMore(true)}>See more</Button>
+                  <Button
+                    flat
+                    css={{ minWidth: "auto" }}
+                    onClick={() => setSeeMore(true)}
+                  >
+                    See more
+                  </Button>
                 </Grid>
               )}
 
@@ -944,20 +875,6 @@ export const AnalyticsPrice = () => {
             </Grid.Container>
           </Grid>
         </Grid.Container>
-      </Grid>
-      <Grid xs={12} sm={8}>
-        <Card variant="flat">
-          <Card.Body>
-            <div
-              ref={ref}
-              key={timescale}
-              style={{
-                width: "100%",
-                height: isFull ? "calc(100vh - 350px)" : "100%",
-              }}
-            />
-          </Card.Body>
-        </Card>
       </Grid>
       <Grid xs={12}>
         <Table aria-label="Example table with static content" bordered>

@@ -107,7 +107,7 @@ export const AnalyticsVolume = () => {
 
   const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: ["jetton-analytics"],
+      queryKey: ["jetton-analytics", location.pathname],
       queryFn: ({ pageParam = 1 }) => {
         return (
           jetton.id &&
@@ -330,7 +330,7 @@ export const AnalyticsVolume = () => {
           });
       }
     }
-  }, [jettons]);
+  }, [jettons, location]);
 
   const prevJetton = useMemo(() => {
     const list = jettons?.filter((i) => i.verified);
@@ -352,310 +352,54 @@ export const AnalyticsVolume = () => {
   );
 
   return (
-    <>
-      <Grid.Container justify="center">
-        <Grid xs={12} sm={isFull ? 12 : 8}>
-          <Grid.Container>
-            <Spacer y={0.5} />
-            <Grid xs={12}>
-              <Grid.Container>
-                <Grid>
-                  <Grid.Container alignItems="center">
-                    <Grid>
-                      {isLoading ? (
-                        <Loading size="lg" />
-                      ) : (
-                        <Avatar bordered src={jetton?.image} />
-                      )}
-                    </Grid>
-                    <Spacer x={0.5} />
-                    <Grid>{jetton?.symbol}</Grid>
-                  </Grid.Container>
-                </Grid>
-                <Spacer x={1} />
-                <Grid>
-                  <Grid.Container>
-                    <Grid css={{ display: "flex", justifyContent: "center" }}>
-                      <Button
-                        onClick={() =>
-                          globalThis.location.pathname.includes("volume") &&
-                          navigate(
-                            `/analytics/price/${globalThis.location.pathname
-                              .split("/analytics/volume/")
-                              .pop()}`
-                          )
-                        }
-                        flat={!globalThis.location.pathname.includes("price")}
-                        css={{
-                          minWidth: "auto",
-                          borderTopRightRadius: 0,
-                          borderBottomRightRadius: 0,
-                        }}
-                      >
-                        <GRA01 style={{ fill: "currentColor", fontSize: 24 }} />
-                        <Text hideIn="xs" color="white">
-                          <div style={{ display: "flex" }}>
-                            <Spacer x={0.5} />
-                            {t("price")}
-                          </div>
-                        </Text>
-                      </Button>
-                    </Grid>
-                    <Grid css={{ display: "flex", justifyContent: "center" }}>
-                      <Button
-                        color="secondary"
-                        css={{
-                          minWidth: "auto",
-                          borderTopLeftRadius: 0,
-                          borderBottomLeftRadius: 0,
-                        }}
-                        onClick={() =>
-                          globalThis.location.pathname.includes("price") &&
-                          navigate(
-                            `/analytics/volume/${globalThis.location.pathname
-                              .split("/analytics/price/")
-                              .pop()}`
-                          )
-                        }
-                      >
-                        <GRA03 style={{ fill: "currentColor", fontSize: 24 }} />
-                        <Text
-                          hideIn="xs"
-                          color={
-                            !globalThis.location.pathname.includes("volume")
-                              ? "secondaryLight"
-                              : "white"
-                          }
-                        >
-                          <div style={{ display: "flex" }}>
-                            <Spacer x={0.5} />
-                            {t("volumeL")}
-                          </div>
-                        </Text>
-                      </Button>
-                    </Grid>
-                  </Grid.Container>
-                </Grid>
-                <Spacer x={1} />
-                <Grid>
-                  <Button
-                    color={isFull ? "warning" : "secondary"}
-                    flat
-                    css={{
-                      minWidth: "auto",
-                    }}
-                    onClick={() => setIsFull((i) => !i)}
-                  >
-                    {isFull ? (
-                      <ARR43 style={{ fill: "currentColor", fontSize: 24 }} />
-                    ) : (
-                      <ARR40 style={{ fill: "currentColor", fontSize: 24 }} />
-                    )}
-                  </Button>
-                </Grid>
-                <Spacer x={1} />
-
-                <Grid>
-                  <Grid.Container justify="space-between" alignItems="center">
-                    <Dropdown>
-                      <Dropdown.Button flat css={{ fontSize: 16 }}>
-                        <GEN13 style={{ fill: "currentColor", fontSize: 24 }} />
-                        <Spacer x={0.4} />
-                        {timescale}
-                      </Dropdown.Button>
-                      <Dropdown.Menu
-                        aria-label="Static Actions"
-                        onAction={(n) => setTimescale(n as any)}
-                      >
-                        {["1M", "5M", "30M", "1H", "4H", "1D"].map((n) => (
-                          <Dropdown.Item key={n}>{t(n)}</Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </Grid.Container>
-                </Grid>
-              </Grid.Container>
-            </Grid>
-            <Spacer y={1} />
-            <Grid className="chart-table">
-              <Table
-                aria-label="Stats"
-                compact
-                bordered={false}
-                shadow={false}
-                css={{ border: "none", padding: 0 }}
-              >
-                <Table.Header>
-                  <Table.Column>
-                    <div className="chart-label">
-                      <GRA06 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
-                      {t("volumeJ")}
-                    </div>
-                  </Table.Column>
-                  <Table.Column>
-                    <div className="chart-label">
-                      <GRA09 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
-                      {t("volumeL")}
-                    </div>
-                  </Table.Column>
-                </Table.Header>
-                <Table.Body>
-                  <Table.Row key="1">
-                    <Table.Cell>
-                      {toFixed(
-                        (parseFloat(info?.jettons || 0) as number).toFixed(
-                          decimals
-                        )
-                      )}{" "}
-                      {jetton.symbol}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {parseFloat(info?.value?.toFixed(2))} TON
-                    </Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-              </Table>
-            </Grid>
-            <Spacer y={0.5} />
-            <Grid xs={12}>
-              <Card variant="bordered">
-                <Card.Header>
-                  <Grid.Container justify="space-between">
-                    {/* <Grid>
-                      <Grid.Container alignItems="center">
-                        <Grid>
-                          <Popover isBordered>
-                            <Popover.Trigger>
-                              <Button
-                                css={{ background: 'transparent', minWidth: 'auto' }}
-                                icon={<IonIcon icon={cogOutline} size="large" />}
-                              />
-                            </Popover.Trigger>
-                            <Popover.Content css={{ p: 0 }}>
-                              <Text size={12} color="gray" css={{ px: '$8' }}>
-                                {t('chartType')}</div>
-                              </Text>
-                              <Button
-                                size="lg"
-                                disabled={type === 'price'}
-                                css={{
-                                  ...(type !== 'price' && {
-                                    background: 'transparent',
-                                    ...(!darkMode.value && { color: '$accents10' }),
-                                  }),
-                                  minWidth: '100%',
-                                }}
-                                icon={<div className="bar-price" />}
-                                onClick={() => setType('price')}
-                              >
-                                <Spacer x={1.5} />
-                                {t('price')} Свечной график
-                              </Button>
-                              <Button
-                                size="lg"
-                                disabled={type === 'volume'}
-                                css={{
-                                  ...(type !== 'volume' && {
-                                    background: 'transparent',
-                                    ...(!darkMode.value && { color: '$accents10' }),
-                                  }),
-                                  minWidth: '100%',
-                                }}
-                                icon={<div className="bar-volume" />}
-                                onClick={() => setType('volume')}
-                              >
-                                <Spacer x={1.5} />
-                                {t('volume')}
-                              </Button>
-                            </Popover.Content>
-                          </Popover>
-                        </Grid>
-                      </Grid.Container>
-                    </Grid> */}
-                  </Grid.Container>
-                </Card.Header>
-                <Card.Body>
-                  <div
-                    ref={ref}
-                    key={timescale}
-                    style={{
-                      width: "100%",
-                      height: isFull ? "calc(100vh - 350px)" : "30vh",
-                    }}
-                  />
-                </Card.Body>
-              </Card>
-            </Grid>
-            <Spacer y={1} />
-            {!isFull && (
-              <>
-                <Grid xs={12}>
-                  <Table
-                    aria-label="Example table with static content"
-                    css={{
-                      height: "auto",
-                      minWidth: "100%",
-                      w: "100%",
-                    }}
-                    bordered
-                  >
-                    <Table.Header>
-                      <Table.Column>Address</Table.Column>
-                      <Table.Column>{jetton.symbol}</Table.Column>
-                    </Table.Header>
-                    <Table.Body>
-                      {results
-                        ?.filter((result) => !result.info.jettonWallet.isFake)
-                        ?.map((result, i) => (
-                          <Table.Row key={i}>
-                            <Table.Cell>
-                              <Link
-                                href={`https://tonapi.io/account/${result.address}`}
-                                target="_blank"
-                              >
-                                {infoAddress[result.address] ? (
-                                  <Badge
-                                    content={infoAddress[result.address].text}
-                                    color={infoAddress[result.address].color}
-                                  >
-                                    <div className="holder-address">
-                                      {result.address}
-                                    </div>
-                                  </Badge>
-                                ) : (
-                                  <div className="holder-address">
-                                    {result.address}
-                                  </div>
-                                )}
-                              </Link>
-                            </Table.Cell>
-                            <Table.Cell>
-                              {parseInt(
-                                result.info.jettonWallet.balance.slice(
-                                  0,
-                                  -decimals
-                                )
-                              ).toLocaleString()}
-                            </Table.Cell>
-                          </Table.Row>
-                        ))}
-                    </Table.Body>
-                    <Table.Pagination
-                      shadow
-                      noMargin
-                      align="center"
-                      rowsPerPage={5}
-                      // onPageChange={page => console.log({ page })}
-                    />
-                  </Table>
-                </Grid>
-                <Spacer y={1} />
-              </>
-            )}
-          </Grid.Container>
-        </Grid>
-      </Grid.Container>
-    </>
+    <Grid.Container>
+      <Grid css={{ width: '100%' }}>
+        <div
+          ref={ref}
+          key={timescale}
+          style={{
+            width: "100%",
+            height: isFull ? "calc(100vh - 350px)" : "30vh",
+          }}
+        />
+      </Grid>
+      <Spacer y={0.5} />
+      <Grid className="chart-table">
+        <Table
+          aria-label="Stats"
+          compact
+          bordered={false}
+          shadow={false}
+          css={{ border: "none", padding: 0 }}
+        >
+          <Table.Header>
+            <Table.Column>
+              <div className="chart-label">
+                <GRA06 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
+                {t("volumeJ")}
+              </div>
+            </Table.Column>
+            <Table.Column>
+              <div className="chart-label">
+                <GRA09 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
+                {t("volumeL")}
+              </div>
+            </Table.Column>
+          </Table.Header>
+          <Table.Body>
+            <Table.Row key="1">
+              <Table.Cell>
+                {toFixed(
+                  (parseFloat(info?.jettons || 0) as number).toFixed(decimals)
+                )}{" "}
+                {jetton.symbol}
+              </Table.Cell>
+              <Table.Cell>{parseFloat(info?.value?.toFixed(2))} TON</Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table>
+      </Grid>
+    </Grid.Container>
   );
 };
 

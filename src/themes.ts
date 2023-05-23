@@ -2,6 +2,7 @@ import { createTheme } from "@nextui-org/react";
 import { colors } from "./colors";
 
 export const light = createTheme({
+  className: "light",
   type: "light",
   theme: {
     colors: colors.light, // optional
@@ -9,6 +10,7 @@ export const light = createTheme({
 }).className;
 
 export const dark = createTheme({
+  className: "dark",
   type: "dark",
   theme: {
     colors: {

@@ -25,7 +25,7 @@ export const OurTeam = () => {
   const users = [
     {
       name: "Beybut",
-      role: `${t("CEO")} & ${t("developer")}`,
+      role: `${t("CEO")} & ${t("seniorDeveloper")}`,
       color: "primary",
       statusText: t("available"),
       avatar:
@@ -45,11 +45,11 @@ export const OurTeam = () => {
     },
     {
       name: "Nick",
-      role: t("seniorDeveloper"),
+      role: `${t("CTO")} & ${t("seniorDeveloper")}`,
       color: "gradient",
       statusText: t("available"),
       avatar:
-        "https://s.getgems.io/nft/c/626e630d4c1921ba7a0e3b4e/1164/image.png",
+        "https://s.getgems.io/nft/c/626e630d4c1921ba7a0e3b4e/687/image.png",
       telegram: "https://tatadev.t.me",
       content: <Text>{t("nickContent")}</Text>,
     },

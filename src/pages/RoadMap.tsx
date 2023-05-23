@@ -55,7 +55,7 @@ export const RoadMap = () => {
   const refQ3 = useRef<HTMLDivElement>(null);
   const refQ4 = useRef<HTMLDivElement>(null);
 
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(1);
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
     {
       loop: true,
@@ -68,6 +68,10 @@ export const RoadMap = () => {
     },
     [carousel]
   );
+  
+  useEffect(() => {
+    instanceRef.current?.update(0, active);
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -102,31 +106,26 @@ export const RoadMap = () => {
           { title: t("addDEXContract"), type: "active" },
           { title: t("addToDeDustWhitelist"), type: "active" },
           { title: t("createAnalyticalTool"), type: "active" },
-          { title: t("integrationTONServices"), type: "vacation" },
-          { title: t("addEventSection"), type: "vacation" },
-          { title: t("addLiquidityCharts"), type: "vacation" },
-          { title: t("optimizationWork"), type: "vacation" },
-          { title: t("attractingAudience"), type: "vacation" },
+          { title: t("addLiquidityCharts"), type: "active" },
         ],
       },
       {
         step: "Q2",
         ref: refQ2,
         list: [
-          ,
-          { title: t("addTONWallet"), type: "vacation" },
-          { title: t("addStake"), type: "paused" },
-          { title: t("addAnalyticsTools"), type: "paused" },
-          { title: t("addLiquidityOnDEX"), type: "paused" },
-          { title: t("createNFTCollection"), type: "paused" },
-          { title: t("previsedCollection"), type: "paused" },
+          { title: t("addPlatformCustomization"), type: "active" },
+          { title: t("integrationTONServices"), type: "vacation" },
+          { title: t("optimizationWork"), type: "vacation" },
+          { title: t("attractingAudience"), type: "vacation" },
+          // { title: t("addStake"), type: "paused" },
         ],
       },
       {
         step: "Q3",
         ref: refQ3,
         list: [
-          { title: t("addPlatformCustomization"), type: "paused" },
+          { title: t("createNFTCollection"), type: "paused" },
+          { title: t("previsedCollection"), type: "paused" },
           { title: t("createNFTmarketplace"), type: "paused" },
           { title: t("addPersonalBord"), type: "paused" },
           { title: t("mintCollection"), type: "paused" },

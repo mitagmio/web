@@ -6,7 +6,6 @@ body,
 
 body {
   margin: 0;
-  background: url(/img/bg.svg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -21,6 +20,17 @@ code {
 
 * {
   box-sizing: border-box;
+}
+
+#tc-wallets-modal-container {
+  img {
+    min-width: 52px;
+    min-height: 52px;
+  }
+  > div:last-child > div> div > div:last-child {
+    border-radius: 100%;
+    overflow: hidden;
+  }
 }
 
 .scene {
@@ -76,16 +86,8 @@ code {
   display: flex;
 }
 
-.tconnect-button {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  border-radius: 100px;
-  overflow: hidden;
-
-  button > div {
-    font-size: 14px;
-  }
+.tconnect-button, .tlogin-button  {
+  display: none;
 }
 
 .navbar {
@@ -122,6 +124,7 @@ body {
 }
 
 .ton-background {
+  min-height: 100vh;
   // background: url('/img/ton.webp');
   // background-size: cover;
   // background-position: top center;
@@ -228,12 +231,13 @@ svg {
 .jettons-list {
   display: flex;
   flex-direction: row;
-  width: 100%;
+  width: calc(100% + 100px);
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 4px;
-  max-height: calc(100vh - 165px);
   overflow: auto;
+  padding: 50px;
+  margin: -50px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -246,10 +250,29 @@ svg {
   @media (max-width: 525px) {
     gap: 0;
   }
+
+  @media (max-width: 960px) {
+    position: fixed;
+    z-index: 9999;
+    background: var(--nextui--navbarBlurBackgroundColor);
+    left: 0;
+    width: 100vw;
+    bottom: 0;
+    margin: 0;
+    height: 100vh;
+    transition: 300ms all;
+
+    &:not(.open) {
+      transform: translate3d(0, 100%, 0);
+    }
+  }
+  
 }
 
 .search-input {
-  min-width: 215px;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
 }
 
 #tc-widget-root ul {
@@ -276,7 +299,7 @@ svg {
 }
 
 .holder-address {
-  max-width: 50vw;
+  max-width: 20vw;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -285,6 +308,12 @@ svg {
 @media (min-width: 1400px) {
   .nextui-navbar-brand > span {
     margin: 0 !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .hideon-mobile {
+    display: none;
   }
 }
 

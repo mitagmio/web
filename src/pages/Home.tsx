@@ -1,4 +1,6 @@
 import { useContext, useMemo, useState, useEffect, lazy } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import Earth from "3d-earth";
 import { axios } from "libs";
@@ -20,7 +22,6 @@ import { getList } from "utils/analytics";
 
 import { AppContext, JType } from "../contexts";
 import getEarthConfig from "../earth.config";
-import { useNavigate } from "react-router-dom";
 
 export type TimeScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D";
 
@@ -34,26 +35,19 @@ export const pagination: Record<string, number> = {
 };
 
 export function Home() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const { ton, jettons, theme } = useContext(AppContext);
-  const [calcValue, setCalcValue] = useState<Record<string, any>>({});
+  const { jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<TimeScale>(
     (localStorage.getItem("timescale") as any) || "1D"
   );
 
-  const displayCalcValue = useMemo(() => {
-    const val = (
-      (ton?.market_data?.current_price?.usd || 1) *
-      (calcValue?.from === "TON"
-        ? parseInt(calcValue?.valueX)
-        : parseInt(calcValue?.valueY))
-    ).toFixed(2);
-
-    return !isNaN(parseFloat(val)) ? val : 0;
-  }, [ton, calcValue]);
-
   const listVerified = useMemo(
-    () => [...(jettons || [])]?.filter((i) => i.verified)?.map(({ id }) => id),
+    () =>
+      [...(jettons || [])]
+        ?.filter((i) => i.verified)
+        ?.map(({ id }) => id)
+        .slice(0, 14),
     [jettons]
   );
 
@@ -68,7 +62,6 @@ export function Home() {
     refetchOnMount: false,
     refetchOnReconnect: false,
     enabled: !![...(jettons || [])]?.length,
-    cacheTime: 60 * 1000,
     select: (results) => {
       results = results.data.sources.DeDust.jettons;
 
@@ -98,6 +91,23 @@ export function Home() {
       };
     },
   });
+
+  const { data: dataRecently, isLoading: isLoadingRecently } = useQuery({
+    queryKey: ["recently-added"],
+    queryFn: async () => await fck.getRecentlyAdded(),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    select: (results) => {
+      return getList(results.data, jettons)
+        .sort((a, b) =>
+          a.volume > b.volume ? -1 : a.volume < b.volume ? 1 : 0
+        )
+        .slice(0, 9)
+        .sort((x, y) => y.percent - x.percent);
+    },
+  });
+
+  console.log("dataRecently", dataRecently);
 
   // useEffect(() => {
   //   if (document.getElementById("earth")) {
@@ -129,36 +139,48 @@ export function Home() {
         <Grid xs={12} sm={6} md={7}>
           <Grid.Container gap={2} direction="column">
             <Grid>
-              <Text size={16} color="success" weight="bold">
-                SIGN UP TODAY
+              <Text
+                size={16}
+                color="success"
+                weight="bold"
+                css={{ lineHeight: 1.2 }}
+              >
+                {t("signUpToday")}
               </Text>
-              <Text size={36} color="light" weight="bold">
-                The World's
+              <Text
+                size={36}
+                color="light"
+                weight="bold"
+                css={{ lineHeight: 1.2 }}
+              >
+                {t("header1")}
               </Text>
 
               <Text
                 size={36}
                 css={{
-                  textGradient: "45deg, $blue600 -20%, $green600 50%",
-                  marginTop: -16,
+                  textGradient: "45deg, $primary -20%, $secondary 50%",
+                  lineHeight: 1.2,
                 }}
                 weight="bold"
               >
-                Fastest Growing
+                {t("header2")}
               </Text>
               <Text
                 size={36}
                 color="light"
                 weight="bold"
                 css={{
-                  marginTop: -16,
+                  lineHeight: 1.2,
                 }}
               >
-                TON Analytics app
+                {t("header3")}
               </Text>
               <Text size={14} color="light">
-                Buy and sell {jettons?.length || 0}+ cryptocurrencies with TON
-                using DeDust.io.
+                {t("headerDesc").replace(
+                  "$1",
+                  (jettons?.length || 0).toString()
+                )}
               </Text>
             </Grid>
             <Grid>
@@ -169,7 +191,7 @@ export function Home() {
                     css={{ minWidth: "auto" }}
                     onClick={() => navigate("/analytics")}
                   >
-                    Get Started
+                    {t("getStarted")}
                     <Spacer x={0.4} />
                     <ARR07
                       style={{
@@ -205,67 +227,7 @@ export function Home() {
             <Card.Body>
               <Grid.Container gap={2} justify="space-between">
                 <Grid>
-                  <Grid.Container direction="column">
-                    <Grid>
-                      <Grid.Container justify="space-between">
-                        <Grid>
-                          <Text
-                            size={32}
-                            css={{
-                              textGradient:
-                                "45deg, $blue600 -20%, $green600 50%",
-                              marginTop: -16,
-                            }}
-                            weight="bold"
-                          >
-                            Buy & trade on the
-                          </Text>
-                          <Text
-                            size={32}
-                            color="light"
-                            weight="bold"
-                            css={{
-                              marginTop: -16,
-                            }}
-                          >
-                            TON network
-                          </Text>
-                        </Grid>
-                        <Grid>
-                          <Grid.Container alignItems="center">
-                            <Text size={24} color="primary">
-                              ~
-                            </Text>
-                            <Spacer x={0.4} />
-                            <Button
-                              flat
-                              color="secondary"
-                              css={{ minWidth: "auto", overflow: "visible" }}
-                              onClick={() =>
-                                globalThis.open(
-                                  "https://dedust.io/swap",
-                                  "_blank"
-                                )
-                              }
-                            >
-                              {displayCalcValue}
-                              $
-                              <Spacer x={0.4} />
-                              <img
-                                src="/img/dedust.webp"
-                                alt="DeDust.io"
-                                style={{ height: 32 }}
-                              />
-                            </Button>
-                          </Grid.Container>
-                        </Grid>
-                      </Grid.Container>
-                    </Grid>
-                    <Spacer y={2} />
-                    <Grid>
-                      <Calc onChange={setCalcValue} />
-                    </Grid>
-                  </Grid.Container>
+                  <Calc />
                 </Grid>
               </Grid.Container>
             </Card.Body>
@@ -282,7 +244,7 @@ export function Home() {
                 <GEN20
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
                 />
-                <Spacer x={0.4} /> Trending
+                <Spacer x={0.4} /> {t("trending")}
               </>
             }
             list={data?.trend || []}
@@ -296,7 +258,7 @@ export function Home() {
                 <GEN02
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
                 />
-                <Spacer x={0.4} /> Top Gainers
+                <Spacer x={0.4} /> {t("topGainers")}
               </>
             }
             list={data?.gainer || []}
@@ -310,7 +272,7 @@ export function Home() {
                 <GEN11
                   style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
                 />
-                <Spacer x={0.4} /> Recently Added
+                <Spacer x={0.4} /> {t("recentlyAdded")}
               </>
             }
             list={data?.recent || []}

@@ -110,11 +110,11 @@ const router = createBrowserRouter([
       },
       {
         path: "analytics/price/:id",
-        element: <AnalyticsPrice />,
+        element: <Analytics />,
       },
       {
         path: "analytics/volume/:ID",
-        element: <AnalyticsVolume />,
+        element: <Analytics />,
       },
     ],
   },

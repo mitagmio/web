@@ -1,6 +1,6 @@
 import { Container, Grid, Image, Text } from "@nextui-org/react";
 import { useLocation } from "react-router-dom";
-import { ReactComponent as Error } from "../public/img/404.svg";
+import { ReactComponent as Error } from "./assets/404.svg";
 
 const NotFound = () => {
   const location = useLocation();
