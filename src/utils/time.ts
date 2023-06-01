@@ -145,3 +145,29 @@ export const scaleTime = (data, type: '1M' | '5M' | '30M' | '1H' | '4H' | '1D' |
     return value;
   });
 };
+
+export function nearestDate(dates, target) {
+  if (!target) {
+    target = Date.now();
+  } else if (target instanceof Date) {
+    target = target.getTime();
+  }
+
+  let nearest = Infinity;
+  let winner = -1;
+
+  dates.forEach(function (date, index) {
+    if (date instanceof Date) {
+      date = date.getTime();
+    }
+    let distance = Math.abs(date - target);
+    if (distance < nearest) {
+      nearest = distance;
+      winner = date;
+    }
+  });
+
+  console.log('winner', winner);
+
+  return winner;
+}

@@ -10,13 +10,11 @@ import {
   Grid,
   Loading,
   Row,
-  Spacer,
   Table,
   Text,
 } from "@nextui-org/react";
-import { ARR12, ARR02, ARR04, ARR01, ARR03, ARR10 } from "assets/icons";
-
-import { StyledBadge } from "./Badge";
+import { ARR01, ARR12, ARR02 } from "assets/icons";
+import { StyledBadge } from "components";
 
 import "keen-slider/keen-slider.min.css";
 
@@ -68,7 +66,7 @@ export const RoadMap = () => {
     },
     [carousel]
   );
-  
+
   useEffect(() => {
     instanceRef.current?.update(0, active);
   }, []);
@@ -148,10 +146,7 @@ export const RoadMap = () => {
   );
 
   return (
-    <Grid.Container
-      justify="center"
-      css={{ minHeight: '70vh' }}
-    >
+    <Grid.Container justify="center" css={{ minHeight: "70vh" }}>
       <Grid>
         <Grid.Container
           id="roadmap"
@@ -205,7 +200,7 @@ export const RoadMap = () => {
                         css={{
                           display: "flex",
                           justifyContent: "space-between",
-                          paddingLeft: 24
+                          paddingLeft: 24,
                         }}
                       >
                         <Text

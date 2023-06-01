@@ -166,3 +166,6 @@ export { ReactComponent as Discord } from './discord.svg'
 export { ReactComponent as TG } from './tg.svg'
 export { ReactComponent as TW } from './tw.svg'
 
+export { ReactComponent as Tonviewer } from './tonviewer.svg'
+export { ReactComponent as Tonscan } from './tonscan.svg'
+

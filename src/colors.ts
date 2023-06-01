@@ -1,6 +1,7 @@
 export const colors = {
   light: {
     background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: "$blue200",
     primaryLightHover: "$blue300",
     primaryLightActive: "$blue400",
@@ -24,7 +25,7 @@ export const colors = {
     link: "#31a6f5",
   },
   dark: {
-    background: "transparent",
+    background: "#232328",
     backgroundContrast: "rgb(0, 0, 0, 0.5)",
     primaryLight: "$blue200",
     primaryLightHover: "$blue300",
@@ -49,6 +50,8 @@ export const colors = {
     link: "#31a6f5",
   },
   sky: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#bddcfd',
     primaryLightHover: '##94c7fd',
     primaryLightActive: '$#6bb0fb',
@@ -72,6 +75,8 @@ export const colors = {
     link: '#509FFA',
   },
   arctic: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#bddcfd',
     primaryLightHover: '#94c7fd',
     primaryLightActive: '#6bb0fb',
@@ -95,6 +100,8 @@ export const colors = {
     link: '#5089FA',
   },
   azure: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#c7c8fc',
     primaryLightHover: '#9fa5fb',
     primaryLightActive: '#4f62f8',
@@ -118,6 +125,8 @@ export const colors = {
     link: '#7380FA',
   },
   iris: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#d5c6fc',
     primaryLightHover: '#b9a0fb',
     primaryLightActive: '#8158f8',
@@ -141,6 +150,8 @@ export const colors = {
     link: '#9B78FA',
   },
   flamingo: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#fabbde',
     primaryLightHover: '#f98dc7',
     primaryLightActive: '#fb269a',
@@ -164,6 +175,8 @@ export const colors = {
     link: '#FA5AAF',
   },
   coral: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#ffd0d8',
     primaryLightHover: '#f49fa3',
     primaryLightActive: '#ed7a80',
@@ -187,6 +200,8 @@ export const colors = {
     link: '#FA5A60',
   },
   marine: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#b6effb',
     primaryLightHover: '#0ca3bc',
     primaryLightActive: '#068fa3',
@@ -210,6 +225,8 @@ export const colors = {
     link: '#006c76',
   },
   ocean: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#cfc6fb',
     primaryLightHover: '#aea0fa',
     primaryLightActive: '#685af9',
@@ -233,6 +250,8 @@ export const colors = {
     link: '#8978FA',
   },
   fluid: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#a9fcdf',
     primaryLightHover: '#00c177',
     primaryLightActive: '#00ae69',
@@ -256,6 +275,8 @@ export const colors = {
     link: '#008c50',
   },
   galaxy: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#fbbdfc',
     primaryLightHover: '#f88dfb',
     primaryLightActive: '#ef00f8',
@@ -279,6 +300,8 @@ export const colors = {
     link: '#F450FA',
   },
   cosmos: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#bec7f8',
     primaryLightHover: '#8fa3f3',
     primaryLightActive: '#0063ed',
@@ -302,6 +325,8 @@ export const colors = {
     link: '#567FF0',
   },
   andromeda: {
+    background: "#F7F9FB",
+    backgroundContrast: "#fff",
     primaryLight: '#f9dcb9',
     primaryLightHover: '#f4c68e',
     primaryLightActive: '#ed9f4c',

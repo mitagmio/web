@@ -7,39 +7,33 @@ import {
   Text,
   Badge,
 } from "@nextui-org/react";
+import cookie from "react-cookies";
 import { useQuery } from "@tanstack/react-query";
 import { fck } from "api/fck";
 import { ARR01, ARR58 } from "assets/icons";
 import { AppContext } from "contexts";
-import { TimeScale, pagination } from "pages";
+import { TimeScale } from "pages";
+import { pagination } from "pages/Analytics";
 import { Key, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getList } from "utils";
 
-export const Calc: React.FC = () => {
+export const Calc: React.FC<any> = ({ data }) => {
   const { t } = useTranslation();
   const { ton, jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<TimeScale>(
-    (localStorage.getItem("timescale") as any) || "1D"
+    (cookie.load("timescale") as any) || "1D"
   );
 
   const listVerified = useMemo(
-    () => [...(jettons || [])]?.filter((i) => i.verified)?.map(({ id }) => id).slice(0, 14),
+    () =>
+      [...(jettons || [])]
+        ?.filter((i) => i.verified)
+        ?.map(({ id }) => id)
+        .slice(0, 14),
     [jettons]
   );
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["analytics", timescale],
-    queryFn: async () =>
-      await fck.getAnalytics(
-        [...listVerified]?.join(),
-        Math.floor(Date.now() / 1000 - pagination[timescale]),
-        pagination[timescale] / 6
-      ),
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    enabled: !![...(jettons || [])]?.length,
-  });
   const [from, setFrom] = useState<Key>("TON");
   const [to, setTo] = useState<Key>("SCALE");
 
@@ -87,6 +81,7 @@ export const Calc: React.FC = () => {
               css={{
                 textGradient: "45deg, $primary -20%, $secondary 50%",
                 marginTop: -16,
+                pr: 100
               }}
               weight="bold"
             >
@@ -108,7 +103,13 @@ export const Calc: React.FC = () => {
             <Button
               flat
               color="secondary"
-              css={{ minWidth: "auto", overflow: "visible" }}
+              css={{
+                minWidth: "auto",
+                overflow: "visible",
+                position: "absolute",
+                right: 16,
+                top: 16,
+              }}
               onClick={() =>
                 globalThis.open(
                   `https://dedust.io/dex/swap?from=${from}&to=${to}`,

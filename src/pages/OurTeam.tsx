@@ -3,9 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Grid,
   Text,
-  Row,
   Col,
-  Collapse,
   Avatar,
   Spacer,
   Button,
@@ -15,12 +13,6 @@ import { GEN16 } from "assets/icons";
 
 export const OurTeam = () => {
   const { t } = useTranslation();
-
-  const columns = [
-    { name: t("name"), uid: "name" },
-    { name: t("role"), uid: "role" },
-    { name: t("status"), uid: "status" },
-  ];
 
   const users = [
     {

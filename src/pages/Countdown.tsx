@@ -56,7 +56,6 @@ const gradient = keyframes({
 });
 
 export const Countdown = () => {
-  const darkMode = useDarkMode();
   const { t } = useTranslation();
 
   const Completion = () => (
