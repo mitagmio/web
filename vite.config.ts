@@ -7,6 +7,8 @@ import svgr from "vite-plugin-svgr";
 import viteCompression from "vite-plugin-compression";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { resolve } from "path";
+import path from 'path'
 
 export default defineConfig({
   plugins: [
@@ -92,8 +94,19 @@ export default defineConfig({
       },
     }),
   ],
+	resolve: {
+		alias: {
+			'@': path.resolve(__dirname, 'src'),
+		}
+	},
   build: {
     outDir: "docs",
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        nested: resolve(__dirname, './index.html'),
+      },
+    },
   },
   // @ts-ignore
   base: "./",

@@ -9,14 +9,15 @@
     <meta name="theme-color" content="#121212" />
     <meta name="color-scheme" content="light dark" />
     <title>FCK.Foundation</title>
+    <script type="module">
+      import { Buffer } from "buffer";
+      window.Buffer = Buffer;
+    </script>  
   </head>
   <body>
     <div id="root"></div>
     <script crossorigin type="module" src="/src/main.tsx"></script>
-    <script
-      crossorigin
-      src="https://telegram.org/js/telegram-web-app.js"
-    ></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script
       crossorigin
       src="https://www.googletagmanager.com/gtag/js?id=G-0734WGRSVS"

@@ -8,3 +8,4 @@ export * from "./SVG";
 export * from "./TelegramLogin";
 export * from "./Theme";
 export * from "./Ton";
+export * from "./Badge";

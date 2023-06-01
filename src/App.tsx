@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import useDarkMode from "use-dark-mode";
 import {
   QueryClient,
   QueryClientProvider,
@@ -42,15 +41,7 @@ import {
   andromedaLight,
 } from "./themes";
 import { Layout } from "./components";
-import {
-  Home,
-  Countdown,
-  OurTeam,
-  RoadMap,
-  Analytics,
-  AnalyticsPrice,
-  AnalyticsVolume,
-} from "./pages";
+import { Home, Countdown, OurTeam, RoadMap, Analytics, Chart } from "./pages";
 import NotFound from "./NotFound";
 import Ton from "./Ton";
 
@@ -58,6 +49,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import "keen-slider/keen-slider.min.css";
 import "./assets/index.scss";
 import { Suspense, useContext, useMemo } from "react";
+import { Wallet } from "pages/Wallet";
 
 const queryClient = new QueryClient();
 
@@ -116,7 +108,15 @@ const router = createBrowserRouter([
         path: "analytics/volume/:ID",
         element: <Analytics />,
       },
+      {
+        path: "wallet/:ID",
+        element: <Wallet />,
+      },
     ],
+  },
+  {
+    path: "/chart/:id",
+    element: <Chart />,
   },
   {
     path: "*",
@@ -131,18 +131,17 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const { theme } = useContext(AppContext);
-  const darkMode = useDarkMode(true);
-
+  const { theme, enabled } = useContext(AppContext);
   const themeName = useMemo(
     () =>
       theme
-        ? `${theme.color}${!darkMode.value ? "Light" : ""}`
-        : darkMode.value
+        ? `${theme.color}${!enabled ? "Light" : ""}`
+        : enabled
         ? "dark"
         : "light",
-    [theme, darkMode.value]
+    [theme, enabled]
   );
+  console.log('themeName', themeName);
   const values = useMemo(
     () => ({
       light,
@@ -177,9 +176,9 @@ function App() {
 
   return (
     <ThemeProvider
-      defaultTheme={themeName} //darkMode.value ? 'dark' : 'light'}
-      attribute="class"
-      forcedTheme={themeName} //theme ? `T${theme.split('#').pop()}` : 'dark'}
+      enableSystem
+      disableTransitionOnChange
+      forcedTheme={themeName}
       themes={[
         "light",
         "dark",
@@ -208,11 +207,15 @@ function App() {
         "andromeda",
         "andromedaLight",
       ]}
-      value={values}
+      value={Object.keys(values).reduce((acc, curr) => {
+        acc[curr] = values[curr].className;
+
+        return acc;
+      }, {})}
     >
       <NextUIProvider theme={values[themeName]}>
         <Suspense fallback={<Loading />}>
-          <RouterProvider router={router} />
+          {!globalThis ? <Loading /> : <RouterProvider router={router} />}
         </Suspense>
       </NextUIProvider>
     </ThemeProvider>

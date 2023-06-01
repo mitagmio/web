@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import cookie from "react-cookies";
 import {
   LineChart,
   Line,
@@ -22,6 +23,11 @@ import {
   Sector,
   AreaChart,
   Tooltip as ReTooltip,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from "recharts";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,6 +70,9 @@ import { AppContext } from "contexts";
 import Skeleton from "react-loading-skeleton";
 import { AnalyticsPrice } from "./JettonPrice";
 import { AnalyticsVolume } from "./JettonVolume";
+import { TonProofApi } from "TonProofApi";
+import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
+import { random } from "utils";
 
 const CustomTooltip = ({
   active,
@@ -73,6 +82,7 @@ const CustomTooltip = ({
   symbol,
   decimals = 2,
 }: any) => {
+  console.log("payload", payload[0]?.payload?.name);
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
@@ -93,7 +103,7 @@ const CustomTooltip = ({
           css={{ mr: -20 }}
         >
           <Button size="xs" css={{ minWidth: "auto" }}>
-            {label}
+            {payload[0]?.payload?.name || label}
           </Button>
         </Badge>
       </div>
@@ -138,10 +148,11 @@ const needle = (value, list, cx, cy, iR, oR, color) => {
   ];
 };
 
-const JettonChart = ({ data, height = 50, color }) => (
+const JettonChart = ({ index, data, height = 50, color }) => (
   <ResponsiveContainer width="100%" height={height} className="jetton-chart">
     <LineChart width={300} height={height} data={data}>
       <Line
+        animationBegin={150 * index}
         name="volume"
         type="natural"
         dot={false}
@@ -150,6 +161,7 @@ const JettonChart = ({ data, height = 50, color }) => (
         strokeWidth={1}
       />
       <Line
+        animationBegin={150 * index}
         name="pv"
         type="natural"
         dot={false}
@@ -161,13 +173,15 @@ const JettonChart = ({ data, height = 50, color }) => (
   </ResponsiveContainer>
 );
 
-const pagination = {
+export const pagination = {
   "1M": 60,
   "5M": 300,
   "30M": 1800,
   "1H": 3600,
   "4H": 14400,
   "1D": 86400,
+  "7D": 604800,
+  "30D": 2592000,
 };
 
 export const Analytics = () => {
@@ -175,33 +189,73 @@ export const Analytics = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
+  const address = useTonAddress();
   // const [present] = useIonActionSheet();
   const { theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<
-    "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D"
-  >((localStorage.getItem("timescale") as any) || "1D");
-  const tokens = localStorage.getItem("tokens");
+    "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "7D" | "30D"
+  >((cookie.load("timescale") as any) || "1D");
+  const tokens = cookie.load("tokens");
   const [isInformed, setIsInformed] = useState(
-    localStorage.getItem("informed") === "true" ? true : false
+    cookie.load("informed") === "true" ? true : false
   );
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMove, setIsMove] = useState(false);
-  const [list, setList] = useState<string[]>(tokens ? JSON.parse(tokens) : []);
+  const [list, setList] = useState<string[]>(tokens || []);
   const [search, setSearch] = useState<string | null | undefined>();
   const [jettons, setJettons] = useState<any[]>([]);
+  const [swaps, setSwaps] = useState([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("informed", JSON.stringify(isInformed));
+    if (
+      TonProofApi.accessToken &&
+      (location.pathname.includes("price") ||
+        location.pathname.includes("chart"))
+    ) {
+      const jettonId = jettons.find(
+        ({ symbol }) =>
+          symbol.toLowerCase() ===
+          location.pathname.split("/").pop()?.toLocaleLowerCase()
+      )?.id;
+
+      if (jettonId)
+        axios
+          .get(
+            `https://api.fck.foundation/api/v2/user/swaps?jetton_id=${jettonId}&count=100`,
+            {
+              headers: {
+                Authorization: `Bearer ${TonProofApi.accessToken}`,
+              },
+            }
+          )
+          .then((response) =>
+            setSwaps(response.data.data.sources.DeDust.jettons)
+          );
+    }
+  }, [address, location.pathname, jettons]);
+
+  useEffect(() => {
+    cookie.save("informed", JSON.stringify(isInformed), { path: "/" });
   }, [isInformed]);
 
   useEffect(() => {
-    localStorage.setItem("tokens", JSON.stringify(list));
+    cookie.save("tokens", list, { path: "/" });
   }, [list]);
 
   useEffect(() => {
-    localStorage.setItem("timescale", timescale);
+    cookie.save("timescale", timescale, { path: "/" });
   }, [timescale]);
+
+  useEffect(() => {
+    if (
+      !location.pathname.includes("price") &&
+      !location.pathname.includes("volume")
+    ) {
+      navigate("/analytics/price/FCK");
+    }
+  }, [location.pathname]);
+
+  console.log(location);
 
   useEffect(() => {
     axios
@@ -209,6 +263,15 @@ export const Analytics = () => {
       .then(({ data: { data: dataJettons } }) => {
         const today = new Date();
         today.setHours(today.getHours() - 24);
+
+        const listVerified = dataJettons
+          .filter(
+            ({ verified, address }) => verified && !list.includes(address)
+          )
+          .map(({ address }) => address);
+        if (listVerified.length) {
+          setList((prevState) => [...prevState, ...listVerified]);
+        }
 
         setJettons(dataJettons);
       });
@@ -242,27 +305,9 @@ export const Analytics = () => {
         .then(({ data: { data } }) => data),
     refetchOnMount: false,
     refetchOnReconnect: false,
-    enabled: !!jettons.length && !!list.length,
-    cacheTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!jettons.length,
   });
-
-  // const { data: dataLiquidity, isLoading: isLoadingLiquidity } = useQuery({
-  //   queryKey: ["jettons-liquidity", timescale],
-  //   queryFn: () =>
-  //     axios
-  //       .get(
-  //         `https://api.fck.foundation/api/v2/analytics/liquidity?jetton_ids=${jettons
-  //           .map((jetton) => jetton.id)
-  //           .join(",")}&time_min=${Math.floor(
-  //           Date.now() / 1000 - pagination[timescale]
-  //         )}&timescale=${pagination[timescale]}`
-  //       )
-  //       .then(({ data: { data } }) => data),
-  //   refetchOnMount: false,
-  //   refetchOnReconnect: false,
-  //   enabled: !!jettons.length && !!list.length,
-  //   cacheTime: 60 * 1000,
-  // });
 
   const { data: transactions, isLoading: isLoadingTransactions } = useQuery({
     queryKey: ["jettons-transactions", timescale],
@@ -279,71 +324,67 @@ export const Analytics = () => {
         .then(({ data: { data } }) => data),
     refetchOnMount: false,
     refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     enabled: !!jettons.length && !!list.length,
   });
 
-  const renderList = jettons
-    .map((jetton, key) => {
-      const dataJetton = [
-        ...(jetton.data && jetton.data.length < 2
-          ? [
-              {
-                name: jetton.data[0]?.symbol,
-                pv:
-                  _(jetton.data[0]?.price_close) ||
-                  _(jetton.data[0]?.price_high) ||
-                  _(jetton.data[0]?.price_low) ||
-                  _(jetton.data[0]?.price_open),
-                volume: 0,
-              },
-            ]
-          : []),
-        ...(jetton.data || [])?.map((item, i) => {
-          return {
-            name: jettons.find(({ id }) => id === item.jetton_id)?.symbol,
-            pv:
-              _(item.price_close) ||
-              _(item.price_high) ||
-              _(item.price_low) ||
-              _(item.price_open),
-            volume: _(item.volume),
-          };
-        }),
-      ];
-      const dataChart = [...dataJetton]
-        .filter((i) => i.pv)
-        .map((d, i) => ({
-          ...d,
+  const renderList = jettons.map((jetton, key) => {
+    const dataJetton = [
+      ...(jetton.data && jetton.data.length < 2
+        ? [
+            {
+              name: jetton.data[0]?.symbol,
+              pv:
+                _(jetton.data[0]?.price_close) ||
+                _(jetton.data[0]?.price_high) ||
+                _(jetton.data[0]?.price_low) ||
+                _(jetton.data[0]?.price_open),
+              volume: 0,
+            },
+          ]
+        : []),
+      ...(jetton.data || [])?.map((item, i) => {
+        return {
+          name: jettons.find(({ id }) => id === item.jetton_id)?.symbol,
           pv:
-            i > 0 &&
-            d.pv &&
-            dataJetton[i - 1].pv &&
-            dataJetton[i - 1].pv !== d.pv
-              ? dataJetton[i - 1].pv < d.pv
-                ? d.pv && d.pv - 100
-                : d.pv && d.pv + 100
-              : dataJetton[dataJetton.length - 1].pv < d.pv
-              ? d.pv && d.pv + 100 * 10
-              : d.pv && d.pv - 100 * 2,
-        }));
+            _(item.price_close) ||
+            _(item.price_high) ||
+            _(item.price_low) ||
+            _(item.price_open),
+          volume: _(item.volume),
+        };
+      }),
+    ];
+    const dataChart = [...dataJetton]
+      .filter((i) => i.pv)
+      .map((d, i) => ({
+        ...d,
+        pv:
+          i > 0 && d.pv && dataJetton[i - 1].pv && dataJetton[i - 1].pv !== d.pv
+            ? dataJetton[i - 1].pv < d.pv
+              ? d.pv && d.pv - 100
+              : d.pv && d.pv + 100
+            : dataJetton[dataJetton.length - 1].pv < d.pv
+            ? d.pv && d.pv + 100 * 10
+            : d.pv && d.pv - 100 * 2,
+      }));
 
-      const volume = [...dataJetton].reduce((acc, i) => (acc += i?.volume), 0);
-      const percent = !!dataJetton[dataJetton.length - 1]?.pv
-        ? (dataJetton[dataJetton.length - 1]?.pv / dataJetton[0]?.pv) * 100 -
-          100
-        : 0;
+    const volume = [...dataJetton].reduce((acc, i) => (acc += i?.volume), 0);
+    const percent = !!dataJetton[dataJetton.length - 1]?.pv
+      ? ((dataJetton[dataJetton.length - 1]?.pv - dataJetton[0]?.pv) /
+          dataJetton[0]?.pv) *
+        100
+      : 0;
 
-      return { jetton, dataJetton, dataChart, percent, volume };
-    });
+    return { jetton, dataJetton, dataChart, percent, volume };
+  });
 
   const searchList = useMemo(
     () =>
-    jettons.filter(
+      jettons.filter(
         (i) =>
           !list.includes(i.address) &&
-          (i.symbol
-            .toLowerCase()
-            .includes(search && search.toLowerCase()) ||
+          (i.symbol.toLowerCase().includes(search && search.toLowerCase()) ||
             i.address.includes(search))
       ),
     [renderList, jettons, search, list]
@@ -360,7 +401,7 @@ export const Analytics = () => {
             .map(({ id }) => id)
             .join(",")}&time_min=${Math.floor(
             Date.now() / 1000 - pagination[timescale]
-          )}&timescale=${pagination[timescale]}`
+          )}&timescale=${pagination[timescale] / 6}`
         )
         .then(({ data: { data } }) => data),
     refetchOnMount: false,
@@ -370,7 +411,8 @@ export const Analytics = () => {
     select: (response) =>
       searchList.map((jetton, key) => {
         jetton.data =
-          response?.sources?.DeDust?.jettons[jetton.id.toString()]?.prices;
+          response?.sources?.DeDust?.jettons[jetton.id.toString()]?.prices ||
+          [];
         const dataJetton = [
           ...(jetton.data && jetton.data.length < 2
             ? [
@@ -419,7 +461,8 @@ export const Analytics = () => {
           0
         );
         const percent = !!dataJetton[dataJetton.length - 1]?.pv
-          ? (dataJetton[dataJetton.length - 1]?.pv / dataJetton[0]?.pv) * 100 -
+          ? ((dataJetton[dataJetton.length - 1]?.pv - dataJetton[0]?.pv) /
+              dataJetton[0]?.pv) *
             100
           : 0;
 
@@ -427,11 +470,14 @@ export const Analytics = () => {
       }),
   });
 
-  console.log("dataStatsSearch", dataStatsSearch);
-
   const onAdd = (value) => {
     setList((prevList) => [...prevList, value]);
     setSearch(null);
+    navigate(
+      `/analytics/price/${
+        jettons.find(({ address }) => address === value)?.symbol
+      }`
+    );
   };
 
   const totals = useMemo(() => {
@@ -493,19 +539,26 @@ export const Analytics = () => {
     .slice(-15);
 
   const dataPie = useMemo(() => {
-    return Object.keys(dataStats?.sources?.DeDust?.jettons || {}).map(
-      (jettonId, i) => ({
+    const dailyVolume = Object.keys(dataStats?.sources?.DeDust?.jettons || {})
+      .map((jettonId, i) => ({
         name: jettons.find(({ id }) => parseInt(jettonId) === id)?.symbol,
-        value: dataStats.sources.DeDust.jettons[jettonId].prices.reduce(
+        pv: dataStats.sources.DeDust.jettons[jettonId].prices.reduce(
           (acc, curr) => (acc += curr.volume),
           0
         ),
-        fill: `${colors[theme.color].primary.slice(0, 4)}${
-          i < 10 ? `9${(i || 1) * 10}` : i < 100 ? `${i * 10}` : i
-        }`,
-      })
-    );
+        fill: `${colors[theme.color].primary.slice(0, 2)}${random(
+          10,
+          99
+        )}${colors[theme.color].primary.slice(5, colors[theme.color].primary.length - 1)}`,
+      }))
+      .sort((x, y) => y.pv - x.pv);
+    return {
+      top: dailyVolume.slice(0, 9),
+      others: dailyVolume.slice(9, dailyVolume.length - 1),
+    };
   }, [dataStats, theme]);
+
+  console.log(dataPie)
 
   const dataPercent = useMemo(
     () =>
@@ -522,7 +575,7 @@ export const Analytics = () => {
   return (
     <>
       <Grid.Container
-        gap={2}
+        gap={0.4}
         css={{ minHeight: "70vh", display: "flex", pt: 16 }}
       >
         {/* {!isInformed && (
@@ -541,6 +594,232 @@ export const Analytics = () => {
             </Grid>
           </>
         )} */}
+
+        <Grid xs={12}>
+          <Grid.Container gap={1} wrap="nowrap" alignContent="center">
+            <Grid>
+              {location.pathname.includes("price") ||
+              location.pathname.includes("volume") ? (
+                <Button
+                  flat
+                  css={{
+                    minWidth: "auto",
+                    "@sm": { display: "none" },
+                  }}
+                  onClick={() => setOpen(true)}
+                >
+                  {location.pathname.split("/").pop()}
+
+                  <Spacer x={0.4} />
+                  <ARR24 style={{ fill: "currentColor", fontSize: 18 }} />
+                </Button>
+              ) : null}
+            </Grid>
+            <Grid css={{ w: "100%" }}>
+              <Input
+                className="search-input"
+                inputMode="search"
+                value={search as string}
+                placeholder={t("searchToken") as string}
+                css={{ width: "100%" }}
+                onChange={(e) => setSearch(e.target.value as any)}
+              />
+            </Grid>
+          </Grid.Container>
+        </Grid>
+
+        <Grid xs={12} css={{ display: "flex", flexDirection: "column" }}>
+          {!!searchList.length && (
+            <div className="jettons-list">
+              <AnimatePresence>
+                {dataStatsSearch?.map(
+                  ({ jetton, dataJetton, dataChart, percent, volume }, key) => {
+                    return (
+                      <motion.div
+                        key={location?.pathname}
+                        initial={{ y: -300, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 300, opacity: 0 }}
+                      >
+                        <Grid key={key} className="jetton-card" xs={12}>
+                          <Card
+                            variant="bordered"
+                            isHoverable
+                            isPressable
+                            onClick={
+                              () =>
+                                // jetton.verified
+                                onAdd(jetton.address)
+                              // : null
+                              // : present({
+                              //     header: t("importRisks"),
+                              //     subHeader: t("riskInfo"),
+                              //     cssClass: "my-custom-class",
+                              //     buttons: [
+                              //       {
+                              //         text: t("import"),
+                              //         role: "destructive",
+                              //         data: {
+                              //           action: "import",
+                              //         },
+                              //       },
+                              //       {
+                              //         text: t("cancel"),
+                              //         data: {
+                              //           action: "cancel",
+                              //         },
+                              //       },
+                              //     ],
+                              //     onDidDismiss: ({ detail }) =>
+                              //       detail?.data?.action === "import" &&
+                              //       onAdd(jetton.address), //onAdd(jetton.address),
+                              //   })
+                            }
+                          >
+                            <Card.Header>
+                              <Grid.Container
+                                wrap="nowrap"
+                                gap={1}
+                                alignItems="center"
+                                justify="space-between"
+                              >
+                                <Grid css={{ textAlign: "center" }}>
+                                  <User
+                                    bordered
+                                    src={jetton.image}
+                                    name={
+                                      <div>
+                                        {jetton.symbol}{" "}
+                                        {!!jetton?.verified && (
+                                          <Badge
+                                            size="xs"
+                                            css={{
+                                              p: 0,
+                                              background: "transparent",
+                                              right: "unset",
+                                              left: "$8",
+                                            }}
+                                          >
+                                            <ARR20
+                                              style={{
+                                                fill: "var(--nextui-colors-primary)",
+                                                fontSize: 16,
+                                                borderRadius: 100,
+                                                overflow: "hidden",
+                                              }}
+                                            />
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    }
+                                    description={(!!dataJetton[
+                                      dataJetton.length - 1
+                                    ]?.pv
+                                      ? 1 /
+                                        dataJetton[dataJetton.length - 1]?.pv
+                                      : 0
+                                    ).toFixed(2)}
+                                    css={{ padding: 0 }}
+                                  />
+                                </Grid>
+                                <Grid
+                                  xs={4}
+                                  className="jetton-chart"
+                                  css={{
+                                    padding: 0,
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  {isLoadingStatsSearch ? (
+                                    <Skeleton
+                                      count={1}
+                                      height={35}
+                                      width={250}
+                                    />
+                                  ) : dataChart.length ? (
+                                    <JettonChart
+                                      index={key}
+                                      data={
+                                        dataChart.length < 2
+                                          ? [
+                                              ...dataChart.map((i) => ({
+                                                ...i,
+                                                pv:
+                                                  _(i?.price_close) ||
+                                                  _(i?.price_high) ||
+                                                  _(i?.price_low) ||
+                                                  _(i?.price_open),
+                                              })),
+                                              ...dataChart,
+                                            ]
+                                          : dataChart
+                                      }
+                                      height={
+                                        ["FCK"].includes(jetton.symbol)
+                                          ? 36
+                                          : 50
+                                      }
+                                      color={
+                                        !isNaN(percent) && percent !== 0
+                                          ? percent > 0
+                                            ? "#1ac964"
+                                            : "#f31260"
+                                          : "gray"
+                                      }
+                                    />
+                                  ) : null}
+                                </Grid>
+                                <Grid>
+                                  <Grid.Container
+                                    direction="column"
+                                    alignItems="flex-end"
+                                  >
+                                    <Grid>
+                                      <Badge
+                                        size="xs"
+                                        color={
+                                          !isNaN(percent) && percent !== 0
+                                            ? percent > 0
+                                              ? "success"
+                                              : "error"
+                                            : "default"
+                                        }
+                                        css={{ whiteSpace: "nowrap" }}
+                                      >
+                                        {!isNaN(percent) && percent !== 0
+                                          ? parseFloat(
+                                              Math.abs(percent).toFixed(2)
+                                            )
+                                          : 0}{" "}
+                                        %
+                                      </Badge>
+                                    </Grid>
+                                    <Spacer y={0.4} />
+                                    <Grid
+                                      css={{
+                                        display: "flex",
+                                        flexWrap: "nowrap",
+                                        whiteSpace: "nowrap",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      {(volume || 0).toFixed(0)} TON
+                                    </Grid>
+                                  </Grid.Container>
+                                </Grid>
+                              </Grid.Container>
+                            </Card.Header>
+                          </Card>
+                        </Grid>
+                        <Spacer y={0.4} />
+                      </motion.div>
+                    );
+                  }
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </Grid>
 
         <Grid xs={12}>
           <Grid.Container
@@ -621,13 +900,47 @@ export const Analytics = () => {
               <Card
                 css={{ height: "fit-content", overflow: "visible", zIndex: 2 }}
               >
-                <Card.Header>{t("dexVolume")}</Card.Header>
+                <Card.Header>{t("volume")}</Card.Header>
                 <Card.Body css={{ pt: 0, pb: 0, overflow: "visible" }}>
-                  <ResponsiveContainer width={180} height={140}>
-                    <PieChart width={120} height={120}>
+                  <ResponsiveContainer width={250} height={140}>
+                    <RadialBarChart
+                      cx="20%"
+                      cy="50%"
+                      innerRadius="50%"
+                      outerRadius="300%"
+                      barSize={10}
+                      data={[
+                        ...dataPie.top,
+                        dataPie.others.reduce((acc, curr) => {
+                          acc.name = t("others");
+                          acc.pv = (acc.pv || 0) + curr.pv;
+                          acc.fill = curr.fill;
+
+                          return acc;
+                        }, {} as any),
+                      ]}
+                      style={{ marginTop: -10 }}
+                    >
+                      <RadialBar
+                        startAngle={15}
+                        dataKey="pv"
+                        label={{
+                          fontSize: 12,
+                          dataKey: "name",
+                          position: "end",
+                        }}
+                      />
+                      <ReTooltip content={<CustomTooltip symbol="TON" />} />
+                    </RadialBarChart>
+                    {/* <PieChart width={120} height={120}>
                       <Pie
                         activeIndex={activeIndex}
-                        activeShape={renderActiveShape}
+                        activeShape={(args) =>
+                          renderActiveShape({
+                            ...args,
+                            color: colors[theme.color],
+                          })
+                        }
                         data={dataPie}
                         cx="50%"
                         cy="50%"
@@ -637,14 +950,14 @@ export const Analytics = () => {
                         dataKey="value"
                         onMouseEnter={(_, index) => setActiveIndex(index)}
                       />
-                    </PieChart>
+                    </PieChart> */}
                   </ResponsiveContainer>
                 </Card.Body>
               </Card>
             </Grid>
             <Grid>
               <Card css={{ height: "fit-content" }}>
-                <Card.Header>{t("highVolatility")}</Card.Header>
+                <Card.Header>{t('change')}</Card.Header>
                 <Card.Body css={{ pt: 0, pb: 0, overflow: "hidden" }}>
                   <ResponsiveContainer width={300} height={140}>
                     <AreaChart
@@ -704,118 +1017,79 @@ export const Analytics = () => {
         <Grid xs={12}>
           <Grid.Container>
             <Grid xs={12} sm={4}>
-              <Grid.Container gap={1} css={{ height: "fit-content" }}>
+              <Grid.Container gap={0.4} css={{ height: "fit-content" }}>
                 <Grid xs={12}>
                   <Container
                     gap={0}
                     justify="space-between"
                     alignItems="center"
-                    css={{ display: "flex", width: "100%" }}
+                    css={{ display: "flex", width: "100%", zIndex: 2 }}
                   >
-                    <Grid xs={12}>
-                      <Button
-                        flat
-                        css={{
-                          minWidth: "auto",
-                          marginRight: 10,
-                          "@sm": { display: "none" },
-                        }}
-                        onClick={() => setOpen(true)}
-                      >
-                        {location.pathname.split("/").pop()}
-
-                        <Spacer x={0.4} />
-                        <ARR24 style={{ fill: "currentColor", fontSize: 18 }} />
-                      </Button>
-                      <Input
-                        className="search-input"
-                        inputMode="search"
-                        value={search as string}
-                        placeholder={t("searchToken") as string}
-                        css={{ width: "100%" }}
-                        onChange={(e) => setSearch(e.target.value as any)}
-                      />
-                    </Grid>
                     <Grid>
-                      <Grid.Container gap={1}>
-                        <Grid>
-                          <Grid.Container>
-                            <Grid
-                              css={{
-                                display: "flex",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <Button
-                                size="sm"
-                                flat={!location.pathname.includes("price")}
-                                onClick={() =>
-                                  location.pathname.includes("volume") &&
-                                  navigate(
-                                    `/analytics/price/${location.pathname
-                                      .split("/analytics/volume/")
-                                      .pop()}`
-                                  )
-                                }
+                      <Grid.Container
+                        gap={1}
+                        wrap="nowrap"
+                        css={{ margin: -10, width: "calc(100% + 10px)" }}
+                      >
+                        {location.pathname.includes("price") ||
+                        location.pathname.includes("volume") ? (
+                          <Grid>
+                            <Grid.Container wrap="nowrap">
+                              <Grid
                                 css={{
-                                  minWidth: "auto",
-                                  borderTopRightRadius: 0,
-                                  borderBottomRightRadius: 0,
+                                  display: "flex",
+                                  justifyContent: "center",
                                 }}
                               >
-                                <Text color="white">{t("price")}</Text>
-                              </Button>
-                            </Grid>
-                            <Grid
-                              css={{
-                                display: "flex",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <Button
-                                size="sm"
-                                flat={!location.pathname.includes("volume")}
+                                <Button
+                                  size="sm"
+                                  flat={!location.pathname.includes("price")}
+                                  onClick={() =>
+                                    location.pathname.includes("volume") &&
+                                    navigate(
+                                      `/analytics/price/${location.pathname
+                                        .split("/analytics/volume/")
+                                        .pop()}`
+                                    )
+                                  }
+                                  css={{
+                                    minWidth: "auto",
+                                    borderTopRightRadius: 0,
+                                    borderBottomRightRadius: 0,
+                                  }}
+                                >
+                                  {t("price")}
+                                </Button>
+                              </Grid>
+                              <Grid
                                 css={{
-                                  minWidth: "auto",
-                                  borderTopLeftRadius: 0,
-                                  borderBottomLeftRadius: 0,
+                                  display: "flex",
+                                  justifyContent: "center",
                                 }}
-                                onClick={() =>
-                                  location.pathname.includes("price") &&
-                                  navigate(
-                                    `/analytics/volume/${location.pathname
-                                      .split("/analytics/price/")
-                                      .pop()}`
-                                  )
-                                }
                               >
-                                <Text
-                                  color={
-                                    !location.pathname.includes("volume")
-                                      ? "secondaryLight"
-                                      : "white"
+                                <Button
+                                  size="sm"
+                                  flat={!location.pathname.includes("volume")}
+                                  css={{
+                                    minWidth: "auto",
+                                    borderTopLeftRadius: 0,
+                                    borderBottomLeftRadius: 0,
+                                  }}
+                                  onClick={() =>
+                                    location.pathname.includes("price") &&
+                                    navigate(
+                                      `/analytics/volume/${location.pathname
+                                        .split("/analytics/price/")
+                                        .pop()}`
+                                    )
                                   }
                                 >
                                   {t("volumeL")}
-                                </Text>
-                              </Button>
-                            </Grid>
-                          </Grid.Container>
-                        </Grid>
-                        <Grid>
-                          <Button
-                            size="sm"
-                            color="primary"
-                            flat={!isMove}
-                            onClick={() => setIsMove((i) => !i)}
-                            css={{ minWidth: "auto", padding: 8, width: 40 }}
-                          >
-                            <ARR32
-                              style={{ fill: "currentColor", fontSize: 18 }}
-                            />
-                            {/* {t("analytics")} */}
-                          </Button>
-                        </Grid>
+                                </Button>
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                        ) : null}
                         <Grid>
                           <Dropdown isBordered>
                             <Dropdown.Button
@@ -843,7 +1117,9 @@ export const Analytics = () => {
                                 "30M",
                                 "1H",
                                 "4H",
-                                "1D" /*, '30D' */,
+                                "1D",
+                                "7D",
+                                "30D",
                               ].map((n) => (
                                 <Dropdown.Item key={n}>{t(n)}</Dropdown.Item>
                               ))}
@@ -854,676 +1130,314 @@ export const Analytics = () => {
                     </Grid>
                   </Container>
                 </Grid>
-                {!search &&
-                  !jettons.filter((i) => list?.includes(i.address))?.length && (
-                    <>
-                      <Grid xs={12}>
-                        <Grid.Container justify="center">
-                          <Grid>
-                            <AnimatePresence>
-                              <motion.div
-                                key={location?.pathname}
-                                initial={{ y: -300, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 300, opacity: 0 }}
-                                style={{ width: "100%" }}
-                              >
-                                <img
-                                  src="/img/ton.svg"
-                                  alt="FCK"
-                                  className="logo-btn"
-                                  height={64}
-                                  width={64}
-                                />
-                              </motion.div>
-                            </AnimatePresence>
-                          </Grid>
-                          <Spacer y={1} />
-                          <Grid>
-                            <AnimatePresence>
-                              <motion.div
-                                key={location?.pathname}
-                                initial={{ y: -300, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 300, opacity: 0 }}
-                                style={{ width: "100%" }}
-                              >
-                                <Text
-                                  size={16}
-                                  css={{
-                                    textGradient:
-                                      "45deg, $green600 0%, $blue600 100%",
-                                  }}
-                                  weight="bold"
-                                >
-                                  {t("findToken")}
-                                </Text>
-                              </motion.div>
-                            </AnimatePresence>
-                          </Grid>
-                        </Grid.Container>
-                      </Grid>
-                    </>
-                  )}
-                <Grid xs={12}>
+                <Grid
+                  xs={12}
+                  css={{ display: "flex", flexDirection: "column" }}
+                >
                   <div
-                    className={`jettons-list ${open ? "open" : ""}`}
+                    className={`jettons-list ${
+                      location.pathname.includes("price") ||
+                      location.pathname.includes("volume")
+                        ? "side"
+                        : undefined
+                    } ${open ? "open" : ""}`}
                     onClick={() => setOpen(false)}
                   >
-                    {search ? (
-                      searchList.length ? (
-                        <AnimatePresence>
-                          {dataStatsSearch?.map(
-                            (
-                              {
-                                jetton,
-                                dataJetton,
-                                dataChart,
-                                percent,
-                                volume,
-                              },
-                              key
-                            ) => {
-                              return (
-                                <motion.div
-                                  key={location?.pathname}
-                                  initial={{ y: -300, opacity: 0 }}
-                                  animate={{ y: 0, opacity: 1 }}
-                                  exit={{ y: 300, opacity: 0 }}
-                                >
-                                  <Grid
-                                    key={key}
-                                    className="jetton-card"
-                                    xs={12}
-                                  >
-                                    <Card
-                                      variant="bordered"
-                                      isHoverable
-                                      isPressable
-                                      onClick={
-                                        () =>
-                                        // jetton.verified
-                                            onAdd(jetton.address)
-                                            // : null
-                                        // : present({
-                                        //     header: t("importRisks"),
-                                        //     subHeader: t("riskInfo"),
-                                        //     cssClass: "my-custom-class",
-                                        //     buttons: [
-                                        //       {
-                                        //         text: t("import"),
-                                        //         role: "destructive",
-                                        //         data: {
-                                        //           action: "import",
-                                        //         },
-                                        //       },
-                                        //       {
-                                        //         text: t("cancel"),
-                                        //         data: {
-                                        //           action: "cancel",
-                                        //         },
-                                        //       },
-                                        //     ],
-                                        //     onDidDismiss: ({ detail }) =>
-                                        //       detail?.data?.action === "import" &&
-                                        //       onAdd(jetton.address), //onAdd(jetton.address),
-                                        //   })
-                                      }
-                                    >
-                                      <Card.Header>
-                                        <Grid.Container
-                                          wrap="nowrap"
-                                          gap={1}
-                                          alignItems="center"
-                                          justify="space-between"
-                                        >
-                                          <Grid css={{ textAlign: "center" }}>
-                                            <User
-                                              bordered
-                                              src={jetton.image}
-                                              name={
-                                                <div>
-                                                  {jetton.symbol}{" "}
-                                                  {!!jetton?.verified && (
-                                                    <Badge
-                                                      size="xs"
-                                                      css={{
-                                                        p: 0,
-                                                        background:
-                                                          "transparent",
-                                                        right: "unset",
-                                                        left: "$8",
-                                                      }}
-                                                    >
-                                                      <ARR20
-                                                        style={{
-                                                          fill: "var(--nextui-colors-primary)",
-                                                          fontSize: 16,
-                                                          borderRadius: 100,
-                                                          overflow: "hidden",
-                                                        }}
-                                                      />
-                                                    </Badge>
-                                                  )}
-                                                </div>
-                                              }
-                                              description={(!!dataJetton[
-                                                dataJetton.length - 1
-                                              ]?.pv
-                                                ? 1 /
-                                                  dataJetton[
-                                                    dataJetton.length - 1
-                                                  ]?.pv
-                                                : 0
-                                              ).toFixed(2)}
-                                              css={{ padding: 0 }}
-                                            />
-                                          </Grid>
-                                          <Grid
-                                            xs={4}
-                                            className="jetton-chart"
-                                            css={{
-                                              padding: 0,
-                                              overflow: "hidden",
-                                            }}
-                                          >
-                                            {isLoadingStats ? (
-                                              <Skeleton
-                                                count={1}
-                                                height={35}
-                                                width={250}
-                                              />
-                                            ) : dataChart.length ? (
-                                              <JettonChart
-                                                data={
-                                                  dataChart.length < 2
-                                                    ? [
-                                                        ...dataChart.map(
-                                                          (i) => ({
-                                                            ...i,
-                                                            pv:
-                                                              _(
-                                                                i?.price_close
-                                                              ) ||
-                                                              _(
-                                                                i?.price_high
-                                                              ) ||
-                                                              _(i?.price_low) ||
-                                                              _(i?.price_open),
-                                                          })
-                                                        ),
-                                                        ...dataChart,
-                                                      ]
-                                                    : dataChart
-                                                }
-                                                height={
-                                                  ["FCK"].includes(
-                                                    jetton.symbol
-                                                  )
-                                                    ? 36
-                                                    : 50
-                                                }
-                                                color={
-                                                  !isNaN(percent) &&
-                                                  percent !== 0
-                                                    ? percent > 0
-                                                      ? "#1ac964"
-                                                      : "#f31260"
-                                                    : "gray"
-                                                }
-                                              />
-                                            ) : null}
-                                          </Grid>
-                                          <Grid>
-                                            <Grid.Container
-                                              direction="column"
-                                              alignItems="flex-end"
-                                            >
-                                              <Grid>
-                                                <Badge
-                                                  size="xs"
-                                                  color={
-                                                    !isNaN(percent) &&
-                                                    percent !== 0
-                                                      ? percent > 0
-                                                        ? "success"
-                                                        : "error"
-                                                      : "default"
-                                                  }
-                                                  css={{ whiteSpace: "nowrap" }}
-                                                >
-                                                  {!isNaN(percent) &&
-                                                  percent !== 0
-                                                    ? parseFloat(
-                                                        Math.abs(
-                                                          percent
-                                                        ).toFixed(2)
-                                                      )
-                                                    : 0}{" "}
-                                                  %
-                                                </Badge>
-                                              </Grid>
-                                              <Spacer y={0.4} />
-                                              <Grid
-                                                css={{
-                                                  display: "flex",
-                                                  flexWrap: "nowrap",
-                                                  whiteSpace: "nowrap",
-                                                  alignItems: "center",
-                                                }}
-                                              >
-                                                {(volume || 0).toFixed(0)} TON
-                                              </Grid>
-                                            </Grid.Container>
-                                          </Grid>
-                                        </Grid.Container>
-                                      </Card.Header>
-                                    </Card>
-                                  </Grid>
-                                  <Spacer y={0.4} />
-                                </motion.div>
-                              );
-                            }
-                          )}
-                        </AnimatePresence>
-                      ) : (
-                        <>
-                          <AnimatePresence>
-                            <motion.div
-                              key={location?.pathname}
-                              initial={{ y: -300, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              exit={{ y: 300, opacity: 0 }}
-                              style={{ width: "100%" }}
-                            >
-                              <Grid
-                                className="jetton-card"
-                                css={{
-                                  w: "100%",
-                                  textAlign: "center",
-                                }}
-                              >
-                                <Text
-                                  size={18}
-                                  css={{
-                                    textGradient:
-                                      "45deg, $blue600 -20%, $green600 50%",
-                                  }}
-                                  weight="bold"
-                                >
-                                  No tokens found.
-                                </Text>
-                              </Grid>
-                            </motion.div>
-                          </AnimatePresence>
-                          <Spacer y={1} />
-                        </>
-                      )
-                    ) : null}
-                    {search && (
-                      <>
-                        <Divider />
-                        <Spacer y={0.4} />
-                      </>
-                    )}
-                    <AnimatePresence>
-                      <DragDropContext onDragEnd={onDragEnd}>
-                        {list.map((column, columnID) => (
-                          <DroppableItems
-                            key={columnID}
-                            column={column}
-                            id={columnID}
-                            data={
-                              jettons
-                                .filter((jetton) => jetton?.address === column)
-                                .map((jetton, key) => {
-                                  jetton.data =
-                                    dataStats?.sources?.DeDust?.jettons[
-                                      jetton.id.toString()
-                                    ]?.prices;
-                                  const dataJetton = [
-                                    ...(jetton.data && jetton.data.length < 2
-                                      ? [
-                                          {
-                                            name: jetton.data[0]?.symbol,
-                                            pv:
-                                              _(jetton.data[0]?.price_close) ||
-                                              _(jetton.data[0]?.price_high) ||
-                                              _(jetton.data[0]?.price_low) ||
-                                              _(jetton.data[0]?.price_open),
-                                            volume: 0,
-                                          },
-                                        ]
-                                      : []),
-                                    ...(jetton.data || [])?.map((item, i) => {
-                                      return {
-                                        name: jettons.find(
-                                          ({ id }) => id === item.jetton_id
-                                        )?.symbol,
+                    <div>
+                      <AnimatePresence>
+                        <DragDropContext onDragEnd={onDragEnd}>
+                          {list.map((column, columnID) => (
+                            <DroppableItems
+                              key={columnID}
+                              column={column}
+                              id={columnID}
+                              data={
+                                jettons
+                                  .filter(
+                                    (jetton) => jetton?.address === column
+                                  )
+                                  .map((jetton, key) => {
+                                    jetton.data =
+                                      dataStats?.sources?.DeDust?.jettons[
+                                        jetton.id.toString()
+                                      ]?.prices;
+                                    const dataJetton = [
+                                      ...(jetton.data && jetton.data.length < 2
+                                        ? [
+                                            {
+                                              name: jetton.data[0]?.symbol,
+                                              pv:
+                                                _(
+                                                  jetton.data[0]?.price_close
+                                                ) ||
+                                                _(jetton.data[0]?.price_high) ||
+                                                _(jetton.data[0]?.price_low) ||
+                                                _(jetton.data[0]?.price_open),
+                                              volume: 0,
+                                            },
+                                          ]
+                                        : []),
+                                      ...(jetton.data || [])?.map((item, i) => {
+                                        return {
+                                          name: jettons.find(
+                                            ({ id }) => id === item.jetton_id
+                                          )?.symbol,
+                                          pv:
+                                            _(item.price_close) ||
+                                            _(item.price_high) ||
+                                            _(item.price_low) ||
+                                            _(item.price_open),
+                                          volume: _(item.volume),
+                                        };
+                                      }),
+                                    ];
+                                    const dataChart = [...dataJetton].map(
+                                      (d, i) => ({
+                                        ...d,
                                         pv:
-                                          _(item.price_close) ||
-                                          _(item.price_high) ||
-                                          _(item.price_low) ||
-                                          _(item.price_open),
-                                        volume: _(item.volume),
-                                      };
-                                    }),
-                                  ];
-                                  const dataChart = [...dataJetton].map(
-                                    (d, i) => ({
-                                      ...d,
-                                      pv:
-                                        i > 0 &&
-                                        d.pv &&
-                                        dataJetton[i - 1].pv &&
-                                        dataJetton[i - 1].pv !== d.pv
-                                          ? dataJetton[i - 1].pv < d.pv
-                                            ? d.pv && d.pv - 100
-                                            : d.pv && d.pv + 100
-                                          : dataJetton[dataJetton.length - 1]
-                                              .pv < d.pv
-                                          ? d.pv && d.pv + 100 * 10
-                                          : d.pv && d.pv - 100 * 2,
-                                    })
-                                  );
+                                          i > 0 &&
+                                          d.pv &&
+                                          dataJetton[i - 1].pv &&
+                                          dataJetton[i - 1].pv !== d.pv
+                                            ? dataJetton[i - 1].pv < d.pv
+                                              ? d.pv && d.pv - 100
+                                              : d.pv && d.pv + 100
+                                            : dataJetton[dataJetton.length - 1]
+                                                .pv < d.pv
+                                            ? d.pv && d.pv + 100 * 10
+                                            : d.pv && d.pv - 100 * 2,
+                                      })
+                                    );
 
-                                  const volume = [...dataJetton].reduce(
-                                    (acc, i) => (acc += i?.volume),
-                                    0
-                                  );
-                                  const percent =
-                                    _(dataJetton[dataJetton.length - 1]?.pv) >
-                                      0 && _(dataJetton[0]?.pv) > 0
-                                      ? (dataJetton[dataJetton.length - 1]?.pv /
-                                          dataJetton[0]?.pv) *
-                                          100 -
-                                        100
-                                      : 0;
+                                    const volume = [...dataJetton].reduce(
+                                      (acc, i) => (acc += i?.volume),
+                                      0
+                                    );
+                                    const percent =
+                                      _(dataJetton[dataJetton.length - 1]?.pv) >
+                                        0 && _(dataJetton[0]?.pv) > 0
+                                        ? (dataJetton[dataJetton.length - 1]
+                                            ?.pv /
+                                            dataJetton[0]?.pv) *
+                                            100 -
+                                          100
+                                        : 0;
 
-                                  return {
-                                    key,
-                                    address: jetton.address,
-                                    children: (
-                                      <motion.div
-                                        key={location?.pathname}
-                                        style={{ width: "100%" }}
-                                      >
-                                        <Grid
-                                          key={key}
-                                          className="jetton-card"
-                                          xs={12}
+                                    return {
+                                      key,
+                                      address: jetton.address,
+                                      children: (
+                                        <motion.div
+                                          key={jetton.symbol}
+                                          style={{ width: "100%" }}
                                         >
-                                          <Card
-                                            variant={
-                                              location.pathname.includes(
-                                                jetton.symbol
-                                              )
-                                                ? undefined
-                                                : "bordered"
-                                            }
-                                            isHoverable
-                                            isPressable={!isMove}
-                                            css={{
-                                              bg: location.pathname.includes(
-                                                jetton.symbol
-                                              )
-                                                ? "$border"
-                                                : undefined,
-                                            }}
-                                            onClick={() =>
-                                              !isMove &&
-                                              navigate(
-                                                `/analytics/price/${jetton.symbol}`
-                                              )
-                                            }
+                                          <Grid
+                                            key={key}
+                                            className="jetton-card"
+                                            xs={12}
                                           >
-                                            <Card.Header style={{ padding: 8 }}>
-                                              <Grid.Container
-                                                wrap="nowrap"
-                                                gap={1}
-                                                alignItems="center"
-                                                justify="space-between"
+                                            <Card
+                                              variant={
+                                                location.pathname.includes(
+                                                  jetton.symbol
+                                                )
+                                                  ? undefined
+                                                  : "bordered"
+                                              }
+                                              isHoverable
+                                              isPressable
+                                              css={{
+                                                bg: location.pathname.includes(
+                                                  jetton.symbol
+                                                )
+                                                  ? "$border"
+                                                  : undefined,
+                                              }}
+                                              onClick={() =>
+                                                navigate(
+                                                  `/analytics/price/${jetton.symbol}`
+                                                )
+                                              }
+                                            >
+                                              <Card.Header
+                                                style={{ padding: 8 }}
                                               >
-                                                <Grid>
-                                                  <Grid.Container
-                                                    wrap="nowrap"
-                                                    gap={1}
-                                                    alignItems="center"
-                                                  >
-                                                    {isMove && (
-                                                      <Grid>
-                                                        <motion.div
-                                                          key={
-                                                            location?.pathname
-                                                          }
-                                                          // initial={{ x: -300, opacity: 0 }}
-                                                          // animate={{ x: 0, opacity: 1 }}
-                                                          // exit={{ x: 300, opacity: 0 }}
-                                                          style={{
-                                                            width: "100%",
-                                                          }}
-                                                        >
-                                                          <Button
-                                                            size="xs"
-                                                            flat
-                                                            css={{
-                                                              minWidth: "auto",
-                                                              padding: 0,
-                                                              pointerEvents:
-                                                                "none",
-                                                              background:
-                                                                "transparent",
-                                                            }}
-                                                          >
-                                                            <ARR35
-                                                              style={{
-                                                                fill: "currentColor",
-                                                                fontSize: 18,
-                                                              }}
-                                                            />
-                                                          </Button>
-                                                        </motion.div>
-                                                      </Grid>
-                                                    )}
-                                                    <Grid
-                                                      css={{
-                                                        textAlign: "center",
-                                                      }}
-                                                    >
-                                                      <User
-                                                        bordered
-                                                        src={jetton.image}
-                                                        name={
-                                                          <div>
-                                                            {jetton.symbol}{" "}
-                                                            {!!jetton?.verified && (
-                                                              <Badge
-                                                                size="xs"
-                                                                css={{
-                                                                  p: 0,
-                                                                  background:
-                                                                    "transparent",
-                                                                  right:
-                                                                    "unset",
-                                                                  left: "$8",
-                                                                }}
-                                                              >
-                                                                <ARR20
-                                                                  style={{
-                                                                    fill: "var(--nextui-colors-primary)",
-                                                                    fontSize: 16,
-                                                                    borderRadius: 100,
-                                                                    overflow:
-                                                                      "hidden",
-                                                                  }}
-                                                                />
-                                                              </Badge>
-                                                            )}
-                                                          </div>
-                                                        }
-                                                        description={(!!dataJetton[
-                                                          dataJetton.length - 1
-                                                        ]?.pv
-                                                          ? 1 /
-                                                            dataJetton[
-                                                              dataJetton.length -
-                                                                1
-                                                            ]?.pv
-                                                          : 0
-                                                        ).toFixed(2)}
-                                                        css={{ padding: 0 }}
-                                                      />
-                                                    </Grid>
-                                                  </Grid.Container>
-                                                </Grid>
-                                                <Grid
-                                                  className="jetton-chart"
-                                                  css={{
-                                                    padding: 0,
-                                                    overflow: "hidden",
-                                                    w: "100%",
-                                                  }}
+                                                <Grid.Container
+                                                  wrap="nowrap"
+                                                  gap={1}
+                                                  alignItems="center"
+                                                  justify="space-between"
                                                 >
-                                                  {isLoadingStats ? (
-                                                    <Skeleton
-                                                      count={1}
-                                                      height={35}
-                                                      width={250}
-                                                    />
-                                                  ) : dataChart.length ? (
-                                                    <JettonChart
-                                                      data={
-                                                        dataChart.length < 2
-                                                          ? [
-                                                              ...dataChart.map(
-                                                                (i) => ({
-                                                                  ...i,
-                                                                  pv: i.open,
-                                                                })
-                                                              ),
-                                                              ...dataChart,
-                                                            ]
-                                                          : dataChart
-                                                      }
-                                                      height={
-                                                        ["FCK"].includes(
-                                                          jetton.symbol
-                                                        )
-                                                          ? 36
-                                                          : 36
-                                                      }
-                                                      color={
-                                                        !isNaN(percent) &&
-                                                        percent !== 0
-                                                          ? percent > 0
-                                                            ? "#1ac964"
-                                                            : "#f31260"
-                                                          : "gray"
-                                                      }
-                                                    />
-                                                  ) : null}
-                                                </Grid>
-                                                <Grid>
-                                                  <Grid.Container
-                                                    direction="column"
-                                                    alignItems="flex-end"
+                                                  <Grid>
+                                                    <Grid.Container
+                                                      wrap="nowrap"
+                                                      gap={1}
+                                                      alignItems="center"
+                                                    >
+                                                      <Grid
+                                                        css={{
+                                                          textAlign: "center",
+                                                        }}
+                                                      >
+                                                        <User
+                                                          bordered
+                                                          src={jetton.image}
+                                                          name={
+                                                            <div>
+                                                              {jetton.symbol}{" "}
+                                                              {!!jetton?.verified && (
+                                                                <Badge
+                                                                  size="xs"
+                                                                  css={{
+                                                                    p: 0,
+                                                                    background:
+                                                                      "transparent",
+                                                                    right:
+                                                                      "unset",
+                                                                    left: "$8",
+                                                                  }}
+                                                                >
+                                                                  <ARR20
+                                                                    style={{
+                                                                      fill: "var(--nextui-colors-primary)",
+                                                                      fontSize: 16,
+                                                                      borderRadius: 100,
+                                                                      overflow:
+                                                                        "hidden",
+                                                                    }}
+                                                                  />
+                                                                </Badge>
+                                                              )}
+                                                            </div>
+                                                          }
+                                                          description={(!!dataJetton[
+                                                            dataJetton.length -
+                                                              1
+                                                          ]?.pv
+                                                            ? 1 /
+                                                              dataJetton[
+                                                                dataJetton.length -
+                                                                  1
+                                                              ]?.pv
+                                                            : 0
+                                                          ).toFixed(2)}
+                                                          css={{ padding: 0 }}
+                                                        />
+                                                      </Grid>
+                                                    </Grid.Container>
+                                                  </Grid>
+                                                  <Grid
+                                                    className="jetton-chart"
+                                                    css={{
+                                                      padding: 0,
+                                                      overflow: "hidden",
+                                                      w: "100%",
+                                                    }}
                                                   >
-                                                    <Grid>
-                                                      <Badge
+                                                    {isLoadingStats ? (
+                                                      <Skeleton
+                                                        count={1}
+                                                        height={35}
+                                                        width={250}
+                                                      />
+                                                    ) : dataChart.length ? (
+                                                      <JettonChart
+                                                        index={columnID}
+                                                        data={
+                                                          dataChart.length < 2
+                                                            ? [
+                                                                ...dataChart.map(
+                                                                  (i) => ({
+                                                                    ...i,
+                                                                    pv: i.open,
+                                                                  })
+                                                                ),
+                                                                ...dataChart,
+                                                              ]
+                                                            : dataChart
+                                                        }
+                                                        height={
+                                                          ["FCK"].includes(
+                                                            jetton.symbol
+                                                          )
+                                                            ? 36
+                                                            : 36
+                                                        }
                                                         color={
                                                           !isNaN(percent) &&
                                                           percent !== 0
                                                             ? percent > 0
-                                                              ? "success"
-                                                              : "error"
-                                                            : "default"
+                                                              ? "#1ac964"
+                                                              : "#f31260"
+                                                            : "gray"
                                                         }
-                                                        size="xs"
-                                                        css={{
-                                                          whiteSpace: "nowrap",
-                                                        }}
-                                                      >
-                                                        {!isNaN(percent) &&
-                                                        percent !== 0
-                                                          ? parseFloat(
-                                                              Math.abs(
-                                                                percent
-                                                              ).toFixed(2)
-                                                            )
-                                                          : 0}{" "}
-                                                        %
-                                                      </Badge>
-                                                    </Grid>
-                                                    <Spacer y={0.4} />
-                                                    <Grid
-                                                      css={{
-                                                        display: "flex",
-                                                        flexWrap: "nowrap",
-                                                        whiteSpace: "nowrap",
-                                                        alignItems: "center",
-                                                        fontSize: 14,
-                                                      }}
-                                                    >
-                                                      {(volume || 0).toFixed(0)}{" "}
-                                                      TON
-                                                    </Grid>
-                                                  </Grid.Container>
-                                                </Grid>
-
-                                                {isMove && (
-                                                  <Grid>
-                                                    <motion.div
-                                                      key={location?.pathname}
-                                                      // initial={{ x: 300, opacity: 0 }}
-                                                      // animate={{ x: 0, opacity: 1 }}
-                                                      // exit={{ x: -300, opacity: 0 }}
-                                                      style={{ width: "100%" }}
-                                                    >
-                                                      <Button
-                                                        size="xs"
-                                                        flat
-                                                        color="error"
-                                                        css={{
-                                                          minWidth: "auto",
-                                                          padding: 0,
-                                                        }}
-                                                      >
-                                                        <ARR10
-                                                          style={{
-                                                            fill: "currentColor",
-                                                            fontSize: 18,
-                                                          }}
-                                                        />
-                                                      </Button>
-                                                      {/* <IonIcon
-                                                    icon={trashOutline}
-                                                    color="danger"
-                                                    onClick={() =>
-                                                      setList((prevList) =>
-                                                        prevList.filter(
-                                                          (i) =>
-                                                            i !== jetton.address
-                                                        )
-                                                      )
-                                                    }
-                                                  /> */}
-                                                    </motion.div>
+                                                      />
+                                                    ) : null}
                                                   </Grid>
-                                                )}
-                                              </Grid.Container>
-                                            </Card.Header>
-                                          </Card>
-                                        </Grid>
-                                        <Spacer y={0.4} />
-                                      </motion.div>
-                                    ),
-                                  };
-                                })[0]
-                            }
-                          />
-                        ))}
-                      </DragDropContext>
-                    </AnimatePresence>
+                                                  <Grid>
+                                                    <Grid.Container
+                                                      direction="column"
+                                                      alignItems="flex-end"
+                                                    >
+                                                      <Grid>
+                                                        <Badge
+                                                          color={
+                                                            !isNaN(percent) &&
+                                                            percent !== 0
+                                                              ? percent > 0
+                                                                ? "success"
+                                                                : "error"
+                                                              : "default"
+                                                          }
+                                                          size="xs"
+                                                          css={{
+                                                            whiteSpace:
+                                                              "nowrap",
+                                                          }}
+                                                        >
+                                                          {!isNaN(percent) &&
+                                                          percent !== 0
+                                                            ? parseFloat(
+                                                                Math.abs(
+                                                                  percent
+                                                                ).toFixed(2)
+                                                              )
+                                                            : 0}{" "}
+                                                          %
+                                                        </Badge>
+                                                      </Grid>
+                                                      <Spacer y={0.4} />
+                                                      <Grid
+                                                        css={{
+                                                          display: "flex",
+                                                          flexWrap: "nowrap",
+                                                          whiteSpace: "nowrap",
+                                                          alignItems: "center",
+                                                          fontSize: 14,
+                                                        }}
+                                                      >
+                                                        {(volume || 0).toFixed(
+                                                          0
+                                                        )}{" "}
+                                                        TON
+                                                      </Grid>
+                                                    </Grid.Container>
+                                                  </Grid>
+                                                </Grid.Container>
+                                              </Card.Header>
+                                            </Card>
+                                          </Grid>
+                                          <Spacer y={0.4} />
+                                        </motion.div>
+                                      ),
+                                    };
+                                  })[0]
+                              }
+                            />
+                          ))}
+                        </DragDropContext>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </Grid>
               </Grid.Container>
@@ -1531,24 +1445,22 @@ export const Analytics = () => {
             <Grid xs={12} sm={8}>
               {location.pathname.includes("volume") ||
               location.pathname.includes("price") ? (
-                <AnalyticsPrice />
+                <AnalyticsPrice timescale={timescale} swaps={swaps} />
               ) : (
                 <Grid.Container justify="center">
-                  <Grid css={{ display: "flex", alignItems: "center", color: '$primary' }}>
+                  <Grid
+                    css={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "$primary",
+                    }}
+                  >
                     <GEN02
                       style={{
                         fill: "currentColor",
                         fontSize: 32,
                       }}
                     />
-                    <Spacer x={0.4} />
-                    <Text
-                      css={{
-                        textGradient: "45deg, $primary 0%, $secondary 100%",
-                      }}
-                    >
-                      Add to Watchlist
-                    </Text>
                   </Grid>
                 </Grid.Container>
               )}
@@ -1618,14 +1530,14 @@ const renderActiveShape = (props) => {
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
         textAnchor={textAnchor}
-        fill="#333"
+        fill={props.color.primary}
       >{`${payload.value.toFixed(2)} TON`}</text>
       <text
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
         dy={18}
         textAnchor={textAnchor}
-        fill="#999"
+        fill={props.color.link}
       >
         {`${(percent * 100).toFixed(2)}%`}
       </text>

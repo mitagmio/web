@@ -7,20 +7,15 @@ import {
   useRef,
   useState,
 } from "react";
+import cookie from 'react-cookies';
 import { useTranslation } from "react-i18next";
-import useDarkMode from "use-dark-mode";
 import {
-  Badge,
-  Button,
-  Card,
   Grid,
   Loading,
   Spacer,
   Table,
-  Link,
-  Avatar,
   Text,
-  Dropdown,
+  Divider,
 } from "@nextui-org/react";
 import {
   ChartOptions,
@@ -38,41 +33,20 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toFixed } from "utils/price";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  ARR01,
-  ARR02,
-  ARR40,
-  ARR43,
-  FIL02,
-  GEN13,
-  GRA01,
-  GRA03,
   GRA06,
   GRA09,
 } from "assets/icons";
+import { pagination } from "./Analytics";
 
-const pagination = {
-  "1M": 60,
-  "5M": 300,
-  "30M": 1800,
-  "1H": 3600,
-  "4H": 14400,
-  "1D": 86400,
-};
-
-export const AnalyticsVolume = () => {
+export const AnalyticsVolume = ({ timescale }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const darkMode = useDarkMode();
   const location = useLocation();
-  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi>();
   const areaSeriesRef = useRef<ISeriesApi<"Area">>();
   const jettonsSeriesRef = useRef<ISeriesApi<"Area">>();
-  const { jettons } = useContext(AppContext);
-  const [timescale, setTimescale] = useState<
-    "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "30D"
-  >((localStorage.getItem("timescale") as any) || "1H");
+  const { jettons, enabled } = useContext(AppContext);
   const [isFull, setIsFull] = useState(false);
   const [page, setPage] = useState<number>();
   const [loadingPage, setLoadingPage] = useState(1);
@@ -81,40 +55,36 @@ export const AnalyticsVolume = () => {
   const [jetton, setJetton] = useState<Record<string, any>>({});
   const [results, setResult] = useState<Record<string, any>>([]);
 
-  // const [] = useDebounce(
-  //   () => {
-  //     setPage(loadingPage);
-  //   },
-  //   300,
-  //   [loadingPage]
-  // );
-
   const chartOptions: DeepPartial<ChartOptions> = useMemo(
     () => ({
       autoSize: true,
-      layout: { textColor: "white", background: { color: "transparent" } },
+      layout: {
+        textColor: !enabled ? "#3e3e3e" : "#eae5e7",
+        background: { color: "transparent" },
+      },
       grid: {
-        vertLines: { color: darkMode.value ? "#131d29" : "#f1f1f1" },
-        horzLines: { color: darkMode.value ? "#131d29" : "#f1f1f1" },
+        vertLines: { color: enabled ? "#3e3e3e" : "#eae5e7" },
+        horzLines: { color: enabled ? "#3e3e3e" : "#eae5e7" },
       },
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
+        borderColor: enabled ? "#3e3e3e" : "#eae5e7",
       },
     }),
-    [darkMode.value]
+    [enabled]
   );
 
   const { data, fetchNextPage, isLoading, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: ["jetton-analytics", location.pathname],
+      queryKey: ["jetton-analytics", location.pathname, timescale],
       queryFn: ({ pageParam = 1 }) => {
         return (
           jetton.id &&
           !!(!data?.pages[pageParam - 1] || data?.pages[pageParam - 1]) &&
           axios
             .get(
-              `https://api.fck.foundation/api/v1/analytics/liquidity?jetton_id=${
+              `https://api.fck.foundation/api/v2/analytics/liquidity?jetton_ids=${
                 jetton.id
               }&time_min=${Math.floor(
                 Date.now() / 1000 - pageParam * pagination[timescale] * 60
@@ -122,10 +92,9 @@ export const AnalyticsVolume = () => {
                 Date.now() / 1000 - (pageParam - 1) * pagination[timescale] * 60
               )}&timescale=${pagination[timescale]}`
             )
-            .then(({ data: { data } }) => data)
+            .then(({ data: { data } }) => data.sources.DeDust.jettons[jetton.id].liquidity)
         );
       },
-      cacheTime: 60 * 1000,
       enabled: !!jetton?.id,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
@@ -133,7 +102,7 @@ export const AnalyticsVolume = () => {
         return page && !pages[page - 1] ? page : undefined; // If there is not a next page, getNextPageParam will return undefined and the hasNextPage boolean will be set to 'false'
       },
       onSuccess: (results) => {
-        localStorage.setItem("timescale", timescale);
+        cookie.save('timescale', timescale, { path: '/' })
 
         const list = results.pages
           ?.reverse()
@@ -353,7 +322,17 @@ export const AnalyticsVolume = () => {
 
   return (
     <Grid.Container>
-      <Grid css={{ width: '100%' }}>
+      {isLoading && location.pathname.includes("volume") && (
+        <Loading
+          css={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            transform: "translate3d(-50%, -50%, 0)",
+          }}
+        />
+      )}
+      <Grid css={{ width: "100%" }}>
         <div
           ref={ref}
           key={timescale}
@@ -363,7 +342,8 @@ export const AnalyticsVolume = () => {
           }}
         />
       </Grid>
-      <Spacer y={0.5} />
+      <Divider />
+      <Spacer y={0.4} />
       <Grid className="chart-table">
         <Table
           aria-label="Stats"
@@ -389,12 +369,46 @@ export const AnalyticsVolume = () => {
           <Table.Body>
             <Table.Row key="1">
               <Table.Cell>
-                {toFixed(
-                  (parseFloat(info?.jettons || 0) as number).toFixed(decimals)
-                )}{" "}
-                {jetton.symbol}
+                <Grid.Container alignItems="center">
+                  <Grid>
+                    <Text
+                      css={{
+                        textGradient: "45deg, $primary -20%, $secondary 100%",
+                      }}
+                      className="chart-label"
+                    >
+                      <GRA06 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
+                      {t("volumeJ")}
+                    </Text>
+                  </Grid>
+                  <Spacer x={0.4} />
+                  <Grid>
+                    {toFixed(
+                      (parseFloat(info?.jettons || 0) as number).toFixed(
+                        decimals
+                      )
+                    )}{" "}
+                    {jetton.symbol}
+                  </Grid>
+                </Grid.Container>
               </Table.Cell>
-              <Table.Cell>{parseFloat(info?.value?.toFixed(2))} TON</Table.Cell>
+              <Table.Cell>
+                <Grid.Container alignItems="center">
+                  <Grid>
+                    <Text
+                      css={{
+                        textGradient: "45deg, $primary -20%, $secondary 100%",
+                      }}
+                      className="chart-label"
+                    >
+                      <GRA09 style={{ fill: "currentColor", fontSize: 24 }} />{" "}
+                      {t("volumeL")}
+                    </Text>
+                  </Grid>
+                  <Spacer x={0.4} />
+                  <Grid>{parseFloat(info?.value?.toFixed(2) || 0)} TON</Grid>
+                </Grid.Container>
+              </Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>

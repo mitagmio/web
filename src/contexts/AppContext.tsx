@@ -5,12 +5,15 @@ import {
   useEffect,
   useState,
   Dispatch,
+  useCallback,
 } from "react";
+import cookie from "react-cookies";
 import {
   THEME,
   TonConnectUIProvider,
   useTonAddress,
   useTonConnectUI,
+  useTonWallet,
 } from "@tonconnect/ui-react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "libs/axios";
@@ -28,8 +31,12 @@ import {
   Configuration,
   NftItemRepr,
 } from "tonapi-sdk-js";
-import { TonProofDemoApi } from "TonProofDemoApi";
+import { TonProofApi } from "TonProofApi";
 import { useTranslation } from "react-i18next";
+import { CHAIN } from "@tonconnect/sdk";
+import { useTheme } from "next-themes";
+import { Loading } from "@nextui-org/react";
+import { getCookie } from "utils";
 
 export type JType = {
   id: number;
@@ -69,7 +76,7 @@ const defaultAppContext: AppProps = {
   setTheme: () => null,
 };
 
-const key = "is-dark";
+const key = "dark-mode";
 
 export const AppContext = createContext<AppProps>(defaultAppContext);
 
@@ -79,55 +86,92 @@ const AppProviderWrapper = ({
   children: ReactNode;
 }): ReactElement => {
   const { i18n } = useTranslation();
+  const wallet = useTonWallet();
   const address = useTonAddress();
   const rawAddress = useTonAddress(false);
   const [tonConnectUI, setOptions] = useTonConnectUI();
-
   const [theme, setTheme] = useState(
-    localStorage.getItem("theme")
-      ? JSON.parse(localStorage.getItem("theme") as string)
-      : { color: "dark" }
+    getCookie("theme")
+      ? JSON.parse(decodeURIComponent(getCookie("theme") || ""))
+      : {
+          color: globalThis?.window?.matchMedia("(prefers-color-scheme: dark)")
+            .matches
+            ? "dark"
+            : "light",
+        }
   );
+  console.log("document.cookie", getCookie("theme"));
   const [nftItems, setNFTItems] = useState<NftItemRepr[]>();
-
-  const darkMode = useDarkMode(false, {
-    classNameDark: "dark",
-    classNameLight: "light",
-  });
   const [enabled, setEnabled] = useState(
-    localStorage?.getItem(key)
-      ? JSON.parse(localStorage?.getItem(key) as string)
+    getCookie(key)
+      ? JSON.parse(decodeURIComponent(getCookie(key) || ""))
       : globalThis?.window?.matchMedia("(prefers-color-scheme: dark)").matches
   );
+  const [data, setData] = useState({});
+  const [authorized, setAuthorized] = useState(false);
 
-  console.log("theme", theme);
+  useEffect(
+    () =>
+      tonConnectUI.onStatusChange(async (w) => {
+        if (!w || w.account.chain === CHAIN.TESTNET) {
+          TonProofApi.reset();
+          setAuthorized(false);
+          return;
+        }
+
+        if (w.connectItems?.tonProof && "proof" in w.connectItems.tonProof) {
+          await TonProofApi.checkProof(
+            w.connectItems.tonProof.proof,
+            w.account
+          );
+        }
+
+        if (!TonProofApi.accessToken) {
+          tonConnectUI.disconnect();
+          setAuthorized(false);
+          return;
+        }
+
+        setAuthorized(true);
+      }),
+    [tonConnectUI]
+  );
+
+  useEffect(() => {
+    const get = async () => {
+      if (wallet) {
+        const response = await TonProofApi.getAccountInfo(wallet.account);
+
+        setData(response);
+      }
+    };
+
+    get();
+  }, [wallet]);
 
   useEffect(() => {
     if (theme) {
-      localStorage.setItem("theme", JSON.stringify(theme));
+      cookie.save("theme", JSON.stringify(theme), { path: "/" });
+
+      if (enabled) {
+        document.getElementsByTagName("html")[0].classList.add("dark-theme");
+        document
+          .getElementsByTagName("html")[0]
+          .classList.remove("light-theme");
+      } else {
+        document.getElementsByTagName("html")[0].classList.add("light-theme");
+        document.getElementsByTagName("html")[0].classList.remove("dark-theme");
+      }
     }
 
     setOptions({
       language: i18n.language as any,
       uiPreferences: { theme: (enabled ? "DARK" : "LIGHT") as any },
     });
-  }, [theme, i18n.language]);
+  }, [theme, enabled, i18n.language]);
 
   useEffect(() => {
-    globalThis.localStorage.setItem(key, JSON.stringify(enabled));
-    if (enabled) {
-      document.body.classList.add("dark");
-      document.body.classList.remove("light");
-    } else {
-      document.body.classList.add("light");
-      document.body.classList.remove("dark");
-    }
-
-    if (enabled) {
-      darkMode.enable();
-    } else {
-      darkMode.disable();
-    }
+    cookie.save(key, JSON.stringify(enabled), { path: "/" });
   }, [enabled]);
 
   const { data: ton, isLoading: isTLoading } = useQuery({
@@ -185,8 +229,6 @@ const AppProviderWrapper = ({
     getData();
   }, [address]);
 
-  console.log("App", { ton, jettons });
-
   return (
     <AppContext.Provider
       value={{
@@ -212,8 +254,7 @@ export const AppProvider = ({ children }) => {
   return (
     <TonConnectUIProvider
       manifestUrl="https://fck.foundation/tonconnect-manifest.json"
-      getConnectParameters={() => TonProofDemoApi.connectWalletRequest}
-      uiPreferences={{ theme: THEME.DARK }}
+      getConnectParameters={() => TonProofApi.connectWalletRequest}
     >
       <AppProviderWrapper>{children}</AppProviderWrapper>
     </TonConnectUIProvider>

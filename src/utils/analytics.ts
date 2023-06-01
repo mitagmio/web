@@ -22,10 +22,11 @@ export const getList = (data: Record<number, any>, jettons?: JType[]) =>
     }))
     const volume = [...stats].reduce((acc, i) => (acc += i?.volume), 0)
     const percent = !!stats[stats.length - 1]?.value
-      ? (stats[stats.length - 1]?.value / stats[0]?.value) * 100 - 100
+      ? (stats[stats.length - 1]?.value - stats[0]?.value) / stats[0]?.value * 100
       : 0
 
     return {
+      id: jetton?.id,
       name: jetton?.symbol || '',
       image: jetton?.image || '',
       price: stats[stats.length - 1]?.value || 0,

@@ -1,12 +1,12 @@
 import { THEME, TonConnectUIProvider } from '@tonconnect/ui-react'
 import { Header, TxForm, TonProofDemo, Footer } from 'components/Ton'
-import { TonProofDemoApi } from './TonProofDemoApi'
+import { TonProofApi } from './TonProofApi'
 
 function Ton() {
   return (
     <TonConnectUIProvider
       manifestUrl="https://fck.foundation/tonconnect-manifest.json"
-      getConnectParameters={() => TonProofDemoApi.connectWalletRequest}
+      getConnectParameters={() => TonProofApi.connectWalletRequest}
       uiPreferences={{ theme: THEME.DARK }}
     >
       <div className="app">

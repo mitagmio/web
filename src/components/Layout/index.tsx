@@ -17,6 +17,7 @@ import {
 import {
   TonConnectButton,
   useTonAddress,
+  useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react";
 
@@ -30,6 +31,9 @@ import { SvgInline } from "../SVG";
 import { GEN16, Discord, TG, TW, ABS28 } from "assets/icons";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "components/Language";
+import useDarkMode from "use-dark-mode";
+import { useTheme } from "next-themes";
+import { TonProofApi } from "TonProofApi";
 
 export const Layout = ({ children }: { children?: any }) => {
   const { t } = useTranslation();
@@ -38,26 +42,43 @@ export const Layout = ({ children }: { children?: any }) => {
   const location = useLocation();
   const wallet = useTonWallet();
   const address = useTonAddress();
-  const { nftItems, theme } = useContext(AppContext);
+  const [tonConnectUI] = useTonConnectUI();
+  const { nftItems, enabled, theme, setTheme } = useContext(AppContext);
   const [toggle, setToggle] = useState(false);
   const [user, setUser] = useState<TUser>();
 
   const onAction = (actionKey: React.Key) => {
     switch (actionKey) {
       case "logout":
-        fetch(
-          "https://oauth.telegram.org/auth/logOut?bot_id=6160672395&origin=https://fck.foundation",
-          {
-            method: "POST",
-            mode: "no-cors",
-          }
-        );
+        tonConnectUI.disconnect();
+        localStorage.removeItem("access-token");
+        document
+          .getElementsByTagName("html")[0]
+          .classList.remove(`${theme.color}${enabled ? "" : "-light"}-theme`);
+        document
+          .getElementsByTagName("html")[0]
+          .classList.add(`${enabled ? "dark" : "light"}-theme`);
+        setTheme({ color: enabled ? "dark" : "light" });
         setUser(undefined);
+        break;
+      case "connect":
+        document.getElementById("tc-connect-button")?.click();
+        break;
+      case "whitelist":
+        break;
+      case "analytics":
+        navigate(`/wallet/${address}`);
         break;
       default:
         break;
     }
   };
+
+  useEffect(() => {
+    if (!TonProofApi.accessToken) {
+      onAction("logout");
+    }
+  }, []);
 
   const background = useMemo(
     () =>
@@ -107,8 +128,7 @@ export const Layout = ({ children }: { children?: any }) => {
             <Container
               justify="space-between"
               gap={2}
-              fluid
-              css={{ display: "flex" }}
+              css={{ display: "flex", p: 0 }}
             >
               <Grid css={{ w: "auto" }}>
                 <Navbar.Brand
@@ -120,15 +140,15 @@ export const Layout = ({ children }: { children?: any }) => {
                   onClick={() => navigate("/")}
                 >
                   <Navbar.Toggle
-                    isSelected={toggle}
+                    // isSelected={toggle}
                     aria-label="toggle navigation"
                     showIn="sm"
                     onChange={(value) => setToggle(!!value)}
                   />
-                  <Spacer x={1} />
+                  <Spacer x={0.4} />
                   <Grid.Container alignItems="center">
                     <Grid css={{ display: "flex" }}>
-                      <ThemeSwitcher />
+                      <ThemeSwitcher isLogo />
                     </Grid>
                     <Spacer x={0.4} />
                     <Grid>
@@ -138,9 +158,21 @@ export const Layout = ({ children }: { children?: any }) => {
                           textGradient: "45deg, $primary 25%, $secondary 125%",
                         }}
                         weight="bold"
+                      >
+                        FCK
+                      </Text>
+                    </Grid>
+                    <Spacer x={0.2} />
+                    <Grid>
+                      <Text
+                        size={16}
+                        css={{
+                          textGradient: "45deg, $primary 25%, $secondary 125%",
+                        }}
+                        weight="bold"
                         hideIn="xs"
                       >
-                        FCK Foundation
+                        Foundation
                       </Text>
                     </Grid>
                   </Grid.Container>
@@ -167,102 +199,85 @@ export const Layout = ({ children }: { children?: any }) => {
                   },
                 }}
               >
-                <Navbar.Content>
+                <Navbar.Content gap={8}>
                   <LanguageSwitcher />
-                  {!user && !address ? (
-                    <>
-                      {/* <TLoginButton
-                        botName="dyorton_bot"
-                        buttonSize={TLoginButtonSize.Medium}
-                        lang="en"
-                        usePic={false}
-                        redirectUrl="https://fck.foundation"
-                        cornerRadius={0}
-                        onAuthCallback={setUser}
-                        requestAccess={"write"}
-                      /> */}
-                      <TonConnectButton className="tconnect-button" />
-
-                      <Button
-                        color="secondary"
-                        size="sm"
-                        flat
-                        icon={
+                  <TonConnectButton className="tconnect-button" />
+                  <Dropdown placement="bottom-right" closeOnSelect={false}>
+                    <Navbar.Item>
+                      <Dropdown.Trigger>
+                        <Button
+                          flat
+                          size="sm"
+                          style={{
+                            minWidth: "auto",
+                          }}
+                        >
                           <ABS28
                             style={{
                               fill: "var(--nextui-colors-link)",
                               fontSize: 24,
                             }}
                           />
-                        }
-                        css={{
-                          minWidth: "auto",
-                          padding: "$4",
-                          background: "transparent",
-                          // border: "1px solid $blue100",
-                        }}
-                        auto
-                        onClick={() =>
-                          document.getElementById("tc-connect-button")?.click()
-                        }
-                      >
-                        <div className="hideon-mobile">
-                          {t("connectWallet")}
-                        </div>
-                      </Button>
-                    </>
-                  ) : (
-                    <Dropdown placement="bottom-right">
-                      <Navbar.Item>
-                        <Dropdown.Trigger>
-                          <Button
-                            flat
-                            size="sm"
+                          <Spacer x={0.4} />
+                          <div
                             style={{
-                              minWidth: "auto",
+                              maxWidth: 75,
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                              textOverflow: "ellipsis",
                             }}
                           >
-                            <div
-                              style={{
-                                maxWidth: 125,
-                                overflow: "hidden",
-                                whiteSpace: "nowrap",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {user ? user.first_name : address}
-                            </div>
-                          </Button>
-                        </Dropdown.Trigger>
-                      </Navbar.Item>
-                      <Dropdown.Menu
-                        aria-label="User menu actions"
-                        color="secondary"
-                        onAction={onAction}
-                        disabledKeys={["profile"]}
+                            {!user && !address
+                              ? t("signIn")
+                              : user
+                              ? user.first_name
+                              : address}
+                          </div>
+                        </Button>
+                      </Dropdown.Trigger>
+                    </Navbar.Item>
+                    <Dropdown.Menu
+                      aria-label="User menu actions"
+                      color="secondary"
+                      onAction={onAction}
+                    >
+                      <Dropdown.Item
+                        key="switcher"
+                        css={{ height: "unset", p: 0, margin: -8 }}
                       >
-                        <Dropdown.Item key="settings">
-                          My Settings
-                        </Dropdown.Item>
-                        <Dropdown.Item key="team_settings">
-                          Team Settings
-                        </Dropdown.Item>
-                        <Dropdown.Item key="analytics" withDivider>
-                          Analytics
-                        </Dropdown.Item>
-                        <Dropdown.Item key="system">System</Dropdown.Item>
-                        <Dropdown.Item key="configurations">
-                          Configurations
-                        </Dropdown.Item>
-                        <Dropdown.Item key="help_and_feedback" withDivider>
-                          Help & Feedback
-                        </Dropdown.Item>
-                        <Dropdown.Item key="logout" color="error" withDivider>
-                          Log Out
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  )}
+                        <ThemeSwitcher />
+                      </Dropdown.Item>
+                      {!address &&
+                        ((
+                          <Dropdown.Item
+                            key="connect"
+                            icon={
+                              <ABS28
+                                style={{
+                                  fill: "var(--nextui-colors-link)",
+                                  fontSize: 24,
+                                }}
+                              />
+                            }
+                            withDivider
+                          >
+                            {t("connectWallet")}
+                          </Dropdown.Item>
+                        ) as any)}
+                      {!!address &&
+                        ((
+                          <Dropdown.Item key="analytics" withDivider>
+                            {t("analytics")}
+                          </Dropdown.Item>
+                        ) as any)}
+                      {!!address &&
+                        ((
+                          <Dropdown.Item key="logout" color="error" withDivider>
+                            {t("disconnect")}
+                          </Dropdown.Item>
+                        ) as any)}
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </Navbar.Content>
               </Grid>
             </Container>
@@ -280,11 +295,7 @@ export const Layout = ({ children }: { children?: any }) => {
             </Navbar.Collapse>
           </Navbar>
 
-          <Container
-            gap={2}
-            fluid
-            css={{ display: "flex", paddingBottom: "$16" }}
-          >
+          <Container gap={2} css={{ display: "flex", padding: "$0" }}>
             {children ? children : <Outlet />}
           </Container>
           {background}
@@ -321,12 +332,37 @@ export const Layout = ({ children }: { children?: any }) => {
                   <Grid sm={6} md={4}>
                     <Grid.Container>
                       <Grid>
-                        <Text size={18}>{t('learnMore')}</Text>
+                        <Text size={18}>{t("learnMore")}</Text>
                         <ul>
-                          <li><Link to="https://ton.app" target="_blank">{t("apps")}</Link></li>
-                          <li><Link to="https://docs.ton.org/learn/glossary" target="_blank">{t("glossary")}</Link></li>
-                          <li><Link to="https://github.com/fck-foundation" target="_blank">{t("developers")}</Link></li>
-                          <li><Link to="/public/FCK Foundation White Paper.pdf" target="_blank">{t("whitePaper")}</Link></li>
+                          <li>
+                            <Link to="https://ton.app" target="_blank">
+                              {t("apps")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              to="https://docs.ton.org/learn/glossary"
+                              target="_blank"
+                            >
+                              {t("glossary")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              to="https://github.com/fck-foundation"
+                              target="_blank"
+                            >
+                              {t("developers")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              to="/public/FCK Foundation White Paper.pdf"
+                              target="_blank"
+                            >
+                              {t("whitePaper")}
+                            </Link>
+                          </li>
                           <li>
                             <Link to="/team">{t("ourTeam")}</Link>
                           </li>

@@ -5,8 +5,8 @@ import {
 } from "@tonconnect/sdk";
 import "./patch-local-storage-for-github-pages";
 
-class TonProofDemoApiService {
-  private localStorageKey = "demo-api-access-token";
+class TonProofApiService {
+  private localStorageKey = "access-token";
 
   private host = "https://demo.tonconnect.dev";
 
@@ -16,7 +16,7 @@ class TonProofDemoApiService {
     Promise.resolve({});
 
   constructor() {
-    this.accessToken = localStorage.getItem(this.localStorageKey);
+    this.accessToken = globalThis.localStorage.getItem(this.localStorageKey);
 
     if (!this.accessToken) {
       this.generatePayload();
@@ -59,7 +59,7 @@ class TonProofDemoApiService {
       console.log("PROF RESPONSE:", response);
 
       if (response?.data?.token) {
-        localStorage.setItem(this.localStorageKey, response?.data?.token);
+        globalThis.localStorage.setItem(this.localStorageKey, response?.data?.token);
         this.accessToken = response?.data?.token;
       }
     } catch (e) {
@@ -82,9 +82,9 @@ class TonProofDemoApiService {
 
   reset() {
     this.accessToken = null;
-    localStorage.removeItem(this.localStorageKey);
+    globalThis.localStorage.removeItem(this.localStorageKey);
     this.generatePayload();
   }
 }
 
-export const TonProofDemoApi = new TonProofDemoApiService();
+export const TonProofApi = new TonProofApiService();
