@@ -123,7 +123,7 @@ export const ColorsSelect: FunctionComponent<ColorsSelectProps> = ({ theme }) =>
                 </div>
             }
 
-            return <div>
+            return <div key={key1}>
                 <span>{key1}:</span>
                 <label>
                     <input

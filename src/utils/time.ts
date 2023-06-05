@@ -167,7 +167,5 @@ export function nearestDate(dates, target) {
     }
   });
 
-  console.log('winner', winner);
-
   return winner;
 }

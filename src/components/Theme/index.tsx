@@ -21,8 +21,6 @@ export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
   const { nftItems, enabled, theme, setEnabled, setTheme } =
     useContext(AppContext);
 
-    console.log(nftItems, enabled, theme);
-
   return isLogo ? (
     theme.id && !!nftItems?.length ? (
       <Image

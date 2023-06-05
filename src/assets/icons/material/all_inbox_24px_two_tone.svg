@@ -1,0 +1,22 @@
+<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="all_inbox_24px">
+<g id="&#226;&#134;&#179; Dark Color">
+<path id="Mask" fill-rule="evenodd" clip-rule="evenodd" d="M5 3H19C20.1 3 21 3.9 21 5V12C21 13.1 20.1 14 19 14H5C3.90002 14 3 13.1 3 12V5C3 3.9 3.90002 3 5 3ZM8.13 10H5V12H9.40002C8.79999 11.47 8.34003 10.78 8.13 10ZM19 12H14.6C15.2 11.47 15.66 10.78 15.87 10H19V12ZM14 8H19V5H5V8H10V9C10 10.07 10.93 11 12 11C13.07 11 14 10.07 14 9V8Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Dark Color_2">
+<path id="Mask_2" fill-rule="evenodd" clip-rule="evenodd" d="M14 15V16C14 16.47 13.81 16.9 13.52 17.25C13.15 17.7 12.6 18 12 18C11.4 18 10.85 17.7 10.48 17.25C10.19 16.9 10 16.47 10 16V15H3V19C3 20.1 3.90002 21 5 21H19C20.1 21 21 20.1 21 19V15H14ZM5 17H8H8.13C8.14417 17.0636 8.16821 17.1221 8.19171 17.1793L8.19299 17.1824C8.20233 17.2051 8.21155 17.2275 8.21997 17.25C8.46002 17.93 8.87 18.53 9.40002 19H5V17ZM14.6 19H19V17H17H15.87C15.8558 17.0637 15.8317 17.1224 15.8081 17.1796C15.7984 17.2032 15.7888 17.2266 15.78 17.25C15.55 17.93 15.14 18.53 14.6 19Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Light Color">
+<path id="Mask_3" opacity="0.5" d="M8.13 10H5V12H9.4C8.8 11.47 8.34 10.78 8.13 10Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Light Color_2">
+<path id="Mask_4" opacity="0.5" d="M14.6 12H19V10H15.87C15.66 10.78 15.2 11.47 14.6 12Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Light Color_3">
+<path id="Mask_5" opacity="0.5" d="M8.22 17.25C8.19 17.17 8.16 17.09 8.13 17H8H5V19H9.4C8.87 18.53 8.46 17.93 8.22 17.25Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Light Color_4">
+<path id="Mask_6" opacity="0.5" d="M15.87 17C15.85 17.09 15.81 17.17 15.78 17.25C15.55 17.93 15.14 18.53 14.6 19H19V17H15.87Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+</g>
+</svg>

@@ -26,7 +26,7 @@ export const LanguageSwitcher = () => {
       size="sm"
       flat
       css={{
-        minWidth: "auto",
+        minWidth: 35,
         padding: "$4",
         background: "transparent",
         border: "1px solid $blue100",

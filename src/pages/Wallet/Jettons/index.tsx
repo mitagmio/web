@@ -1,6 +1,15 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Card, Grid, Spacer, Table, Text, User } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  Grid,
+  Pagination,
+  Spacer,
+  Table,
+  Text,
+  User,
+} from "@nextui-org/react";
 import { GEN17 } from "assets/icons";
 import axios from "axios";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -14,12 +23,26 @@ import Skeleton from "react-loading-skeleton";
 import { TonProofApi } from "TonProofApi";
 
 interface Props {
+  isBalance: boolean;
+  page: number;
+  isLoading?: boolean;
   selected?: number;
   setSelected: React.Dispatch<number>;
   setSwaps: (value?: any) => void;
+  setPage: (value?: any) => void;
+  setIsBalance: (value?: any) => void;
 }
 
-const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
+const WalletSwaps: React.FC<Props> = ({
+  isBalance,
+  page,
+  isLoading,
+  selected,
+  setSelected,
+  setSwaps,
+  setPage,
+  setIsBalance,
+}) => {
   const location = useLocation();
   const tonAddress = useTonAddress();
   const { t } = useTranslation();
@@ -27,40 +50,51 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
 
   const wallet = location.pathname.split("/").pop();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading: isLoadingJettons } = useQuery({
     queryKey: ["wallet-jettons", wallet],
     queryFn: async () =>
       await axios.get(`https://tonapi.io/v2/accounts/${wallet}/jettons`),
     enabled: !!wallet,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    select: (response) =>
-      response.data.balances.filter(({ balance }) => parseFloat(balance)),
+    select: (response) => response.data.balances,
   });
 
   const dataSelected = useMemo(
     () =>
       jettons?.filter(({ address }) =>
-        data?.some(({ jetton }) => jetton.address === address)
+        data
+          ?.filter(({ balance }) => (isBalance ? parseFloat(balance) : true))
+          ?.some(({ jetton }) => jetton.address === address)
       ),
-    [jettons, data]
+    [jettons, data, isBalance]
   );
 
+  const pageList = useMemo(() => {
+    const dataList = dataSelected?.slice((page - 1) * 15, page * 15);
+    return jettons?.length
+      ? dataList?.map(({ address }) => ({
+          ...jettons.find((jetton) => jetton.address === address),
+        }))
+      : [];
+  }, [jettons, dataSelected, page]);
+
   const { data: dataChart, isLoading: isLoadingChart } = useQuery({
-    queryKey: ["jettons-analytics-profile", data],
-    queryFn: () =>
+    queryKey: ["jettons-analytics-profile", dataSelected, page],
+    queryFn: ({ signal }) =>
       axios
         .get(
-          `https://api.fck.foundation/api/v2/analytics?jetton_ids=${dataSelected
+          `https://api.fck.foundation/api/v2/analytics?jetton_ids=${pageList
             .map(({ id }) => id)
             .join(",")}&time_min=${Math.floor(
             Date.now() / 1000 - 86400
-          )}&timescale=${86400 / 6}`
+          )}&timescale=${86400 / 6}`,
+          { signal }
         )
         .then(({ data: { data } }) => data),
     refetchOnMount: false,
     refetchOnReconnect: false,
-    enabled: !!data?.length,
+    enabled: !!dataSelected?.length,
     cacheTime: 60 * 1000,
     select: (response) =>
       dataSelected.map((jetton: any, key) => {
@@ -137,7 +171,6 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
             }
           )
           .then((response) => {
-            console.log("response", response);
             setSwaps(response.data.data.sources.DeDust.jettons[selected].swaps);
           });
       }
@@ -146,7 +179,21 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
 
   return (
     <Card variant="bordered">
-      <Card.Header>{t("tokens")}</Card.Header>
+      <Card.Header>
+        <Grid.Container justify="space-between" alignItems="center">
+          <Grid>{t("tokens")}</Grid>
+          <Grid>
+            <Button.Group size="sm">
+              <Button flat={isBalance} onClick={() => setIsBalance(false)}>
+                {t("all")}
+              </Button>
+              <Button flat={!isBalance} onClick={() => setIsBalance(true)}>
+                {t("isBalance")}
+              </Button>
+            </Button.Group>
+          </Grid>
+        </Grid.Container>
+      </Card.Header>
       <Card.Body css={{ p: "$0" }}>
         <Table
           className="chart-table"
@@ -162,7 +209,9 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
             <Table.Column>price</Table.Column>
           </Table.Header>
           <Table.Body>
-            {isLoading || (!!data?.length && isLoadingChart) ? (
+            {isLoading ||
+            isLoadingJettons ||
+            (!!dataSelected?.length && isLoadingChart) ? (
               new Array(3).fill(null).map((_, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
@@ -199,7 +248,7 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
                   </Table.Cell>
                 </Table.Row>
               ))
-            ) : !data?.length ? (
+            ) : !dataChart?.length ? (
               <Table.Row key="empty">
                 <Table.Cell>
                   <Grid.Container justify="center">
@@ -216,6 +265,11 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
               </Table.Row>
             ) : (
               data
+                ?.filter((balance) =>
+                  pageList.some(
+                    ({ symbol }) => symbol === balance.jetton.symbol
+                  )
+                )
                 ?.filter((balance) =>
                   dataChart?.find(
                     ({ jetton }) => jetton.symbol === balance.jetton.symbol
@@ -250,10 +304,10 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
                           description={
                             lastPrice &&
                             `$${(
-                              lastPrice * ton.market_data.current_price.usd
+                              lastPrice * ton?.market_data?.current_price?.usd
                             ).toFixed(2)}`
                           }
-                          css={{ p: 0, cursor: 'pointer' }}
+                          css={{ p: 0, cursor: "pointer" }}
                           onClick={() => setSelected(info?.jetton.id)}
                         />
                       </Table.Cell>
@@ -266,7 +320,7 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
                                 ? `≈ $${(
                                     jCount *
                                     lastPrice *
-                                    ton.market_data.current_price.usd
+                                    ton?.market_data?.current_price?.usd
                                   ).toFixed(2)}`
                                 : ""}
                             </Text>
@@ -279,6 +333,17 @@ const WalletSwaps: React.FC<Props> = ({ selected, setSelected, setSwaps }) => {
             )}
           </Table.Body>
         </Table>
+
+        {Math.ceil(dataSelected?.length / 15) > 1 && (
+          <Pagination
+            loop
+            color="success"
+            css={{ m: "$4" }}
+            total={Math.ceil(dataSelected?.length / 15)}
+            page={page}
+            onChange={setPage}
+          />
+        )}
       </Card.Body>
     </Card>
   );

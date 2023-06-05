@@ -41,9 +41,8 @@ import {
   andromedaLight,
 } from "./themes";
 import { Layout } from "./components";
-import { Home, Countdown, OurTeam, RoadMap, Analytics, Chart } from "./pages";
+import { Home, Events, OurTeam, RoadMap, Analytics, Export } from "./pages";
 import NotFound from "./NotFound";
-import Ton from "./Ton";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "keen-slider/keen-slider.min.css";
@@ -82,7 +81,7 @@ const router = createBrowserRouter([
       },
       {
         path: "events",
-        element: <Countdown />,
+        element: <Events />,
       },
       {
         path: "roadmap",
@@ -91,10 +90,6 @@ const router = createBrowserRouter([
       {
         path: "team",
         element: <OurTeam />,
-      },
-      {
-        path: "ton",
-        element: <Ton />,
       },
       {
         path: "analytics",
@@ -115,8 +110,8 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/chart/:id",
-    element: <Chart />,
+    path: "/export/:id",
+    element: <Export />,
   },
   {
     path: "*",
@@ -141,7 +136,6 @@ function App() {
         : "light",
     [theme, enabled]
   );
-  console.log('themeName', themeName);
   const values = useMemo(
     () => ({
       light,

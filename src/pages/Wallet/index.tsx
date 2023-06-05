@@ -4,22 +4,41 @@ import { Container, Grid } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
 import axios from "axios";
-import { _ } from "utils";
+import { _, normalize } from "utils";
 import { TonProofApi } from "TonProofApi";
 import { AppContext } from "contexts";
 
 import Header from "./Header";
 import Jettons from "./Jettons";
 import Swaps from "./Swaps";
+import { FJetton } from "components";
+import { colors } from "colors";
+import { JettonChart } from "pages/Analytics";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { Address } from "ton-core";
 
 export const Wallet = () => {
   const location = useLocation();
   const tonAddress = useTonAddress();
-  const { jettons } = useContext(AppContext);
-  const [swaps, setSwaps] = useState<Record<string, any>[]>([]);
+  const { ton, theme, jettons } = useContext(AppContext);
+  const [swaps, setSwaps] = useState<Record<string, any>[]>();
   const [selected, setSelected] = useState<number>();
+  const [page, setPage] = useState(1);
+  const [isBalance, setIsBalance] = useState(true);
 
   const wallet = location.pathname.split("/").pop();
+
+  useEffect(() => {
+    setPage(1);
+  }, [wallet]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["wallet-jettons", wallet],
@@ -28,8 +47,27 @@ export const Wallet = () => {
     enabled: !!wallet,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    select: (response) =>
-      response.data.balances.filter(({ balance }) => parseFloat(balance)),
+    select: (response) => response.data.balances,
+  });
+
+  const { data: dataTON, isLoading: isLoadingTON } = useQuery({
+    queryKey: ["wallet-ton", tonAddress],
+    queryFn: async () =>
+      await axios.get(
+        `https://tonapi.io/v1/blockchain/getAccount?account=${Address.parse(
+          tonAddress
+        ).toRawString()}`
+      ),
+    enabled: !!wallet,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    select: (response) => ({
+      ton: normalize(response.data.balance, 9).toFixed(2),
+      usd: (
+        normalize(response.data.balance, 9) *
+        ton?.market_data?.current_price?.usd
+      ).toFixed(2),
+    }),
   });
 
   const dataSelected = useMemo(
@@ -40,21 +78,31 @@ export const Wallet = () => {
     [jettons, data]
   );
 
+  const pageList = useMemo(() => {
+    const dataList = dataSelected?.slice((page - 1) * 15, page * 15);
+    return jettons?.length
+      ? dataList?.map(({ address }) => ({
+          ...jettons.find((jetton) => jetton.address === address),
+        }))
+      : [];
+  }, [jettons, dataSelected, page]);
+
   const { data: dataChart, isLoading: isLoadingChart } = useQuery({
-    queryKey: ["jettons-analytics-profile", data],
-    queryFn: () =>
+    queryKey: ["jettons-analytics-profile", pageList, page],
+    queryFn: ({ signal }) =>
       axios
         .get(
-          `https://api.fck.foundation/api/v2/analytics?jetton_ids=${dataSelected
+          `https://api.fck.foundation/api/v2/analytics?jetton_ids=${pageList
             .map(({ id }) => id)
             .join(",")}&time_min=${Math.floor(
             Date.now() / 1000 - 86400
-          )}&timescale=${86400 / 6}`
+          )}&timescale=${86400 / 6}`,
+          { signal }
         )
         .then(({ data: { data } }) => data),
     refetchOnMount: false,
     refetchOnReconnect: false,
-    enabled: !!data?.length,
+    enabled: !!dataSelected?.length,
     cacheTime: 60 * 1000,
     select: (response) =>
       dataSelected.map((jetton: any, key) => {
@@ -77,7 +125,7 @@ export const Wallet = () => {
             : []),
           ...(jetton.data || [])?.map((item, i) => {
             return {
-              name: jettons.find(({ id }) => id === item.jetton_id)?.symbol,
+              name: jettons.find(({ id }) => id === selected)?.symbol,
               pv:
                 _(item.price_close) ||
                 _(item.price_high) ||
@@ -87,22 +135,7 @@ export const Wallet = () => {
             };
           }),
         ];
-        const dataChart = [...dataJetton]
-          .filter((i) => i.pv)
-          .map((d, i) => ({
-            ...d,
-            pv:
-              i > 0 &&
-              d.pv &&
-              dataJetton[i - 1].pv &&
-              dataJetton[i - 1].pv !== d.pv
-                ? dataJetton[i - 1].pv < d.pv
-                  ? d.pv && d.pv - 100
-                  : d.pv && d.pv + 100
-                : dataJetton[dataJetton.length - 1].pv < d.pv
-                ? d.pv && d.pv + 100 * 10
-                : d.pv && d.pv - 100 * 2,
-          }));
+        const dataChart = [...dataJetton].filter((i) => i.pv);
 
         const volume = [...dataJetton].reduce(
           (acc, i) => (acc += i?.volume),
@@ -119,12 +152,16 @@ export const Wallet = () => {
   });
 
   useEffect(() => {
-    if (!selected && data?.length && jettons?.length) {
+    if (!selected) {
       const list = data?.filter((balance) =>
-        dataChart?.find(({ jetton }) => jetton.symbol === balance.jetton.symbol)
+        dataChart?.find(
+          ({ jetton }) =>
+            (isBalance ? parseFloat(balance.balance) : true) &&
+            jetton.symbol === balance.jetton.symbol
+        )
       );
 
-      if (list.length) {
+      if (list?.length) {
         setSelected(
           jettons?.find(({ address }) => address === list[0].jetton.address)?.id
         );
@@ -145,28 +182,100 @@ export const Wallet = () => {
             }
           )
           .then((response) => {
-            console.log("response", response);
             setSwaps(response.data.data.sources.DeDust.jettons[selected].swaps);
           });
       }
     }
   }, [tonAddress, selected, wallet]);
 
+  const selectedValue = useMemo(
+    () =>
+      data
+        ?.filter((balance) =>
+          dataChart?.find(
+            ({ jetton }) =>
+              jetton.symbol === balance.jetton.symbol && jetton.id === selected
+          )
+        )
+        ?.map((balance, i) =>
+          normalize(balance.balance, balance.jetton.decimals)
+        )
+        .pop(),
+    [data, selected]
+  );
+
   return (
-    <Container css={{ minHeight: "50vh", p: "$8" }}>
+    <Container css={{ minHeight: "70vh", p: "$8" }}>
       <Grid.Container gap={1}>
         <Grid xs={12}>
           <Header selected={selected} setSwaps={setSwaps} />
         </Grid>
         <Grid xs={12} sm={4} css={{ h: "fit-content" }}>
-          <Jettons
-            selected={selected}
-            setSelected={setSelected}
-            setSwaps={setSwaps}
-          />
+          {
+            <Jettons
+              isBalance={isBalance}
+              page={page}
+              isLoading={!!dataSelected?.length && isLoadingChart}
+              selected={selected}
+              setSelected={setSelected}
+              setSwaps={setSwaps}
+              setPage={setPage}
+              setIsBalance={setIsBalance}
+            />
+          }
         </Grid>
         <Grid xs={12} sm={8} css={{ h: "fit-content" }}>
-          <Swaps selected={selected} swaps={swaps} setSwaps={setSwaps} />
+          <Grid.Container>
+            {/* {selected && (
+              <Grid xs={12}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart
+                    width={500}
+                    height={400}
+                    data={
+                      dataChart?.length
+                        ? dataChart
+                            ?.find(({ jetton }) => jetton.id === selected)
+                            ?.dataChart?.map((item, i) => ({
+                              ...item,
+                              pv:
+                                item.pv *
+                                ton?.market_data.current_price.usd *
+                                selectedValue,
+                              volume: i,
+                            }))
+                        : [{ pv: 0 }, { pv: 0 }]
+                    }
+                    margin={{
+                      top: 10,
+                      right: 30,
+                      left: 0,
+                      bottom: 0,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area
+                      type="monotone"
+                      dataKey="pv"
+                      stroke="#8884d8"
+                      fill="#8884d8"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </Grid>
+            )} */}
+            <Grid xs={12}>
+              <Swaps
+                isLoading={!!wallet && !!tonAddress && isLoading}
+                selected={selected}
+                swaps={swaps}
+                setSwaps={setSwaps}
+              />
+            </Grid>
+          </Grid.Container>
         </Grid>
       </Grid.Container>
     </Container>

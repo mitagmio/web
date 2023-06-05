@@ -40,9 +40,9 @@ export default defineConfig({
       ],
       // strategies: 'injectManifest',
       manifest: {
-        name: "FCK Foundation",
-        short_name: "FCK",
-        description: "FCK Foundation description",
+        name: "Find & Check",
+        short_name: "FCK Foundation",
+        description: "Find & Check Foundation description",
         theme_color: "#2eab8f",
         background_color: "#121212",
         display: "fullscreen",
@@ -97,7 +97,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, 'src'),
-		}
+		},
 	},
   build: {
     outDir: "docs",
@@ -114,7 +114,6 @@ export default defineConfig({
     fs: {
       allow: ["../sdk", "./"],
     },
-    port: 443,
     https: true,
   },
   preview: {

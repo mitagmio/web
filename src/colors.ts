@@ -21,7 +21,7 @@ export const colors = {
     secondaryBorderHover: "$blue800",
     secondarySolidHover: "$blue900",
     secondarySolidContrast: "$white",
-    gradient: "linear-gradient(45deg, #6AAEFF 0%, #B2D4FC 100%)",
+    gradient: "linear-gradient(45deg, #0088CC 0%, #31a6f5 100%)",
     link: "#31a6f5",
   },
   dark: {
@@ -46,7 +46,7 @@ export const colors = {
     secondaryBorderHover: "$blue800",
     secondarySolidHover: "$blue900",
     secondarySolidContrast: "$white",
-    gradient: "linear-gradient(45deg, #6AAEFF 0%, #B2D4FC 100%)",
+    gradient: "linear-gradient(45deg, #0088CC 0%, #31a6f5 100%)",
     link: "#31a6f5",
   },
   sky: {

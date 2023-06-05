@@ -81,12 +81,14 @@ export const Calc: React.FC<any> = ({ data }) => {
               css={{
                 textGradient: "45deg, $primary -20%, $secondary 50%",
                 marginTop: -16,
-                pr: 100
+                lineHeight: 1,
+                pr: 100,
               }}
               weight="bold"
             >
               {t("buyTrade")}
             </Text>
+            <Spacer y={0.5} />
             <Text
               size={32}
               color="light"
@@ -98,39 +100,44 @@ export const Calc: React.FC<any> = ({ data }) => {
               TON network
             </Text>
           </Grid>
-          <Spacer x={1} />
-          <Grid>
-            <Button
-              flat
-              color="secondary"
-              css={{
-                minWidth: "auto",
-                overflow: "visible",
-                position: "absolute",
-                right: 16,
-                top: 16,
-              }}
-              onClick={() =>
-                globalThis.open(
-                  `https://dedust.io/dex/swap?from=${from}&to=${to}`,
-                  "_blank"
-                )
-              }
-            >
-              {displayCalcValue}
-              $
+          <Grid css={{ position: "absolute", right: 16, top: 16 }}>
+            <Grid.Container alignItems="center">
+              <Grid>
+                <Text>1 TON</Text>
+              </Grid>
               <Spacer x={0.4} />
-              <img
-                src="/img/dedust.webp"
-                alt="DeDust.io"
-                style={{ height: 32 }}
-              />
-            </Button>
+              <Grid>
+                <Text>≈</Text>
+              </Grid>
+              <Spacer x={0.4} />
+              <Grid>
+                <Button
+                  flat
+                  color="secondary"
+                  css={{
+                    minWidth: "auto",
+                    overflow: "visible",
+                  }}
+                  onClick={() =>
+                    globalThis.open(`https://dedust.io/swap`, "_blank")
+                  }
+                >
+                  {displayCalcValue}
+                  $
+                  <Spacer x={0.4} />
+                  <img
+                    src="/img/dedust.webp"
+                    alt="DeDust.io"
+                    style={{ height: 32 }}
+                  />
+                </Button>
+              </Grid>
+            </Grid.Container>
           </Grid>
         </Grid.Container>
       </Grid>
-      <Spacer y={2} />
-      <Grid>
+      {/* <Spacer y={1} /> */}
+      {/* <Grid>
         <Grid.Container
           wrap="nowrap"
           alignItems="center"
@@ -263,7 +270,7 @@ export const Calc: React.FC<any> = ({ data }) => {
             </Grid.Container>
           </Grid>
         </Grid.Container>
-      </Grid>
+      </Grid> */}
     </Grid.Container>
   );
 };

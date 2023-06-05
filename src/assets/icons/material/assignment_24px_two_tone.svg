@@ -1,0 +1,19 @@
+<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="assignment_24px">
+<g id="&#226;&#134;&#179; Light Color">
+<path id="Mask" opacity="0.5" fill-rule="evenodd" clip-rule="evenodd" d="M5 19V5H19V19H5ZM7 17H14V15H7V17ZM17 13H7V11H17V13ZM7 9H17V7H7V9Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Dark Color">
+<path id="Mask_2" d="M7 15H14V17H7V15Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Dark Color_2">
+<path id="Mask_3" d="M7 11H17V13H7V11Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Dark Color_3">
+<path id="Mask_4" d="M7 7H17V9H7V7Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+<g id="&#226;&#134;&#179; Dark Color_4">
+<path id="Mask_5" fill-rule="evenodd" clip-rule="evenodd" d="M19 3H14.8199C14.4 1.84 13.3 1 12 1C10.7 1 9.59998 1.84 9.18005 3H5C4.85999 3 4.72998 3.01 4.59998 3.04C4.20996 3.12 3.85999 3.32 3.58997 3.59C3.41003 3.77 3.26001 3.99 3.16003 4.23C3.06006 4.47 3 4.72 3 5V19C3 19.27 3.06006 19.54 3.16003 19.78C3.26001 20.02 3.41003 20.23 3.58997 20.42C3.85999 20.69 4.20996 20.89 4.59998 20.97C4.72998 20.99 4.85999 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM12 2.75C12.41 2.75 12.75 3.09 12.75 3.5C12.75 3.91 12.41 4.25 12 4.25C11.59 4.25 11.25 3.91 11.25 3.5C11.25 3.09 11.59 2.75 12 2.75ZM5 5V19H19V5H5Z" fill="currentColor" fill-opacity="0.54"/>
+</g>
+</g>
+</svg>
