@@ -1,23 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import cookie from "react-cookies";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
-import { DropResult } from "react-beautiful-dnd";
-import { arrayMoveImmutable } from "array-move";
+import { Helmet } from "react-helmet";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Grid, Loading } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
-
-import axios from "libs/axios";
 import { _ } from "utils/time";
-import { useQuery } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "react-router-dom";
 import { GEN02 } from "assets/icons";
 import { AppContext } from "contexts";
 import { Price } from "./Stats/Price";
-import { TonProofApi } from "TonProofApi";
-import { useTonAddress } from "@tonconnect/ui-react";
-import { Promote } from "components";
-import { toast } from "react-toastify";
 import { Jettons } from "./Jettons";
 import { Header } from "./Header";
 
@@ -49,23 +39,30 @@ export const Analytics = () => {
     }
   }, [location.pathname]);
 
-  return !jettons.length ? (
-    <Grid.Container
-      alignItems="center"
-      justify="center"
-      css={{ height: "70vh" }}
-    >
-      <Grid>
-        <Loading />
-      </Grid>
-    </Grid.Container>
-  ) : (
+  return (
     <>
-      <Grid.Container
-        gap={0.4}
-        css={{ minHeight: "70vh", display: "flex", pt: 16 }}
-      >
-        {/* {!isInformed && (
+      <Helmet>
+        <title>{t("analytics")}</title>
+        <meta property="og:title" content={t("analytics") || ""}></meta>
+        <meta property="og:image" content="/img/analytics.png"></meta>
+      </Helmet>
+      {!jettons.length ? (
+        <Grid.Container
+          alignItems="center"
+          justify="center"
+          css={{ height: "70vh" }}
+        >
+          <Grid>
+            <Loading />
+          </Grid>
+        </Grid.Container>
+      ) : (
+        <>
+          <Grid.Container
+            gap={0.4}
+            css={{ minHeight: "70vh", display: "flex", pt: 16 }}
+          >
+            {/* {!isInformed && (
           <>
             <Spacer y={0.4} />
             <Grid css={{ maxWidth: 400, w: '100%', display: 'flex' }}>
@@ -82,7 +79,7 @@ export const Analytics = () => {
           </>
         )} */}
 
-        {/* <Grid xs={12}>
+            {/* <Grid xs={12}>
           <Grid.Container
             className="hide-scrollbar"
             gap={1}
@@ -109,44 +106,46 @@ export const Analytics = () => {
             </Grid>
           </Grid.Container>
         </Grid> */}
-        <Grid xs={12}>
-          <Grid.Container>
-            <Grid xs={12} sm={4} lg={3}>
-              <Jettons isDrag={isDrag} setIsDrag={setIsDrag} />
-            </Grid>
-            <Grid xs={12} sm={8} lg={9}>
+            <Grid xs={12}>
               <Grid.Container>
-                <Grid xs={12}>
-                  <Header isDrag={isDrag} setIsDrag={setIsDrag} />
+                <Grid xs={12} sm={4} lg={3}>
+                  <Jettons isDrag={isDrag} setIsDrag={setIsDrag} />
                 </Grid>
-                <Grid xs={12}>
-                  {location.pathname.includes("volume") ||
-                  location.pathname.includes("price") ? (
-                    <Price timescale={timescale} />
-                  ) : (
-                    <Grid.Container justify="center">
-                      <Grid
-                        css={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "$primary",
-                        }}
-                      >
-                        <GEN02
-                          style={{
-                            fill: "currentColor",
-                            fontSize: 32,
-                          }}
-                        />
-                      </Grid>
-                    </Grid.Container>
-                  )}
+                <Grid xs={12} sm={8} lg={9}>
+                  <Grid.Container>
+                    <Grid xs={12}>
+                      <Header isDrag={isDrag} setIsDrag={setIsDrag} />
+                    </Grid>
+                    <Grid xs={12}>
+                      {location.pathname.includes("volume") ||
+                      location.pathname.includes("price") ? (
+                        <Price timescale={timescale} />
+                      ) : (
+                        <Grid.Container justify="center">
+                          <Grid
+                            css={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: "$primary",
+                            }}
+                          >
+                            <GEN02
+                              style={{
+                                fill: "currentColor",
+                                fontSize: 32,
+                              }}
+                            />
+                          </Grid>
+                        </Grid.Container>
+                      )}
+                    </Grid>
+                  </Grid.Container>
                 </Grid>
               </Grid.Container>
             </Grid>
           </Grid.Container>
-        </Grid>
-      </Grid.Container>
+        </>
+      )}
     </>
   );
 };

@@ -10,65 +10,22 @@ import {
 } from "react";
 import cookie from "react-cookies";
 import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  RadialBarChart,
-  Legend,
-  RadialBar,
-  Treemap,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  LabelList,
-  ComposedChart,
-  CartesianGrid,
-  Area,
-  Sector,
-  AreaChart,
-  Tooltip as ReTooltip,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-} from "recharts";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { motion, AnimatePresence } from "framer-motion";
-import { arrayMoveImmutable } from "array-move";
-import {
   Badge,
   Button,
-  Card,
   Container,
-  Divider,
   Dropdown,
   Grid,
-  Image,
-  Input,
   Loading,
-  Pagination,
-  Popover,
   Spacer,
-  Text,
-  Tooltip,
   User,
 } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 
-import axios from "libs/axios";
 import { _ } from "utils/time";
-import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ARR20, GEN03, GEN19, GRA12 } from "assets/icons";
 import { AppContext } from "contexts";
-import { TonProofApi } from "TonProofApi";
-import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
-import { random } from "utils";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { Promote } from "components";
 import { toast } from "react-toastify";
 
@@ -154,7 +111,7 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
       >
         <Grid>
           <Grid.Container gap={1} alignItems="center">
-            <Grid>
+            <Grid css={{ display: "none", "@xs": { display: "block" } }}>
               <Button
                 size="sm"
                 flat={!isDrag}

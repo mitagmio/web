@@ -196,7 +196,7 @@
   "isBalance": "Balance",
   "home": "Home",
   "promoteToken": "Vote for the token",
-  "promoteInfo": "Your vote will be valid until $1 (2 weeks)",
+  "promoteInfo": "Select from the list or find by name the token you would like to vote for (will be valid 2 weeks, until $1)",
   "notAvailable": "The data is not available now, try later",
   "pay": "Pay",
   "topVoted": "Top voted tokens",
@@ -204,5 +204,10 @@
   "beta": "beta",
   "voteSent": "Your vote has been sent and will be counted soon.",
   "voteSuccess": "Thanks! Your vote was successfully counted.",
+  "projectPlitch": "Beta pitch",
+  "send": "Send",
+  "get": "Get",
+  "voteDisclamer": "Votes for your favorite tokens will raise them to the first rows of the search list.",
+  "insufficientFunds": "Insufficient funds",
   "disclamer": "The analytics charts provided on this site are intended for informational purposes only. They are not to be construed as financial, investment, or trading advice. The information contained within these charts is derived from various sources, and while we strive to ensure its accuracy, we cannot guarantee its completeness or reliability."
 }

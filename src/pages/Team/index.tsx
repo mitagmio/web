@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet";
 import {
   Grid,
   Text,
@@ -46,87 +47,94 @@ export const OurTeam = () => {
     },
   ];
   return (
-    <Grid.Container justify="center" css={{ minHeight: "70vh", p: 16 }}>
-      <Grid>
-        <Card>
-          <Card.Header css={{ pl: 24 }}>
-            <Text size="$3xl">{t("ourTeam")}</Text>
-          </Card.Header>
-          <Card.Body css={{ pt: 0 }}>
-            <Grid.Container gap={2}>
-              <Grid css={{ maxWidth: 400 }}>
-                <Grid.Container css={{ gap: 16, position: "relative" }}>
-                  {users.map((user, i) => (
-                    <Col span={12} key={i}>
-                      <Grid.Container wrap="nowrap" justify="space-between">
-                        <Col>
-                          <Grid.Container wrap="nowrap" justify="flex-start">
-                            <Col
-                              css={{
-                                w: "auto",
-                              }}
-                            >
-                              {i < 1 && (
-                                <div className="vertical-timeline-line" />
-                              )}
-                              <Avatar
-                                size="xl"
-                                src={user.avatar}
-                                color={user.color as any}
-                                bordered
-                                rounded
-                              />
-                            </Col>
-                            <Spacer x={1} />
-                            <Col>
-                              <Grid.Container>
-                                <Col>
-                                  <Text>{user.name}</Text>
-                                </Col>
-                                <Col>
-                                  <Text css={{ whiteSpace: "nowrap" }}>
-                                    {user.role}
-                                  </Text>
-                                </Col>
-                              </Grid.Container>
-                            </Col>
-                          </Grid.Container>
-                        </Col>
-                        <Col
-                          css={{
-                            w: "auto",
-                            display: "inline-flex",
-                            paddingRight: 16,
-                          }}
-                        >
-                          {user.telegram && (
-                            <Button
-                              flat
-                              size="xs"
-                              icon={
-                                <GEN16
-                                  style={{
-                                    fill: "var(--nextui-colors-link)",
-                                    fontSize: 16,
-                                  }}
+    <>
+      <Helmet>
+        <title>{t("ourTeam")}</title>
+        <meta property="og:title" content={t("ourTeam") || ""}></meta>
+        <meta property="og:image" content="/img/team.png"></meta>
+      </Helmet>
+      <Grid.Container justify="center" css={{ minHeight: "70vh", p: 16 }}>
+        <Grid>
+          <Card>
+            <Card.Header css={{ pl: 24 }}>
+              <Text size="$3xl">{t("ourTeam")}</Text>
+            </Card.Header>
+            <Card.Body css={{ pt: 0 }}>
+              <Grid.Container gap={2}>
+                <Grid css={{ maxWidth: 400 }}>
+                  <Grid.Container css={{ gap: 16, position: "relative" }}>
+                    {users.map((user, i) => (
+                      <Col span={12} key={i}>
+                        <Grid.Container wrap="nowrap" justify="space-between">
+                          <Col>
+                            <Grid.Container wrap="nowrap" justify="flex-start">
+                              <Col
+                                css={{
+                                  w: "auto",
+                                }}
+                              >
+                                {i < 1 && (
+                                  <div className="vertical-timeline-line" />
+                                )}
+                                <Avatar
+                                  size="xl"
+                                  src={user.avatar}
+                                  color={user.color as any}
+                                  bordered
+                                  rounded
                                 />
-                              }
-                              css={{ minWidth: 24 }}
-                              onClick={() =>
-                                window.open(user.telegram, "_blank")
-                              }
-                            />
-                          )}
-                        </Col>
-                      </Grid.Container>
-                    </Col>
-                  ))}
-                </Grid.Container>
-              </Grid>
-            </Grid.Container>
-          </Card.Body>
-        </Card>
-      </Grid>
-    </Grid.Container>
+                              </Col>
+                              <Spacer x={1} />
+                              <Col>
+                                <Grid.Container>
+                                  <Col>
+                                    <Text>{user.name}</Text>
+                                  </Col>
+                                  <Col>
+                                    <Text css={{ whiteSpace: "nowrap" }}>
+                                      {user.role}
+                                    </Text>
+                                  </Col>
+                                </Grid.Container>
+                              </Col>
+                            </Grid.Container>
+                          </Col>
+                          <Col
+                            css={{
+                              w: "auto",
+                              display: "inline-flex",
+                              paddingRight: 16,
+                            }}
+                          >
+                            {user.telegram && (
+                              <Button
+                                flat
+                                size="xs"
+                                icon={
+                                  <GEN16
+                                    style={{
+                                      fill: "var(--nextui-colors-link)",
+                                      fontSize: 16,
+                                    }}
+                                  />
+                                }
+                                css={{ minWidth: 24 }}
+                                onClick={() =>
+                                  window.open(user.telegram, "_blank")
+                                }
+                              />
+                            )}
+                          </Col>
+                        </Grid.Container>
+                      </Col>
+                    ))}
+                  </Grid.Container>
+                </Grid>
+              </Grid.Container>
+            </Card.Body>
+          </Card>
+        </Grid>
+      </Grid.Container>
+    </>
   );
 };

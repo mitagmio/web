@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
 import { useTranslation } from "react-i18next";
 import { useKeenSlider, KeenSliderPlugin } from "keen-slider/react";
 import cn from "classnames";
@@ -53,7 +54,9 @@ export const RoadMap = () => {
   const refQ3 = useRef<HTMLDivElement>(null);
   const refQ4 = useRef<HTMLDivElement>(null);
 
-  const [active, setActive] = useState(Math.ceil((new Date()).getMonth() / 3) - 1);
+  const [active, setActive] = useState(
+    Math.ceil(new Date().getMonth() / 3) - 1
+  );
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
     {
       loop: true,
@@ -144,145 +147,153 @@ export const RoadMap = () => {
   );
 
   return (
-    <Grid.Container justify="center" css={{ minHeight: "90vh" }}>
-      <Grid>
-        <Grid.Container
-          id="roadmap"
-          gap={2}
-          direction="row"
-          wrap="nowrap"
-          justify="center"
-          alignItems="center"
-        >
-          <Grid>
-            <Button
-              icon={
-                <ARR02
-                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />
-              }
-              flat
-              css={{ minWidth: 24 }}
-              onClick={() => instanceRef.current?.prev()}
-            />
-          </Grid>
-          <Grid>
-            <Text size="$3xl">{t("roadMap")}</Text>
-          </Grid>
-          <Grid>
-            <Button
-              icon={
-                <ARR01
-                  style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
-                />
-              }
-              flat
-              css={{ minWidth: 24 }}
-              onClick={() => instanceRef.current?.next()}
-            />
-          </Grid>
-        </Grid.Container>
-        <Grid.Container gap={2} justify="center" css={{ h: "100%" }}>
-          <Grid>
-            <div className="scene">
-              <div className="carousel keen-slider" ref={sliderRef}>
-                {roadMap.map(({ ref, step, list }, i) => (
-                  <div
-                    key={`${step}-${i}`}
-                    className={cn("carousel__cell", "number-slide", {
-                      active: active === i,
-                    })}
-                  >
-                    <Card variant="bordered">
-                      <Card.Header
-                        css={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          paddingLeft: 24,
-                        }}
-                      >
-                        <Text
-                          size="$2xl"
-                          weight="bold"
+    <>
+      <Helmet>
+        <title>{t("roadMap")}</title>
+        <meta property="og:title" content={t("roadMap") || ""}></meta>
+        <meta property="og:image" content="/img/roadmap.png"></meta>
+      </Helmet>
+      <Grid.Container justify="center" css={{ minHeight: "75vh" }}>
+        <Grid>
+          <Grid.Container
+            id="roadmap"
+            gap={2}
+            direction="row"
+            wrap="nowrap"
+            justify="center"
+            alignItems="center"
+          >
+            <Grid>
+              <Button
+                icon={
+                  <ARR02
+                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                  />
+                }
+                flat
+                css={{ minWidth: 24 }}
+                onClick={() => instanceRef.current?.prev()}
+              />
+            </Grid>
+            <Grid>
+              <Text size="$3xl">{t("roadMap")}</Text>
+            </Grid>
+            <Grid>
+              <Button
+                icon={
+                  <ARR01
+                    style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
+                  />
+                }
+                flat
+                css={{ minWidth: 24 }}
+                onClick={() => instanceRef.current?.next()}
+              />
+            </Grid>
+          </Grid.Container>
+          <Grid.Container gap={2} justify="center" css={{ h: "100%" }}>
+            <Grid>
+              <div className="scene">
+                <div className="carousel keen-slider" ref={sliderRef}>
+                  {roadMap.map(({ ref, step, list }, i) => (
+                    <div
+                      key={`${step}-${i}`}
+                      className={cn("carousel__cell", "number-slide", {
+                        active: active === i,
+                      })}
+                    >
+                      <Card variant="bordered">
+                        <Card.Header
                           css={{
-                            textGradient: "45deg, $blue600 0%, $green600 100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            paddingLeft: 24,
                           }}
                         >
-                          {step}
-                        </Text>
-                      </Card.Header>
-                      <Card.Body ref={ref} className="roadmap-body">
-                        <Table
-                          aria-label="RoadMap"
-                          className="table-hide-header"
-                          {...tableProps}
-                        >
-                          <Table.Header>
-                            <Table.Column>NAME</Table.Column>
-                            <Table.Column>ROLE</Table.Column>
-                          </Table.Header>
-                          <Table.Body>
-                            {list.map((item, y) => {
-                              let icon = (
-                                <ARR12
-                                  style={{
-                                    fill: "var(--nextui-colors-link)",
-                                    fontSize: 18,
-                                  }}
-                                />
-                              );
+                          <Text
+                            size="$2xl"
+                            weight="bold"
+                            css={{
+                              textGradient:
+                                "45deg, $blue600 0%, $green600 100%",
+                            }}
+                          >
+                            {step}
+                          </Text>
+                        </Card.Header>
+                        <Card.Body ref={ref} className="roadmap-body">
+                          <Table
+                            aria-label="RoadMap"
+                            className="table-hide-header"
+                            {...tableProps}
+                          >
+                            <Table.Header>
+                              <Table.Column>NAME</Table.Column>
+                              <Table.Column>ROLE</Table.Column>
+                            </Table.Header>
+                            <Table.Body>
+                              {list.map((item, y) => {
+                                let icon = (
+                                  <ARR12
+                                    style={{
+                                      fill: "var(--nextui-colors-link)",
+                                      fontSize: 18,
+                                    }}
+                                  />
+                                );
 
-                              switch (item.type) {
-                                case "vacation":
-                                  icon = (
-                                    <Loading size="xs" color="currentColor" />
-                                  );
-                                  break;
-                                case "paused":
-                                  icon = (
-                                    <Loading
-                                      type="points-opacity"
-                                      size="xs"
-                                      color="currentColor"
-                                    />
-                                  );
-                                  break;
-                              }
+                                switch (item.type) {
+                                  case "vacation":
+                                    icon = (
+                                      <Loading size="xs" color="currentColor" />
+                                    );
+                                    break;
+                                  case "paused":
+                                    icon = (
+                                      <Loading
+                                        type="points-opacity"
+                                        size="xs"
+                                        color="currentColor"
+                                      />
+                                    );
+                                    break;
+                                }
 
-                              return (
-                                <Table.Row key={`${step}-${i}-${y}`}>
-                                  <Table.Cell>
-                                    <Row align="center" justify="flex-start">
-                                      <Col
-                                        style={{
-                                          maxWidth: 242,
-                                          overflow: "hidden",
-                                          textOverflow: "ellipsis",
-                                        }}
-                                      >
-                                        {item.title}
-                                      </Col>
-                                    </Row>
-                                  </Table.Cell>
-                                  <Table.Cell>
-                                    <StyledBadge type={item.type} size="xl">
-                                      {icon}
-                                    </StyledBadge>
-                                  </Table.Cell>
-                                </Table.Row>
-                              );
-                            })}
-                          </Table.Body>
-                        </Table>
-                      </Card.Body>
-                    </Card>
-                  </div>
-                ))}
+                                return (
+                                  <Table.Row key={`${step}-${i}-${y}`}>
+                                    <Table.Cell>
+                                      <Row align="center" justify="flex-start">
+                                        <Col
+                                          style={{
+                                            maxWidth: 242,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                          }}
+                                        >
+                                          {item.title}
+                                        </Col>
+                                      </Row>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      <StyledBadge type={item.type} size="xl">
+                                        {icon}
+                                      </StyledBadge>
+                                    </Table.Cell>
+                                  </Table.Row>
+                                );
+                              })}
+                            </Table.Body>
+                          </Table>
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Grid>
-        </Grid.Container>
-      </Grid>
-    </Grid.Container>
+            </Grid>
+          </Grid.Container>
+        </Grid>
+      </Grid.Container>
+    </>
   );
 };

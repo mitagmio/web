@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import cookie from "react-cookies";
-import { DropResult } from "react-beautiful-dnd";
 import { motion, AnimatePresence } from "framer-motion";
-import { arrayMoveImmutable } from "array-move";
 import {
   Badge,
   Button,
@@ -22,19 +20,18 @@ import axios from "libs/axios";
 import { _ } from "utils/time";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ARR20, ARR24, GEN04 } from "assets/icons";
-import { colors } from "colors";
+import { ARR20, ARR24, GEN03, GEN04 } from "assets/icons";
 import { AppContext } from "contexts";
 import Skeleton from "react-loading-skeleton";
-import { TonProofApi } from "TonProofApi";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { random } from "utils";
 import { pagination } from "pages";
 import { ThemeSwitcher } from "./Theme";
 import { Address } from "ton-core";
 import { JettonChart } from "pages/Analytics/Charts";
 
-export const Search: React.FC = () => {
+interface Props {}
+
+export const Search: React.FC<Props> = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -388,190 +385,219 @@ export const Search: React.FC = () => {
               {isLoadingStatsSearch ? (
                 <Loading />
               ) : (
-                dataStatsSearch?.map(
-                  ({ jetton, dataJetton, dataChart, percent, volume }, key) => {
-                    return (
-                      <motion.div
-                        key={key}
-                        initial={{ y: -300, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 300, opacity: 0 }}
-                      >
-                        <Grid key={key} className="jetton-card" xs={12}>
-                          <Card
-                            variant="bordered"
-                            isHoverable
-                            isPressable
-                            onClick={
-                              () =>
-                                // jetton.verified
-                                onAdd(jetton.address)
-                              // : null
-                              // : present({
-                              //     header: t("importRisks"),
-                              //     subHeader: t("riskInfo"),
-                              //     cssClass: "my-custom-class",
-                              //     buttons: [
-                              //       {
-                              //         text: t("import"),
-                              //         role: "destructive",
-                              //         data: {
-                              //           action: "import",
-                              //         },
-                              //       },
-                              //       {
-                              //         text: t("cancel"),
-                              //         data: {
-                              //           action: "cancel",
-                              //         },
-                              //       },
-                              //     ],
-                              //     onDidDismiss: ({ detail }) =>
-                              //       detail?.data?.action === "import" &&
-                              //       onAdd(jetton.address), //onAdd(jetton.address),
-                              //   })
-                            }
-                          >
-                            <Card.Header>
-                              <Grid.Container
-                                wrap="nowrap"
-                                gap={1}
-                                alignItems="center"
-                                justify="space-between"
-                              >
-                                <Grid css={{ textAlign: "center" }}>
-                                  <User
-                                    bordered
-                                    src={jetton.image}
-                                    name={
-                                      <div>
-                                        {jetton.symbol}{" "}
-                                        {!!jetton?.verified && (
+                dataStatsSearch
+                  ?.sort((x, y) => y.jetton.verified - x.jetton.verified)
+                  ?.sort(
+                    (x, y) =>
+                      y.jetton.stats.promoting_points -
+                      x.jetton.stats.promoting_points
+                  )
+                  ?.map(
+                    (
+                      { jetton, dataJetton, dataChart, percent, volume },
+                      key
+                    ) => {
+                      return (
+                        <motion.div
+                          key={key}
+                          initial={{ y: -300, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 300, opacity: 0 }}
+                        >
+                          <Grid key={key} className="jetton-card" xs={12}>
+                            <Card
+                              variant="bordered"
+                              isHoverable
+                              isPressable
+                              onClick={
+                                () =>
+                                  // jetton.verified
+                                  onAdd(jetton.address)
+                                // : null
+                                // : present({
+                                //     header: t("importRisks"),
+                                //     subHeader: t("riskInfo"),
+                                //     cssClass: "my-custom-class",
+                                //     buttons: [
+                                //       {
+                                //         text: t("import"),
+                                //         role: "destructive",
+                                //         data: {
+                                //           action: "import",
+                                //         },
+                                //       },
+                                //       {
+                                //         text: t("cancel"),
+                                //         data: {
+                                //           action: "cancel",
+                                //         },
+                                //       },
+                                //     ],
+                                //     onDidDismiss: ({ detail }) =>
+                                //       detail?.data?.action === "import" &&
+                                //       onAdd(jetton.address), //onAdd(jetton.address),
+                                //   })
+                              }
+                            >
+                              <Card.Header>
+                                <Grid.Container
+                                  wrap="nowrap"
+                                  gap={1}
+                                  alignItems="center"
+                                  justify="space-between"
+                                >
+                                  <Grid css={{ textAlign: "center" }}>
+                                    <User
+                                      bordered
+                                      src={jetton.image}
+                                      name={
+                                        <div>
+                                          {jetton.symbol}{" "}
+                                          {!!jetton?.verified && (
+                                            <Badge
+                                              size="xs"
+                                              css={{
+                                                p: 0,
+                                                background: "transparent",
+                                                right: "unset",
+                                                left: "$8",
+                                              }}
+                                            >
+                                              <ARR20
+                                                style={{
+                                                  fill: "var(--nextui-colors-primary)",
+                                                  fontSize: 16,
+                                                  borderRadius: 100,
+                                                  overflow: "hidden",
+                                                }}
+                                              />
+                                            </Badge>
+                                          )}
                                           <Badge
                                             size="xs"
+                                            variant="flat"
+                                            color="primary"
                                             css={{
-                                              p: 0,
-                                              background: "transparent",
-                                              right: "unset",
-                                              left: "$8",
+                                              flexWrap: "nowrap",
+                                              p: "$0 $4 $0 $0",
                                             }}
                                           >
-                                            <ARR20
+                                            <GEN03
                                               style={{
-                                                fill: "var(--nextui-colors-primary)",
-                                                fontSize: 16,
-                                                borderRadius: 100,
-                                                overflow: "hidden",
+                                                fill: "currentColor",
+                                                fontSize: 18,
                                               }}
                                             />
+                                            <Spacer x={0.4} />
+                                            {jetton?.stats?.promoting_points ||
+                                              0}
                                           </Badge>
-                                        )}
-                                      </div>
-                                    }
-                                    description={(!!dataJetton[
-                                      dataJetton.length - 1
-                                    ]?.pv
-                                      ? 1 /
-                                        dataJetton[dataJetton.length - 1]?.pv
-                                      : 0
-                                    ).toFixed(2)}
-                                    css={{ padding: 0 }}
-                                  />
-                                </Grid>
-                                <Grid
-                                  xs={4}
-                                  className="jetton-chart"
-                                  css={{
-                                    padding: 0,
-                                    overflow: "hidden",
-                                  }}
-                                >
-                                  {isLoadingStatsSearch ? (
-                                    <Skeleton
-                                      count={1}
-                                      height={35}
-                                      width={250}
+                                        </div>
+                                      }
+                                      description={(!!dataJetton[
+                                        dataJetton.length - 1
+                                      ]?.pv
+                                        ? 1 /
+                                          dataJetton[dataJetton.length - 1]?.pv
+                                        : 0
+                                      ).toFixed(2)}
+                                      css={{ padding: 0 }}
                                     />
-                                  ) : dataChart.length ? (
-                                    <JettonChart
-                                      index={key}
-                                      data={
-                                        dataChart.length < 2
-                                          ? [
-                                              ...dataChart.map((i) => ({
-                                                ...i,
-                                                pv:
-                                                  _(i?.price_close) ||
-                                                  _(i?.price_high) ||
-                                                  _(i?.price_low) ||
-                                                  _(i?.price_open),
-                                              })),
-                                              ...dataChart,
-                                            ]
-                                          : dataChart
-                                      }
-                                      height={
-                                        ["FCK"].includes(jetton.symbol)
-                                          ? 36
-                                          : 50
-                                      }
-                                      color={
-                                        !isNaN(percent) && percent !== 0
-                                          ? percent > 0
-                                            ? "#1ac964"
-                                            : "#f31260"
-                                          : "gray"
-                                      }
-                                    />
-                                  ) : null}
-                                </Grid>
-                                <Grid>
-                                  <Grid.Container
-                                    direction="column"
-                                    alignItems="flex-end"
+                                  </Grid>
+                                  <Grid
+                                    xs={4}
+                                    className="jetton-chart"
+                                    css={{
+                                      padding: 0,
+                                      overflow: "hidden",
+                                    }}
                                   >
-                                    <Grid>
-                                      <Badge
-                                        size="xs"
+                                    {isLoadingStatsSearch ? (
+                                      <Skeleton
+                                        count={1}
+                                        height={35}
+                                        width={250}
+                                      />
+                                    ) : dataChart.length ? (
+                                      <JettonChart
+                                        index={key}
+                                        data={
+                                          dataChart.length < 2
+                                            ? [
+                                                ...dataChart.map((i) => ({
+                                                  ...i,
+                                                  pv:
+                                                    _(i?.price_close) ||
+                                                    _(i?.price_high) ||
+                                                    _(i?.price_low) ||
+                                                    _(i?.price_open),
+                                                })),
+                                                ...dataChart,
+                                              ]
+                                            : dataChart
+                                        }
+                                        height={
+                                          ["FCK"].includes(jetton.symbol)
+                                            ? 36
+                                            : 50
+                                        }
                                         color={
                                           !isNaN(percent) && percent !== 0
                                             ? percent > 0
-                                              ? "success"
-                                              : "error"
-                                            : "default"
+                                              ? "#1ac964"
+                                              : "#f31260"
+                                            : "gray"
                                         }
-                                        css={{ whiteSpace: "nowrap" }}
-                                      >
-                                        {!isNaN(percent) && percent !== 0
-                                          ? parseFloat(
-                                              Math.abs(percent).toFixed(2)
-                                            )
-                                          : 0}{" "}
-                                        %
-                                      </Badge>
-                                    </Grid>
-                                    <Spacer y={0.4} />
-                                    <Grid
-                                      css={{
-                                        display: "flex",
-                                        flexWrap: "nowrap",
-                                        whiteSpace: "nowrap",
-                                        alignItems: "center",
-                                      }}
+                                      />
+                                    ) : null}
+                                  </Grid>
+                                  <Grid>
+                                    <Grid.Container
+                                      direction="column"
+                                      alignItems="flex-end"
                                     >
-                                      {(volume || 0).toFixed(0)} TON
-                                    </Grid>
-                                  </Grid.Container>
-                                </Grid>
-                              </Grid.Container>
-                            </Card.Header>
-                          </Card>
-                        </Grid>
-                        <Spacer y={0.4} />
-                      </motion.div>
-                    );
-                  }
-                )
+                                      <Grid>
+                                        <Badge
+                                          size="xs"
+                                          color={
+                                            !isNaN(percent) && percent !== 0
+                                              ? percent > 0
+                                                ? "success"
+                                                : "error"
+                                              : "default"
+                                          }
+                                          css={{ whiteSpace: "nowrap" }}
+                                        >
+                                          {!isNaN(percent) && percent !== 0
+                                            ? parseFloat(
+                                                Math.abs(percent).toFixed(2)
+                                              )
+                                            : 0}{" "}
+                                          %
+                                        </Badge>
+                                      </Grid>
+                                      <Spacer y={0.4} />
+                                      <Grid
+                                        css={{
+                                          display: "flex",
+                                          flexWrap: "nowrap",
+                                          whiteSpace: "nowrap",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        {(volume || 0).toFixed(0)} TON
+                                      </Grid>
+                                    </Grid.Container>
+                                  </Grid>
+                                </Grid.Container>
+                              </Card.Header>
+                            </Card>
+                          </Grid>
+                          <Spacer y={0.4} />
+                        </motion.div>
+                      );
+                    }
+                  )
               )}
             </AnimatePresence>
           )}

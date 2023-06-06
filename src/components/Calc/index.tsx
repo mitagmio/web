@@ -10,15 +10,13 @@ import {
 } from "@nextui-org/react";
 import cookie from "react-cookies";
 import { useQuery } from "@tanstack/react-query";
-import { fck } from "api/fck";
-import { ARR01, ARR58 } from "assets/icons";
+import { ARR58 } from "assets/icons";
 import { AppContext } from "contexts";
 import { TimeScale } from "pages";
-import { pagination } from "pages/Analytics";
 import { Key, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getList } from "utils";
 import axios from "axios";
+import { Address } from "ton-core";
 
 export const Calc: React.FC = () => {
   const { t } = useTranslation();
@@ -47,9 +45,7 @@ export const Calc: React.FC = () => {
             ?.map(({ id }) => id)
             .join(",")}&time_min=${Math.floor(
             Date.now() / 1000 - 1000
-          )}&time_max=${Math.floor(Date.now() / 1000)}&timescale=${
-            100
-          }`,
+          )}&time_max=${Math.floor(Date.now() / 1000)}&timescale=${100}`,
           { signal }
         )
         .then(
@@ -97,7 +93,7 @@ export const Calc: React.FC = () => {
             (data[dataJettons[to].id]?.prices?.pop()?.price_close || 1)
         ).toString()
       );
-  }, [data, valueX]);
+  }, [data, valueX, from, to]);
 
   return (
     <Grid.Container direction="column">
@@ -147,7 +143,20 @@ export const Calc: React.FC = () => {
                     overflow: "visible",
                   }}
                   onClick={() =>
-                    globalThis.open(`https://dedust.io/swap`, "_blank")
+                    globalThis.open(
+                      `https://dedust.io/swap/${
+                        from !== "TON"
+                          ? Address.parseRaw(
+                              dataJettons[from].address
+                            ).toString()
+                          : "TON"
+                      }/${
+                        to !== "TON"
+                          ? Address.parseRaw(dataJettons[to].address).toString()
+                          : "TON"
+                      }`,
+                      "_blank"
+                    )
                   }
                 >
                   {displayCalcValue}
@@ -179,7 +188,7 @@ export const Calc: React.FC = () => {
                   clearable
                   underlined
                   color="primary"
-                  labelPlaceholder="Amount"
+                  labelPlaceholder={t("send") || ""}
                   width="75px"
                   size="sm"
                   onChange={(e) => {
@@ -252,7 +261,7 @@ export const Calc: React.FC = () => {
                     clearable
                     underlined
                     color="primary"
-                    labelPlaceholder="Get"
+                    labelPlaceholder={t("get") || ""}
                     width="75px"
                     size="sm"
                     onChange={(e) => {

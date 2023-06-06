@@ -30,7 +30,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppContext } from "contexts";
 import { default as Logo } from "assets/logo.svg";
 import { SvgInline } from "../SVG";
-import { GEN16, Discord, TG, TW, ABS28 } from "assets/icons";
+import { GEN16, TG, TW, ABS28, GEN02 } from "assets/icons";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "components/Language";
 import useDarkMode from "use-dark-mode";
@@ -335,7 +335,7 @@ export const Layout = ({ children }: { children?: any }) => {
                       <Grid>
                         <Text size={18}>{t("learnMore")}</Text>
                         <ul style={{ margin: 0 }}>
-                          <li>
+                          {/* <li>
                             <Link to="https://ton.app" target="_blank">
                               {t("apps")}
                             </Link>
@@ -347,7 +347,7 @@ export const Layout = ({ children }: { children?: any }) => {
                             >
                               {t("glossary")}
                             </Link>
-                          </li>
+                          </li> */}
                           <li>
                             <Link
                               to="https://github.com/fck-foundation"
@@ -357,11 +357,13 @@ export const Layout = ({ children }: { children?: any }) => {
                             </Link>
                           </li>
                           <li>
-                            <Link
-                              to="/public/FCK Foundation White Paper.pdf"
-                              target="_blank"
-                            >
+                            <Link to="/whitepaper" target="_blank">
                               {t("whitePaper")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/plitch" target="_blank">
+                              {t("projectPlitch")}
                             </Link>
                           </li>
                           <li>
@@ -374,44 +376,58 @@ export const Layout = ({ children }: { children?: any }) => {
                         <Text size={18}>{t("community")}</Text>
                         <Spacer y={0.4} />
                         <Grid.Container>
-                          <Button flat css={{ minWidth: "auto", p: "$4" }}>
-                            <TG
-                              style={{
-                                fill: "currentColor",
-                                fontSize: 32,
-                              }}
-                            />
-                          </Button>
+                          <Link to="https://t.me/tokenFCK" target="_blank">
+                            <Button flat css={{ minWidth: "auto", p: "$4" }}>
+                              <TG
+                                style={{
+                                  fill: "currentColor",
+                                  fontSize: 32,
+                                }}
+                              />
+                            </Button>
+                          </Link>
                           <Spacer x={0.4} />
-                          <Button flat css={{ minWidth: "auto", p: "$4" }}>
-                            <TW
-                              style={{
-                                fill: "currentColor",
-                                fontSize: 32,
-                              }}
-                            />
-                          </Button>
+                          <Link
+                            to="https://twitter.com/FCKFoundation"
+                            target="_blank"
+                          >
+                            <Button flat css={{ minWidth: "auto", p: "$4" }}>
+                              <TW
+                                style={{
+                                  fill: "currentColor",
+                                  fontSize: 32,
+                                }}
+                              />
+                            </Button>
+                          </Link>
                           <Spacer x={0.4} />
-                          <Button flat css={{ minWidth: "auto", p: "$4" }}>
-                            <Discord
-                              style={{
-                                fill: "currentColor",
-                                fontSize: 32,
-                              }}
-                            />
-                          </Button>
+                          <Link
+                            to="https://t.me/FCKAnalyticsBot"
+                            target="_blank"
+                          >
+                            <Button flat css={{ minWidth: "auto", p: "$4" }}>
+                              <GEN02
+                                style={{
+                                  fill: "currentColor",
+                                  fontSize: 32,
+                                }}
+                              />
+                            </Button>
+                          </Link>
                         </Grid.Container>
                         <Spacer y={0.4} />
-                        <Button flat css={{ minWidth: "100%" }}>
-                          <GEN16
-                            style={{
-                              fill: "currentColor",
-                              fontSize: 18,
-                            }}
-                          />
-                          <Spacer x={0.4} />
-                          {t("joinCommunity")}
-                        </Button>
+                        <Link to="https://t.me/fckcoins" target="_blank">
+                          <Button flat css={{ minWidth: "100%" }}>
+                            <GEN16
+                              style={{
+                                fill: "currentColor",
+                                fontSize: 24,
+                              }}
+                            />
+                            <Spacer x={0.4} />
+                            {t("joinCommunity")}
+                          </Button>
+                        </Link>
                       </Grid>
                     </Grid.Container>
                   </Grid>

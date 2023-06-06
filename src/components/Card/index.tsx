@@ -1,6 +1,5 @@
 import {
   Card,
-  Table,
   Grid,
   Image,
   Text,
@@ -156,6 +155,7 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                           <Grid
                             css={{
                               maxWidth: "40%",
+                              "@xs": { maxWidth: "80%" },
                             }}
                           >
                             <Text

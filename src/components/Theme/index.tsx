@@ -11,7 +11,6 @@ import {
 import { AppContext } from "contexts/AppContext";
 import { ABS13, ABS14 } from "assets/icons";
 import { ReactComponent as Logo } from "assets/logo.svg";
-import Skeleton from "react-loading-skeleton";
 
 interface Props {
   isLogo?: boolean;

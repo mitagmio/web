@@ -1,5 +1,5 @@
 export * from './Events'
-export * from './Home'
+export * from './Landing'
 export * from './Team'
 export * from './RoadMap'
 export * from './Analytics'

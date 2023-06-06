@@ -6,8 +6,10 @@ import {
   Input,
   Loading,
   Modal,
+  Popover,
   Spacer,
   Text,
+  Tooltip,
   User,
 } from "@nextui-org/react";
 import {
@@ -17,12 +19,14 @@ import {
 } from "@tonconnect/ui-react";
 import { GEN03, Payment } from "assets/icons";
 import { AppContext } from "contexts";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { JettonMaster } from "ton";
 import { Address } from "ton-core";
-import { payJetton, whiteCoins } from "utils";
+import { normalize, payJetton, whiteCoins } from "utils";
 import moment from "moment";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 export const Promote: React.FC<{
   voteId?: number;
@@ -34,13 +38,53 @@ export const Promote: React.FC<{
   const { t } = useTranslation();
   const address = useTonAddress();
   const wallet = useTonWallet();
-  const { jettons, client } = useContext(AppContext);
+  const { jettons, client, page, setPage } = useContext(AppContext);
   const [tonConnectUi] = useTonConnectUI();
   const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState<{ id: number; amount: number }[]>(
     []
   );
   const [search, setSearch] = useState("");
+  const [list, setList] = useState<any[]>([]);
+  const [isBottom, setIsBottom] = useState(false);
+
+  const { data: dataFCK, isLoading: isLoadingJettons } = useQuery({
+    queryKey: ["wallet-jettons", address],
+    queryFn: async () =>
+      await axios.get(`https://tonapi.io/v2/accounts/${address}/jettons`),
+    enabled: !!address,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    select: (response) =>
+      normalize(
+        response.data.balances?.find(
+          ({ jetton }) => jetton.address === whiteCoins.FCK
+        )?.balance,
+        5
+      ),
+  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [wallet]);
+
+  useEffect(() => {
+    if (isBottom) {
+      setPage((i) => i + 1);
+    }
+  }, [isBottom]);
+
+  useEffect(() => {
+    const next = jettons
+      ?.sort((x, y) => y.verified - x.verified)
+      ?.sort((x, y) => y.stats.promoting_points - x.stats.promoting_points)
+      .slice((page - 1) * 10, 10 * page);
+
+    if (next.length) {
+      setList((prevState) => [...prevState, ...next]);
+      setIsBottom(false);
+    }
+  }, [jettons, page]);
 
   useEffect(() => {
     if (!visible) {
@@ -94,6 +138,15 @@ export const Promote: React.FC<{
       }
     }
   };
+
+  const onScroll = (e) => {
+    setIsBottom(
+      e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight
+    );
+  };
+
+  const toPay = selected.reduce((acc, curr) => (acc += curr.amount), 0);
+
   return (
     <>
       {!hideTrigger && (
@@ -126,12 +179,12 @@ export const Promote: React.FC<{
         </Button>
       )}
       <Modal
-        width="500px"
         closeButton
         aria-labelledby="modal-title"
         open={visible}
-        css={{ overflow: "visible" }}
+        scroll={true}
         onClose={onClose}
+        css={{ pt: 0 }}
       >
         <Modal.Header
           css={{
@@ -141,11 +194,33 @@ export const Promote: React.FC<{
             background: "var(--nextui-colors-accents0)",
           }}
         >
-          <Grid.Container direction="column">
+          <Grid.Container>
             <Grid>
-              <Text size={18}>{t("promoteToken")}</Text>
+              <Text size={18}>{t("promoteToken")}</Text>{" "}
             </Grid>
-            <Spacer y={0.4} />
+            <Spacer x={0.5} />
+            <Grid>
+              <Popover placement="top" isBordered>
+                <Popover.Trigger>
+                  <Button auto size="sm" css={{ minWidth: "auto" }}>
+                    ?
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content>
+                  <Text css={{ p: "$10" }}>{t("voteDisclamer")}</Text>
+                </Popover.Content>
+              </Popover>
+            </Grid>
+          </Grid.Container>
+        </Modal.Header>
+        <Modal.Body
+          onScroll={onScroll}
+          css={{
+            background: "var(--nextui--navbarBlurBackgroundColor)",
+            backdropFilter: "saturate(180%) blur(var(--nextui--navbarBlur))",
+          }}
+        >
+          <Grid.Container direction="column">
             <Grid>
               <Text size={16}>
                 {t("promoteInfo").replace(
@@ -155,13 +230,6 @@ export const Promote: React.FC<{
               </Text>
             </Grid>
           </Grid.Container>
-        </Modal.Header>
-        <Modal.Body
-          css={{
-            background: "var(--nextui--navbarBlurBackgroundColor)",
-            backdropFilter: "saturate(180%) blur(var(--nextui--navbarBlur))",
-          }}
-        >
           <Grid.Container justify="space-between" gap={1}>
             <Grid xs={12}>
               <Input
@@ -171,7 +239,7 @@ export const Promote: React.FC<{
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Grid>
-            {jettons
+            {(search || voteId ? jettons : list)
               ?.filter(({ id, address, name, symbol }) =>
                 voteId && !search
                   ? id === voteId
@@ -187,7 +255,7 @@ export const Promote: React.FC<{
                 );
 
                 return (
-                  <Grid xs={12} sm={voteId ? 12 : 6}>
+                  <Grid xs={12}>
                     <Grid.Container wrap="nowrap" alignItems="center">
                       <Grid xs={12}>
                         <Card
@@ -268,7 +336,6 @@ export const Promote: React.FC<{
                               <Spacer x={0.4} />
                               <Grid>
                                 <Input
-                                  size="sm"
                                   type="number"
                                   min={1}
                                   width="55px"
@@ -307,17 +374,18 @@ export const Promote: React.FC<{
         >
           <Grid.Container justify="center" alignItems="center">
             <Grid>
-              <Badge>
-                {selected.reduce((acc, curr) => (acc += curr.amount), 0)} FCK
-              </Badge>
+              <Badge>{toPay} FCK</Badge>
             </Grid>
+            <Spacer x={0.4} />
+            <Grid></Grid>
             <Spacer x={0.4} />
             <Grid>
               <Button
                 size="sm"
                 flat
                 css={{ minWidth: "auto" }}
-                onClick={!processing?.wait ? onVote : undefined}
+                onPress={() => (!processing?.wait ? onVote() : undefined)}
+                disabled={!!dataFCK}
               >
                 <Grid.Container alignItems="center">
                   {!!processing?.wait ? (
@@ -344,6 +412,12 @@ export const Promote: React.FC<{
                 </Grid.Container>
               </Button>
             </Grid>
+            {!isLoadingJettons && !(dataFCK || 0) && (
+              <>
+                <Spacer x={0.4} />
+                <Grid>{t("insufficientFunds")}</Grid>
+              </>
+            )}
           </Grid.Container>
         </Modal.Footer>
       </Modal>

@@ -1,5 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
+import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
+import { Address } from "ton-core";
 import { Container, Grid } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -7,27 +9,16 @@ import axios from "axios";
 import { _, normalize } from "utils";
 import { TonProofApi } from "TonProofApi";
 import { AppContext } from "contexts";
+import { useTranslation } from "react-i18next";
 
 import Header from "./Header";
 import Jettons from "./Jettons";
 import Swaps from "./Swaps";
-import { FJetton } from "components";
-import { colors } from "colors";
-import { JettonChart } from "pages/Analytics";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Address } from "ton-core";
 
 export const Wallet = () => {
   const location = useLocation();
   const tonAddress = useTonAddress();
+  const { t } = useTranslation();
   const { ton, theme, jettons } = useContext(AppContext);
   const [swaps, setSwaps] = useState<Record<string, any>[]>();
   const [selected, setSelected] = useState<number>();
@@ -205,28 +196,34 @@ export const Wallet = () => {
   );
 
   return (
-    <Container css={{ minHeight: "70vh", p: "$8" }}>
-      <Grid.Container gap={1}>
-        <Grid xs={12}>
-          <Header selected={selected} setSwaps={setSwaps} />
-        </Grid>
-        <Grid xs={12} sm={4} css={{ h: "fit-content" }}>
-          {
-            <Jettons
-              isBalance={isBalance}
-              page={page}
-              isLoading={!!dataSelected?.length && isLoadingChart}
-              selected={selected}
-              setSelected={setSelected}
-              setSwaps={setSwaps}
-              setPage={setPage}
-              setIsBalance={setIsBalance}
-            />
-          }
-        </Grid>
-        <Grid xs={12} sm={8} css={{ h: "fit-content" }}>
-          <Grid.Container>
-            {/* {selected && (
+    <>
+      <Helmet>
+        <title>{t("whitePaper")}</title>
+        <meta property="og:title" content={t("wallet") || ""}></meta>
+        <meta property="og:image" content="/img/wallet.png"></meta>
+      </Helmet>
+      <Container css={{ minHeight: "70vh", p: "$8" }}>
+        <Grid.Container gap={1}>
+          <Grid xs={12}>
+            <Header selected={selected} setSwaps={setSwaps} />
+          </Grid>
+          <Grid xs={12} sm={4} css={{ h: "fit-content" }}>
+            {
+              <Jettons
+                isBalance={isBalance}
+                page={page}
+                isLoading={!!dataSelected?.length && isLoadingChart}
+                selected={selected}
+                setSelected={setSelected}
+                setSwaps={setSwaps}
+                setPage={setPage}
+                setIsBalance={setIsBalance}
+              />
+            }
+          </Grid>
+          <Grid xs={12} sm={8} css={{ h: "fit-content" }}>
+            <Grid.Container>
+              {/* {selected && (
               <Grid xs={12}>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart
@@ -267,17 +264,18 @@ export const Wallet = () => {
                 </ResponsiveContainer>
               </Grid>
             )} */}
-            <Grid xs={12}>
-              <Swaps
-                isLoading={!!wallet && !!tonAddress && isLoading}
-                selected={selected}
-                swaps={swaps}
-                setSwaps={setSwaps}
-              />
-            </Grid>
-          </Grid.Container>
-        </Grid>
-      </Grid.Container>
-    </Container>
+              <Grid xs={12}>
+                <Swaps
+                  isLoading={!!wallet && !!tonAddress && isLoading}
+                  selected={selected}
+                  swaps={swaps}
+                  setSwaps={setSwaps}
+                />
+              </Grid>
+            </Grid.Container>
+          </Grid>
+        </Grid.Container>
+      </Container>
+    </>
   );
 };

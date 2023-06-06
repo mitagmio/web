@@ -21,15 +21,14 @@ import {
 import moment from "moment";
 import { AppContext } from "contexts/AppContext";
 import axios from "libs/axios";
-import { _, scaleTime } from "utils/time";
+import { _ } from "utils/time";
 import {
-  useInfiniteQuery,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { toFixed } from "utils/price";
-import { useLocation, useNavigate } from "react-router-dom";
-import { GEN12, GEN13, GRA06, GRA09 } from "assets/icons";
+import { useLocation } from "react-router-dom";
+import { GEN13, GRA06, GRA09 } from "assets/icons";
 import { pagination } from "pages/Analytics";
 
 export const Volume = ({ timescale }) => {

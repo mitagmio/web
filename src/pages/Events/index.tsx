@@ -1,14 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet";
 import cn from "classnames";
 // import Time from 'react-countdown';
 import {
-  Card,
-  Container,
   Grid,
   Text,
-  Spacer,
-  Progress,
   keyframes,
   Link,
   Button,
@@ -37,9 +34,6 @@ import {
 } from "assets/icons";
 
 import { ReactComponent as FCK } from "assets/logo.svg";
-import useDarkMode from "use-dark-mode";
-
-const deadline = 1677420000000;
 
 const gradient = keyframes({
   "0%": { textGradient: "45deg, $blue600 0%, $green600 100%" },
@@ -131,7 +125,7 @@ export const Events = () => {
   const timeline = [
     {
       type: "primary",
-      date: `3 ${t("june")} 2023`,
+      date: `6 ${t("june")} 2023`,
       icon: (
         <ABS46 style={{ fill: "var(--nextui-colors-link)", fontSize: 32 }} />
       ),
@@ -285,6 +279,11 @@ export const Events = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{t("events")}</title>
+        <meta property="og:title" content={t("events") || ""}></meta>
+        <meta property="og:image" content="/img/events.png"></meta>
+      </Helmet>
       <Grid.Container
         id="ama"
         gap={2}
@@ -306,10 +305,12 @@ export const Events = () => {
                       }
                     : {
                         background: `var(--nextui-colors-primary)`,
-                        color:  `var(--nextui-colors-black)`,
+                        color: `var(--nextui-colors-black)`,
                       }
                 }
-                contentArrowStyle={{ borderRight: "7px solid  var(--nextui--navbarBorderColor)" }}
+                contentArrowStyle={{
+                  borderRight: "7px solid  var(--nextui--navbarBorderColor)",
+                }}
                 date={event.date}
                 iconStyle={{
                   background: "var(--nextui-colors-primaryLight)",

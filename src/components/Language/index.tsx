@@ -1,15 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  Popover,
-  Image,
-  Grid,
-  Badge,
-  Text,
-  Spacer,
-} from "@nextui-org/react";
-import { AppContext } from "contexts/AppContext";
-import { ABS13, ABS14 } from "assets/icons";
+import { Button } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 
 export const LanguageSwitcher = () => {

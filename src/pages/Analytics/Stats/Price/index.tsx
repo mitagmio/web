@@ -76,6 +76,7 @@ import { Volume } from "../Volume";
 import { pagination } from "pages/Analytics";
 import { useDebounce } from "hooks";
 import { normalize } from "utils";
+import { ThemeSwitcher } from "components";
 
 export const Price: React.FC<{
   timescale: string;
@@ -173,10 +174,10 @@ export const Price: React.FC<{
             value: _(item.volume),
             color:
               _(item.price_close) > _(item.price_open)
-                ? "transparent"
+                ? "#26a69a80"
                 : _(item.price_close) === _(item.price_open)
                 ? "gray"
-                : "transparent",
+                : "#ef535080",
           }))
         );
 
@@ -190,21 +191,21 @@ export const Price: React.FC<{
           sell: _(item.jetton_volume),
         }));
 
+        console.log("list", list);
         candlestickSeries.current!.setData(dataCandle);
 
         const getLastBar = (series) => {
           return list && series.dataByIndex(list.length - 1);
         };
 
-        const toolTipWidth = 250;
-        const toolTipHeight = 300;
-        const toolTipMargin = 15;
+        const toolTipWidth = 215;
+        const toolTipHeight = 165;
+        const toolTipMargin = 16;
 
         // Create and style the tooltip html element
         const toolTip = document.createElement("div");
         toolTip.style.position = "absolute";
         toolTip.style.display = "none";
-        toolTip.style.padding = "8px";
         toolTip.style.boxSizing = "border-box";
         toolTip.style.zIndex = "1000";
         toolTip.style.top = "12px";
@@ -265,24 +266,27 @@ export const Price: React.FC<{
             }
             const data = param.seriesData.get(candlestickSeries.current);
 
-            toolTip.innerHTML = `<div style="background: var(--nextui--navbarBlurBackgroundColor);backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));" role="section" tabindex="-1" class="nextui-c-BDLTQ nextui-c-jMTBsW nextui-c-gulvcB nextui-c-BDLTQ-jzLLYn-variant-flat nextui-c-BDLTQ-fmlsco-borderWeight-light nextui-c-BDLTQ-cuwTXc-disableAnimation-false nextui-c-BDLTQ-ieFObHQ-css"><div class="nextui-c-eFfoBo"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-ijDEIix-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item chart-table"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iebUeoS-css nextui-grid-item nextui-grid-container" style="flex-direction: column"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" id="General" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="gen011-020"><g id="gen020"><polygon points="14 18 14 16 10 16 10 18 9 20 15 20 14 18"></polygon><path class="cls-1" d="M20,4H17V3a1,1,0,0,0-1-1H8A1,1,0,0,0,7,3V4H4A1,1,0,0,0,3,5V9a4,4,0,0,0,4,4H7l3,3h4l3-3h0a4,4,0,0,0,4-4V5A1,1,0,0,0,20,4ZM5,9V6H7v5A2,2,0,0,1,5,9ZM19,9a2,2,0,0,1-2,2V6h2ZM17,21v1H7V21a1,1,0,0,1,1-1h8A1,1,0,0,1,17,21ZM10,9A1,1,0,0,1,9,8V5a1,1,0,0,1,2,0V8A1,1,0,0,1,10,9Zm0,4a1,1,0,0,1-1-1V11a1,1,0,0,1,2,0v1A1,1,0,0,1,10,13Z"></path></g></g></svg> 1 FCK</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${parseFloat(
+            toolTip.innerHTML = `<div style="background: var(--nextui--navbarBlurBackgroundColor);backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));" role="section" tabindex="-1" class="nextui-c-BDLTQ nextui-c-jMTBsW nextui-c-gulvcB nextui-c-BDLTQ-jzLLYn-variant-flat nextui-c-BDLTQ-fmlsco-borderWeight-light nextui-c-BDLTQ-cuwTXc-disableAnimation-false nextui-c-BDLTQ-ieFObHQ-css"><div class="nextui-c-eFfoBo" style="padding-top: 8px; padding-bottom: 8px;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-ijDEIix-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item chart-table"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iebUeoS-css nextui-grid-item nextui-grid-container" style="flex-direction: column"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" id="General" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="gen011-020"><g id="gen020"><polygon points="14 18 14 16 10 16 10 18 9 20 15 20 14 18"></polygon><path class="cls-1" d="M20,4H17V3a1,1,0,0,0-1-1H8A1,1,0,0,0,7,3V4H4A1,1,0,0,0,3,5V9a4,4,0,0,0,4,4H7l3,3h4l3-3h0a4,4,0,0,0,4-4V5A1,1,0,0,0,20,4ZM5,9V6H7v5A2,2,0,0,1,5,9ZM19,9a2,2,0,0,1-2,2V6h2ZM17,21v1H7V21a1,1,0,0,1,1-1h8A1,1,0,0,1,17,21ZM10,9A1,1,0,0,1,9,8V5a1,1,0,0,1,2,0V8A1,1,0,0,1,10,9Zm0,4a1,1,0,0,1-1-1V11a1,1,0,0,1,2,0v1A1,1,0,0,1,10,13Z"></path></g></g></svg> 1 ${
+              jetton.symbol
+            }</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${parseFloat(
               selectedInfo?.price?.toFixed(jetton?.decimals)
-            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" id="General" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="gen001-010"><g id="gen002"><g class="cls-1"><path d="M4.05,15.2C8.34,7.77,13.58,3.26,20.93,2A.92.92,0,0,1,22,3.07C20.74,10.42,16.23,15.66,8.8,20Zm-.23,2.14L2.63,20.45a.71.71,0,0,0,.92.92l3.11-1.19ZM16.5,6A1.5,1.5,0,1,0,18,7.5,1.5,1.5,0,0,0,16.5,6Z"></path></g><path d="M4.05,15.2l-1.8-1.81a.84.84,0,0,1,.18-1.33L9.15,8.29A34.68,34.68,0,0,0,4.05,15.2ZM8.8,20l1.81,1.8a.84.84,0,0,0,1.33-.18l3.77-6.72A34.68,34.68,0,0,1,8.8,20ZM7,18.19l5.55-5.55a.87.87,0,0,0-1.23-1.22L5.81,17Z"></path></g></g></svg> Источник</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><a class="nextui-c-kzikkm nextui-c-gulvcB nextui-c-kzikkm-hfnKRU-color-default nextui-c-kzikkm-isWIbj-animated-true nextui-c-kzikkm-idoMxUs-css nextui-link" href="https://dedust.io/" target="_blank">DeDust.io</a></div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr031-040"><g id="arr036"><rect class="cls-1" x="2" y="6" width="16" height="16" rx="1"></rect><path d="M17.76,4.83,9.29,13.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l8.46-8.47Z"></path><path class="cls-1" d="M22,9.07V3a1,1,0,0,0-1-1H14.93Z"></path></g></g></g></svg> Открытие</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${toFixed(
-              (selectedInfo?.open || 0).toFixed(jetton.decimals)
-            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr041-050"><g id="arr042"><path class="cls-1" d="M21,22H12a1,1,0,0,1-1-1V3a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1V21A1,1,0,0,1,21,22Zm-5.59-5,4.3-4.29a1,1,0,0,0,0-1.42L15.41,7Z"></path><path d="M15.41,11H3a1,1,0,0,0,0,2H15.41Z"></path></g></g></g></svg> Закрытие</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${toFixed(
-              (selectedInfo?.close || 0).toFixed(jetton.decimals)
-            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra011-012"><g id="gra011"><polygon class="cls-1" points="9.41 8.84 16.64 14 20 14 20 12 16 11 9 4 5 6 5 9.94 9.41 8.84"></polygon><path d="M21,18H20V16H16L9,11l-3,.75V3A1,1,0,0,0,4,3V18H3a1,1,0,0,0,0,2H4v1a1,1,0,0,0,2,0V20H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg> Мин</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${toFixed(
-              (selectedInfo?.low || 0).toFixed(jetton.decimals)
-            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra011-012"><g id="gra012"><polygon class="cls-1" points="8.36 14 15.59 8.84 20 9.94 20 6 16 4 9 11 5 12 5 14 8.36 14"></polygon><path d="M21,18H20V12l-4-1L9,16H6V3A1,1,0,0,0,4,3V18H3a1,1,0,0,0,0,2H4v1a1,1,0,0,0,2,0V20H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg> Макс</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${toFixed(
-              (selectedInfo?.high || 0).toFixed(jetton.decimals)
-            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr051-059"><g id="arr059"><path d="M6.84,15.83a1,1,0,0,1,1.23.7A2,2,0,0,0,10,18h8a2,2,0,0,0,2-2V8a2,2,0,0,0-2-2H10A2,2,0,0,0,8,8V9.41H6V8a4,4,0,0,1,4-4h8a4,4,0,0,1,4,4v8a4,4,0,0,1-4,4H10a4,4,0,0,1-3.86-2.94A1,1,0,0,1,6.84,15.83Z"></path><path class="cls-1" d="M12,9.41H2l4.29,4.3a1,1,0,0,0,1.42,0Z"></path></g></g></g></svg> Продажа</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${parseFloat(
-              (
-                parseFloat(selectedInfo?.sell?.toFixed(jetton?.decimals)) *
-                selectedInfo?.close
-              ).toFixed(9)
-            )} TON</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 24px;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra001-010"><g id="gra004"><g class="cls-1"><path d="M11,11h2a1,1,0,0,1,1,1v9H10V12A1,1,0,0,1,11,11Zm5-8V21h4V3a1,1,0,0,0-1-1H17A1,1,0,0,0,16,3Z"></path></g><path d="M21,20H8V16a1,1,0,0,0-1-1H5a1,1,0,0,0-1,1v4H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg>Покупка</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item">${toFixed(
+            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra001-010"><g id="gra004"><g class="cls-1"><path d="M11,11h2a1,1,0,0,1,1,1v9H10V12A1,1,0,0,1,11,11Zm5-8V21h4V3a1,1,0,0,0-1-1H17A1,1,0,0,0,16,3Z"></path></g><path d="M21,20H8V16a1,1,0,0,0-1-1H5a1,1,0,0,0-1,1v4H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg>Покупка</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${toFixed(
               (selectedInfo?.buy || 0).toFixed(0)
-            )} TON</div></div></div></div></div></div></div></div>`;
+            )} TON</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr051-059"><g id="arr059"><path d="M6.84,15.83a1,1,0,0,1,1.23.7A2,2,0,0,0,10,18h8a2,2,0,0,0,2-2V8a2,2,0,0,0-2-2H10A2,2,0,0,0,8,8V9.41H6V8a4,4,0,0,1,4-4h8a4,4,0,0,1,4,4v8a4,4,0,0,1-4,4H10a4,4,0,0,1-3.86-2.94A1,1,0,0,1,6.84,15.83Z"></path><path class="cls-1" d="M12,9.41H2l4.29,4.3a1,1,0,0,0,1.42,0Z"></path></g></g></g></svg> Продажа</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${parseFloat(
+              (selectedInfo?.sell
+                ? parseFloat(selectedInfo?.sell?.toFixed(jetton?.decimals)) *
+                  selectedInfo?.close
+                : 0
+              ).toFixed(9)
+            )} TON</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr031-040"><g id="arr036"><rect class="cls-1" x="2" y="6" width="16" height="16" rx="1"></rect><path d="M17.76,4.83,9.29,13.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l8.46-8.47Z"></path><path class="cls-1" d="M22,9.07V3a1,1,0,0,0-1-1H14.93Z"></path></g></g></g></svg> Открытие</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${toFixed(
+              (selectedInfo?.open || 0).toFixed(jetton.decimals)
+            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Arrows"><g id="arr041-050"><g id="arr042"><path class="cls-1" d="M21,22H12a1,1,0,0,1-1-1V3a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1V21A1,1,0,0,1,21,22Zm-5.59-5,4.3-4.29a1,1,0,0,0,0-1.42L15.41,7Z"></path><path d="M15.41,11H3a1,1,0,0,0,0,2H15.41Z"></path></g></g></g></svg> Закрытие</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${toFixed(
+              (selectedInfo?.close || 0).toFixed(jetton.decimals)
+            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra011-012"><g id="gra011"><polygon class="cls-1" points="9.41 8.84 16.64 14 20 14 20 12 16 11 9 4 5 6 5 9.94 9.41 8.84"></polygon><path d="M21,18H20V16H16L9,11l-3,.75V3A1,1,0,0,0,4,3V18H3a1,1,0,0,0,0,2H4v1a1,1,0,0,0,2,0V20H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg> Мин</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${toFixed(
+              (selectedInfo?.low || 0).toFixed(jetton.decimals)
+            )}</div></div></div><div class="nextui-c-kRHeuF nextui-c-kRHeuF-idJnZoH-css nextui-grid-item xs sm" style="padding: 0; flex-basics: 100%; max-width: 100%;"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iiwAayw-css nextui-grid-item nextui-grid-container"><div class="nextui-c-kRHeuF nextui-c-kRHeuF-igNCIse-css nextui-grid-item" style="font-size: 12px"><p class="nextui-c-PJLV nextui-c-PJLV-ikeegJh-css chart-label" style="font-size: 12px;"><svg width="14px" height="14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill: currentcolor; font-size: 14px !important;"><defs><style>.cls-1{opacity:0.3;}</style></defs><g id="Charts_Dashboards_and_Graphs" data-name="Charts, Dashboards and Graphs"><g id="gra011-012"><g id="gra012"><polygon class="cls-1" points="8.36 14 15.59 8.84 20 9.94 20 6 16 4 9 11 5 12 5 14 8.36 14"></polygon><path d="M21,18H20V12l-4-1L9,16H6V3A1,1,0,0,0,4,3V18H3a1,1,0,0,0,0,2H4v1a1,1,0,0,0,2,0V20H21a1,1,0,0,0,0-2Z"></path></g></g></g></svg> Макс</p></div><span aria-hidden="true" class="nextui-c-gNVTSf nextui-c-gNVTSf-hakyQ-inline-false nextui-c-gNVTSf-ijSsVeB-css"></span><div class="nextui-c-kRHeuF nextui-c-kRHeuF-iajzRv-css nextui-grid-item" style="font-size: 12px">${toFixed(
+              (selectedInfo?.high || 0).toFixed(jetton.decimals)
+            )}</div></div></div></div></div></div></div></div>`;
 
             const y = param.point.y;
             let left = param.point.x + toolTipMargin;
@@ -294,8 +298,10 @@ export const Price: React.FC<{
             if (top > ref.current!.clientHeight - toolTipHeight) {
               top = y - toolTipHeight - toolTipMargin;
             }
-            toolTip.style.left = 0 + "px";
-            toolTip.style.top = 0 + "px";
+            // toolTip.style.left = left + "px";
+            // toolTip.style.top = top + "px";
+            toolTip.style.left = 16 + "px";
+            toolTip.style.top = 16 + "px";
           }
 
           setInfo(selectedInfo);
@@ -433,11 +439,23 @@ export const Price: React.FC<{
       });
     }
 
+    queryClient.setQueryData(
+      [
+        "jetton-analytics-single",
+        page,
+        location.pathname,
+        timescale,
+        jetton.id,
+      ],
+      []
+    );
+
+    volumeSeries.current!.setData([]);
+    candlestickSeries.current!.setData([]);
+
     setData([]);
     setPage(1);
     setLoadingPage(1);
-    queryClient.setQueryData(["jetton-analytics"], []);
-
     return () => {
       chartRef.current!.remove();
     };
@@ -528,19 +546,23 @@ export const Price: React.FC<{
     >
       <Grid xs={12} css={{ "@sm": { display: "none !important" } }}>
         <Grid.Container justify="center">
-          <Grid xs={12} css={{ height: "fit-content" }}>
+          <Grid xs={12} css={{ height: "fit-content", overflow: "auto" }}>
             <Grid.Container>
-              <Grid>
+              <Grid xs={12}>
                 <Card variant="flat">
-                  <Card.Body>
+                  <Card.Body css={{ p: 0 }}>
                     <Grid.Container>
                       <Grid className="chart-table">
                         <Grid.Container gap={1} justify="space-between">
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
+                          <Grid xs={3}>
+                            <Grid.Container
+                              gap={0}
+                              direction="column"
+                              alignItems="flex-start"
+                            >
                               <Grid>
                                 <Text
-                                size="0.75rem"
+                                  size="0.65rem"
                                   css={{
                                     textGradient:
                                       "45deg, $primary -20%, $secondary 100%",
@@ -556,13 +578,12 @@ export const Price: React.FC<{
                                   1 {jetton.symbol}
                                 </Text>
                               </Grid>
-                              <Spacer x={0.4} />
                               <Grid
                                 css={{
                                   display: "flex",
                                   alignItems: "center",
                                   whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
+                                  fontSize: "0.65rem",
                                 }}
                               >
                                 {parseFloat(
@@ -571,218 +592,11 @@ export const Price: React.FC<{
                               </Grid>
                             </Grid.Container>
                           </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
                               <Grid>
                                 <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <GEN02
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("source")}
-                                </Text>
-                              </Grid>
-                              <Spacer x={0.4} />
-                              <Grid>
-                                <Link href="https://dedust.io/" target="_blank" css={{ fontSize: '0.75rem' }}>
-                                  DeDust.io
-                                </Link>
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <ARR36
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("open")}
-                                </Text>
-                              </Grid>
-                              <Spacer x={0.4} />
-                              <Grid
-                                css={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {toFixed(
-                                  (info?.open || 0).toFixed(jetton.decimals)
-                                )}
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <ARR42
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("close")}
-                                </Text>
-                              </Grid>
-                              <Spacer x={0.4} />
-                              <Grid
-                                css={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {toFixed(
-                                  (info?.close || 0).toFixed(jetton.decimals)
-                                )}
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <GRA11
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("low")}
-                                </Text>
-                              </Grid>
-
-                              <Spacer x={0.4} />
-                              <Grid
-                                css={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {toFixed(
-                                  (info?.low || 0).toFixed(jetton.decimals)
-                                )}
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <GRA12
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("high")}
-                                </Text>
-                              </Grid>
-
-                              <Spacer x={0.4} />
-                              <Grid
-                                css={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {toFixed(
-                                  (info?.high || 0).toFixed(jetton.decimals)
-                                )}
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
-                                  css={{
-                                    textGradient:
-                                      "45deg, $primary -20%, $secondary 100%",
-                                  }}
-                                  className="chart-label"
-                                >
-                                  <ARR59
-                                    style={{
-                                      fill: "currentColor",
-                                      fontSize: 18,
-                                    }}
-                                  />{" "}
-                                  {t("sell")}
-                                </Text>
-                              </Grid>
-
-                              <Spacer x={0.4} />
-                              <Grid
-                                css={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {parseFloat(
-                                  info?.sell?.toFixed(jetton?.decimals)
-                                )}{" "}
-                                {jetton.symbol}
-                              </Grid>
-                            </Grid.Container>
-                          </Grid>
-                          <Grid>
-                            <Grid.Container wrap="nowrap" gap={0}>
-                              <Grid>
-                                <Text
-                                size="0.75rem"
+                                  size="0.65rem"
                                   css={{
                                     textGradient:
                                       "45deg, $primary -20%, $secondary 100%",
@@ -799,16 +613,220 @@ export const Price: React.FC<{
                                 </Text>
                               </Grid>
 
-                              <Spacer x={0.4} />
                               <Grid
                                 css={{
                                   display: "flex",
                                   alignItems: "center",
                                   whiteSpace: "nowrap",
-                                  fontSize: '0.75rem'
+                                  fontSize: "0.65rem",
                                 }}
                               >
                                 {toFixed((info?.buy || 0).toFixed(0))} TON
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
+                              <Grid>
+                                <Text
+                                  size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <ARR59
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("sell")}
+                                </Text>
+                              </Grid>
+
+                              <Grid
+                                css={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  fontSize: "0.65rem",
+                                }}
+                              >
+                                {(info?.sell
+                                  ? parseFloat(
+                                      info?.sell?.toFixed(jetton?.decimals)
+                                    ) * info?.close
+                                  : 0
+                                ).toFixed(9)}{" "}
+                                TON
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                          <Grid xs={3}></Grid>
+                          {/*   xs={4}
+                            <Grid.Container gap={0}>
+                              <Grid>
+                                <Text
+                                size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <GEN02
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("source")}
+                                </Text>
+                              </Grid>
+                              <Grid>
+                                <Link href="https://dedust.io/" target="_blank" css={{ fontSize: '0.65rem' }}>
+                                  DeDust.io
+                                </Link>
+                              </Grid>
+                            </Grid.Container>
+                          </Grid> */}
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
+                              <Grid>
+                                <Text
+                                  size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <ARR36
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("open")}
+                                </Text>
+                              </Grid>
+                              <Grid
+                                css={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  fontSize: "0.65rem",
+                                }}
+                              >
+                                {toFixed(
+                                  (info?.open || 0).toFixed(jetton.decimals)
+                                )}
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
+                              <Grid>
+                                <Text
+                                  size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <ARR42
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("close")}
+                                </Text>
+                              </Grid>
+                              <Grid
+                                css={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  fontSize: "0.65rem",
+                                }}
+                              >
+                                {toFixed(
+                                  (info?.close || 0).toFixed(jetton.decimals)
+                                )}
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
+                              <Grid>
+                                <Text
+                                  size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <GRA11
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("low")}
+                                </Text>
+                              </Grid>
+
+                              <Grid
+                                css={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  fontSize: "0.65rem",
+                                }}
+                              >
+                                {toFixed(
+                                  (info?.low || 0).toFixed(jetton.decimals)
+                                )}
+                              </Grid>
+                            </Grid.Container>
+                          </Grid>
+                          <Grid xs={3}>
+                            <Grid.Container gap={0} direction="column">
+                              <Grid>
+                                <Text
+                                  size="0.65rem"
+                                  css={{
+                                    textGradient:
+                                      "45deg, $primary -20%, $secondary 100%",
+                                  }}
+                                  className="chart-label"
+                                >
+                                  <GRA12
+                                    style={{
+                                      fill: "currentColor",
+                                      fontSize: 18,
+                                    }}
+                                  />{" "}
+                                  {t("high")}
+                                </Text>
+                              </Grid>
+
+                              <Grid
+                                css={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  whiteSpace: "nowrap",
+                                  fontSize: "0.65rem",
+                                }}
+                              >
+                                {toFixed(
+                                  (info?.high || 0).toFixed(jetton.decimals)
+                                )}
                               </Grid>
                             </Grid.Container>
                           </Grid>
@@ -822,9 +840,15 @@ export const Price: React.FC<{
           </Grid>
         </Grid.Container>
       </Grid>
-      <Grid xs={12} css={{ minHeight: "50vh", "@sm": {
-        minHeight: "75vh"
-      } }}>
+      <Grid
+        xs={12}
+        css={{
+          minHeight: "50vh",
+          "@sm": {
+            minHeight: "75vh",
+          },
+        }}
+      >
         <Card variant="flat">
           <Card.Body css={{ p: 0 }}>
             {isLoading && location.pathname.includes("price") && (
@@ -837,6 +861,34 @@ export const Price: React.FC<{
                 }}
               />
             )}
+            <div style={{ position: "absolute", bottom: 22 }}>
+              <Grid.Container alignItems="center" wrap="nowrap">
+                <Grid css={{ display: "flex" }}>
+                  <Badge
+                    size="xs"
+                    content={t("beta")}
+                    placement="bottom-right"
+                    css={{
+                      mb: "$4",
+                    }}
+                  >
+                    <ThemeSwitcher isLogo />
+                  </Badge>
+                </Grid>
+                <Grid>
+                  <Text
+                    size={16}
+                    css={{
+                      textGradient: "45deg, $primary 25%, $secondary 125%",
+                    }}
+                    weight="bold"
+                    hideIn="xs"
+                  >
+                    Find & Check
+                  </Text>
+                </Grid>
+              </Grid.Container>
+            </div>
             <div
               ref={ref}
               key={timescale}
@@ -941,13 +993,6 @@ export const Price: React.FC<{
                 {results
                   ?.filter((result) => !result.info.jettonWallet.isFake)
                   ?.map((result, i) => {
-                    console.log(
-                      "result.info.jettonWallet.balance",
-                      normalize(
-                        result.info.jettonWallet.balance,
-                        jetton?.decimals
-                      )
-                    );
                     return (
                       <Table.Row key={i}>
                         <Table.Cell>

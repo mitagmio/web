@@ -201,9 +201,11 @@ html:not([class*="light-theme"]) .diamond-item {
 }
 
 .roadmap-body {
-  padding-top: 0;
-  max-height: 50vh;
-  overflow-y: auto;
+  padding-top: 0 !important;
+
+  thead {
+    display: none;
+  }
 }
 
 .chart-table,
@@ -247,8 +249,6 @@ html:not([class*="light-theme"]) .diamond-item {
   flex-wrap: wrap;
   gap: 4px;
   overflow: auto;
-  padding: 50px;
-  margin: -50px;
 
   > div {
     width: 100%;
@@ -259,6 +259,9 @@ html:not([class*="light-theme"]) .diamond-item {
   }
 
   &.side {
+    padding: 50px;
+    margin: -50px;
+
     @media (max-width: 960px) {
       transition: 300ms all;
       display: block;
@@ -267,13 +270,15 @@ html:not([class*="light-theme"]) .diamond-item {
       background: var(--nextui--navbarBlurBackgroundColor);
       backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
       z-index: 9999;
-      left: 0;
+      left: 16px;
       width: 100%;
       top: 0;
+      left: 0;
       margin: 0;
       height: 100vh;
-      padding: 8px;
       opacity: 1;
+      margin: 0;
+      padding: 0;
 
       > div {
         padding: 8px 8px 0;
@@ -403,6 +408,10 @@ svg {
   vertical-align: middle;
 }
 
+.nextui-backdrop {
+  backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
+}
+
 .findcheck {
   position: relative;
   align-items: center;
@@ -418,7 +427,7 @@ svg {
 
   &__popup {
     position: fixed;
-    top: 127px;
+    top: 77px;
     max-height: calc(100vh - 77px);
     border-left: var(--nextui--navbarBorderWeight) solid
       var(--nextui--navbarBorderColor);
@@ -430,7 +439,7 @@ svg {
     max-width: 400px;
     min-width: 325px;
     width: 100%;
-    background: var(--nextui--navbarBlurBackgroundColor);
+    background: var(--nextui--navbarBackgroundColor);
     backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
   }
 
@@ -458,14 +467,14 @@ svg {
       position: fixed;
       margin: 0;
       left: 0;
-      top: 50px;
+      top: 54px;
       max-width: 100vw;
     }
   }
 
   @media (min-width: 600px) and (max-width: 960px) {
     .findcheck__popup {
-      top: 103px;
+      top: 54px;
       max-height: calc(100vh - 54px);
     }
   }

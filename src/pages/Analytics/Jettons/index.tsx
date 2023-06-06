@@ -3,10 +3,8 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
-  useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import cookie from "react-cookies";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
