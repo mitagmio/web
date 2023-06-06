@@ -181,7 +181,11 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                               size="xs"
                               variant="flat"
                               color="primary"
-                              css={{ flexWrap: "nowrap", p: "$0 $4 $0 $0" }}
+                              css={{
+                                flexWrap: "nowrap",
+                                p: "$0 $4 $0 $0",
+                                cursor: "pointer",
+                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();

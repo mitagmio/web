@@ -259,7 +259,11 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
               <Badge
                 variant="flat"
                 color="primary"
-                css={{ flexWrap: "nowrap", p: "$1 $4 $1 $2" }}
+                css={{
+                  flexWrap: "nowrap",
+                  p: "$1 $4 $1 $2",
+                  cursor: "pointer",
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();

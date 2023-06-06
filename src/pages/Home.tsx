@@ -53,54 +53,26 @@ export function Home() {
       : { before: 0, wait: 0 }
   );
 
-  const listVerified = useMemo(
-    () =>
-      [...(jettons || [])]
-        ?.filter((i) => i.verified)
-        ?.map(({ id }) => id)
-        .slice(0, 14),
-    [jettons]
-  );
-
-  const { data: transactions, isLoading: isLoadingTransactions } = useQuery({
-    queryKey: ["jettons-transactions", timescale],
-    queryFn: ({ signal }) =>
-      axios
-        .get(
-          `https://api.fck.foundation/api/v2/analytics/swaps/count?jetton_ids=${jettons
-            .map((jetton) => jetton.id)
-            .join(",")}&time_min=${Math.floor(
-            Date.now() / 1000 - pagination[timescale]
-          )}`,
-          { signal }
-        )
-        .then(({ data: { data } }) => data),
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    enabled: !!jettons?.length,
-    select: (results) => {
-      return Object.keys(results.sources.DeDust.jettons)
-        .reduce((acc, curr) => {
-          acc.push({
-            id: curr,
-            count: results.sources.DeDust.jettons[curr].count,
-          });
-
-          return acc;
-        }, [] as any)
-        .sort((x, y) => y.count - x.count)
-        .slice(0, 9);
-    },
-  });
-
   const { data: dataRecently, isLoading: isLoadingRecently } = useQuery({
     queryKey: ["new-jettons"],
-    queryFn: async () => await fck.getRecentlyAdded(9),
+    queryFn: async () =>
+      await fck.getRecentlyAdded(
+        9,
+        Math.floor(Date.now() / 1000 - pagination[timescale]),
+        pagination[timescale] / 6
+      ),
     refetchOnMount: false,
     refetchOnReconnect: false,
     select: (results) => {
-      return results.data.map(({ id }) => id);
+      results = results.data.sources.DeDust.jettons;
+
+      return getList(
+        Object.keys(results).reduce((acc, curr) => {
+          acc[curr] = results[curr]?.prices || [];
+          return acc;
+        }, {}),
+        jettons
+      );
     },
   });
 
@@ -110,11 +82,24 @@ export function Home() {
     refetch: refetchPromo,
   } = useQuery({
     queryKey: ["promo-jettons"],
-    queryFn: async () => await fck.getPromoting(9),
+    queryFn: async () =>
+      await fck.getPromoting(
+        9,
+        Math.floor(Date.now() / 1000 - pagination[timescale]),
+        pagination[timescale] / 6
+      ),
     refetchOnMount: false,
     refetchOnReconnect: false,
     select: (results) => {
-      return results.data.map(({ id }) => id);
+      results = results.data.sources.DeDust.jettons;
+
+      return getList(
+        Object.keys(results).reduce((acc, curr) => {
+          acc[curr] = results[curr]?.prices || [];
+          return acc;
+        }, {}),
+        jettons
+      );
     },
   });
 
@@ -124,113 +109,26 @@ export function Home() {
     refetch: refetchTrending,
   } = useQuery({
     queryKey: ["trending-jettons"],
-    queryFn: async () => await fck.getTrending(9),
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    select: (results) => {
-      return results.data.map(({ id }) => id);
-    },
-  });
-
-  const { data: dataStats, isLoading } = useQuery({
-    queryKey: ["analytics-stats", timescale],
     queryFn: async () =>
-      await fck.getAnalytics(
-        (transactions || [])?.map(({ id }) => parseInt(id))?.join(),
+      await fck.getTrending(
+        9,
         Math.floor(Date.now() / 1000 - pagination[timescale]),
         pagination[timescale] / 6
       ),
     refetchOnMount: false,
     refetchOnReconnect: false,
-    enabled: !![...(jettons || [])]?.length && !!transactions?.length,
     select: (results) => {
       results = results.data.sources.DeDust.jettons;
 
-      const transform = (list) =>
-        list.reduce((acc, curr) => {
-          acc[curr] = results[curr].prices;
-          return acc;
-        }, {});
-
       return getList(
-        transform([...(transactions || [])?.map(({ id }) => parseInt(id))]),
+        Object.keys(results).reduce((acc, curr) => {
+          acc[curr] = results[curr]?.prices || [];
+          return acc;
+        }, {}),
         jettons
       );
     },
   });
-
-  const { data: dataStatsRecent, isLoading: isLoadingStatsRecent } = useQuery({
-    queryKey: ["analytics-recent", timescale],
-    queryFn: async () =>
-      await fck.getAnalytics(
-        dataRecently?.join(),
-        Math.floor(Date.now() / 1000 - pagination[timescale]),
-        pagination[timescale] / 6
-      ),
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    enabled: !![...(jettons || [])]?.length && !!dataRecently?.length,
-    select: (results) => {
-      results = results.data.sources.DeDust.jettons;
-
-      const transform = (list) =>
-        list.reduce((acc, curr) => {
-          acc[curr] = results[curr]?.prices || [];
-          return acc;
-        }, {});
-
-      return getList(transform([...dataRecently]), jettons);
-    },
-  });
-
-  const { data: dataStatsPromo, isLoading: isLoadingStatsPromo } = useQuery({
-    queryKey: ["analytics-promo", timescale],
-    queryFn: async () =>
-      await fck.getAnalytics(
-        dataPromo?.join(),
-        Math.floor(Date.now() / 1000 - pagination[timescale]),
-        pagination[timescale] / 6
-      ),
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    enabled: !![...(jettons || [])]?.length && !!dataPromo?.length,
-    select: (results) => {
-      results = results.data.sources.DeDust.jettons;
-
-      const transform = (list) =>
-        list.reduce((acc, curr) => {
-          acc[curr] = results[curr]?.prices || [];
-          return acc;
-        }, {});
-
-      return getList(transform([...dataPromo]), jettons);
-    },
-  });
-
-  const { data: dataStatsTrending, isLoading: isLoadingStatsTrending } =
-    useQuery({
-      queryKey: ["analytics-trending", timescale],
-      queryFn: async () =>
-        await fck.getAnalytics(
-          dataTrending?.join(),
-          Math.floor(Date.now() / 1000 - pagination[timescale]),
-          pagination[timescale] / 6
-        ),
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      enabled: !![...(jettons || [])]?.length && !!dataTrending?.length,
-      select: (results) => {
-        results = results.data.sources.DeDust.jettons;
-
-        const transform = (list) =>
-          list.reduce((acc, curr) => {
-            acc[curr] = results[curr]?.prices || [];
-            return acc;
-          }, {});
-
-        return getList(transform([...dataTrending]), jettons);
-      },
-    });
 
   useEffect(() => {
     if (processing.wait > 0) {
@@ -272,15 +170,7 @@ export function Home() {
     });
   };
 
-  const loading =
-    isLoading ||
-    isLoadingPromo ||
-    isLoadingStatsRecent ||
-    isLoadingStatsPromo ||
-    isLoadingRecently ||
-    isLoadingTransactions ||
-    isLoadingTrending ||
-    isLoadingStatsTrending;
+  const loading = isLoadingPromo || isLoadingRecently || isLoadingTrending;
 
   return (
     <>
@@ -378,7 +268,7 @@ export function Home() {
               </>
             }
             list={
-              dataStatsPromo
+              dataPromo
                 ?.sort(
                   (x, y) =>
                     (y.stats?.promoting_points || 0) -
@@ -401,9 +291,8 @@ export function Home() {
               </>
             }
             list={
-              dataStatsTrending
-                ?.sort((x, y) => y.volume - x.volume)
-                ?.slice(0, 9) || []
+              dataTrending?.sort((x, y) => y.volume - x.volume)?.slice(0, 9) ||
+              []
             }
             setVoteId={setVoteId}
           />
@@ -419,7 +308,7 @@ export function Home() {
                 <Spacer x={0.4} /> {t("recentlyAdded")}
               </>
             }
-            list={dataStatsRecent?.slice(0, 9) || []}
+            list={dataRecently?.slice(0, 9) || []}
             setVoteId={setVoteId}
           />
         </Grid>

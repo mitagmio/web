@@ -6,6 +6,7 @@ import {
   Button,
   Text,
   Badge,
+  Loading,
 } from "@nextui-org/react";
 import cookie from "react-cookies";
 import { useQuery } from "@tanstack/react-query";
@@ -17,8 +18,9 @@ import { pagination } from "pages/Analytics";
 import { Key, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getList } from "utils";
+import axios from "axios";
 
-export const Calc: React.FC<any> = ({ data }) => {
+export const Calc: React.FC = () => {
   const { t } = useTranslation();
   const { ton, jettons, theme } = useContext(AppContext);
   const [timescale, setTimescale] = useState<TimeScale>(
@@ -26,11 +28,7 @@ export const Calc: React.FC<any> = ({ data }) => {
   );
 
   const listVerified = useMemo(
-    () =>
-      [...(jettons || [])]
-        ?.filter((i) => i.verified)
-        ?.map(({ id }) => id)
-        .slice(0, 14),
+    () => [...(jettons || [])]?.filter((i) => i.verified).slice(0, 14),
     [jettons]
   );
 
@@ -39,6 +37,28 @@ export const Calc: React.FC<any> = ({ data }) => {
 
   const [valueX, setValueX] = useState("1");
   const [valueY, setValueY] = useState("1");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["analytics-calc"],
+    queryFn: ({ signal }) => {
+      return axios
+        .get(
+          `https://api.fck.foundation/api/v2/analytics?jetton_ids=${listVerified
+            ?.map(({ id }) => id)
+            .join(",")}&time_min=${Math.floor(
+            Date.now() / 1000 - 1000
+          )}&time_max=${Math.floor(Date.now() / 1000)}&timescale=${
+            100
+          }`,
+          { signal }
+        )
+        .then(
+          ({ data: { data } }) => data?.sources?.DeDust?.jettons
+          // [jetton?.id?.toString()]?.prices
+        );
+    },
+    enabled: !!listVerified?.length,
+  });
 
   const displayCalcValue = useMemo(() => {
     const val = (
@@ -54,22 +74,30 @@ export const Calc: React.FC<any> = ({ data }) => {
     setFrom(to);
   };
 
-  const jettonsList = [
-    ...(data?.trend || []),
-    ...(data?.gainer || []),
-    ...(data?.recent || []),
-  ];
+  const dataJettons = useMemo(
+    () =>
+      jettons
+        ?.filter((i) => i.verified)
+        .slice(0, 14)
+        ?.reduce((acc, curr) => {
+          acc[curr.symbol] = curr;
+
+          return acc;
+        }, {}),
+    [jettons]
+  );
 
   useEffect(() => {
-    setValueY(
-      (to === "TON"
-        ? parseInt(valueX) *
-          (jettonsList.find(({ name }) => name === from)?.price || 1)
-        : parseInt(valueX) /
-          (jettonsList.find(({ name }) => name === to)?.price || 1)
-      ).toString()
-    );
-  }, [jettonsList]);
+    if (data)
+      setValueY(
+        (to === "TON"
+          ? parseInt(valueX) *
+            (data[dataJettons[from].id]?.prices?.pop()?.price_close || 1)
+          : parseInt(valueX) /
+            (data[dataJettons[to].id]?.prices?.pop()?.price_close || 1)
+        ).toString()
+      );
+  }, [data, valueX]);
 
   return (
     <Grid.Container direction="column">
@@ -82,7 +110,7 @@ export const Calc: React.FC<any> = ({ data }) => {
                 textGradient: "45deg, $primary -20%, $secondary 50%",
                 marginTop: -16,
                 lineHeight: 1,
-                pr: 100,
+                pr: 130,
               }}
               weight="bold"
             >
@@ -136,8 +164,8 @@ export const Calc: React.FC<any> = ({ data }) => {
           </Grid>
         </Grid.Container>
       </Grid>
-      {/* <Spacer y={1} /> */}
-      {/* <Grid>
+      <Spacer y={1} />
+      <Grid>
         <Grid.Container
           wrap="nowrap"
           alignItems="center"
@@ -159,11 +187,9 @@ export const Calc: React.FC<any> = ({ data }) => {
                     setValueY(
                       (to === "TON"
                         ? parseInt(e.target.value) *
-                          (jettonsList.find(({ name }) => name === from)
-                            ?.price || 1)
+                          (data[dataJettons[from].id]?.price || 1)
                         : parseInt(e.target.value) /
-                          (jettonsList.find(({ name }) => name === to)?.price ||
-                            1)
+                          (data[dataJettons[to].id]?.price || 1)
                       ).toString()
                     );
                   }}
@@ -186,13 +212,13 @@ export const Calc: React.FC<any> = ({ data }) => {
                     >
                       {[
                         ...(to !== "TON" && from !== "TON"
-                          ? [{ name: "TON" }]
+                          ? [{ symbol: "TON" }]
                           : []),
-                        ...(jettonsList || []),
+                        ...(listVerified || []),
                       ]
-                        ?.filter(({ name }) => name !== from)
-                        ?.map(({ name }) => (
-                          <Dropdown.Item key={name}>{name}</Dropdown.Item>
+                        ?.filter(({ symbol }) => symbol !== from)
+                        ?.map(({ symbol }) => (
+                          <Dropdown.Item key={symbol}>{symbol}</Dropdown.Item>
                         ))}
                     </Dropdown.Menu>
                   </Dropdown>
@@ -218,28 +244,30 @@ export const Calc: React.FC<any> = ({ data }) => {
               css={{ display: "flex", justifyContent: "flex-end" }}
             >
               <Grid>
-                <Input
-                  value={!isNaN(parseFloat(valueY)) ? valueY : ""}
-                  clearable
-                  underlined
-                  color="primary"
-                  labelPlaceholder="Get"
-                  width="75px"
-                  size="sm"
-                  onChange={(e) => {
-                    setValueY(e.target.value);
-                    setValueX(
-                      (to !== "TON"
-                        ? parseInt(e.target.value) *
-                          (jettonsList.find(({ name }) => name === to)?.price ||
-                            1)
-                        : parseInt(e.target.value) /
-                          (jettonsList.find(({ name }) => name === from)
-                            ?.price || 1)
-                      ).toString()
-                    );
-                  }}
-                />
+                {isLoading ? (
+                  <Loading />
+                ) : (
+                  <Input
+                    value={!isNaN(parseFloat(valueY)) ? valueY : ""}
+                    clearable
+                    underlined
+                    color="primary"
+                    labelPlaceholder="Get"
+                    width="75px"
+                    size="sm"
+                    onChange={(e) => {
+                      setValueY(e.target.value);
+                      setValueX(
+                        (to !== "TON"
+                          ? parseInt(e.target.value) *
+                            (data[to]?.prices?.pop()?.price_close || 1)
+                          : parseInt(e.target.value) /
+                            (data[from]?.prices?.pop()?.price_close || 1)
+                        ).toString()
+                      );
+                    }}
+                  />
+                )}
               </Grid>
 
               <Grid>
@@ -255,13 +283,13 @@ export const Calc: React.FC<any> = ({ data }) => {
                     <Dropdown.Menu aria-label="Static Actions" onAction={setTo}>
                       {[
                         ...(to !== "TON" && from !== "TON"
-                          ? [{ name: "TON" }]
+                          ? [{ symbol: "TON" }]
                           : []),
-                        ...(jettonsList || []),
+                        ...(listVerified || []),
                       ]
-                        ?.filter(({ name }) => name !== to)
-                        ?.map(({ name }) => (
-                          <Dropdown.Item key={name}>{name}</Dropdown.Item>
+                        ?.filter(({ symbol }) => symbol !== to)
+                        ?.map(({ symbol }) => (
+                          <Dropdown.Item key={symbol}>{symbol}</Dropdown.Item>
                         ))}
                     </Dropdown.Menu>
                   </Dropdown>
@@ -270,7 +298,7 @@ export const Calc: React.FC<any> = ({ data }) => {
             </Grid.Container>
           </Grid>
         </Grid.Container>
-      </Grid> */}
+      </Grid>
     </Grid.Container>
   );
 };

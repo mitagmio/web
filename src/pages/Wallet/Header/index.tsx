@@ -91,16 +91,6 @@ const WalletHeader: React.FC<Props> = ({ selected, setSwaps }) => {
     }
   }, [tonAddress, selected, wallet]);
 
-  const dataJettons = useMemo(
-    () =>
-      jettons?.reduce((acc, curr) => {
-        acc[curr.id] = curr;
-
-        return acc;
-      }, {}),
-    [jettons]
-  );
-
   return (
     <Card variant="bordered">
       <Card.Body>
