@@ -12,7 +12,8 @@ export const WhitePaper = () => {
         <meta property="og:image" content="/img/whitepaper.png"></meta>
       </Helmet>
       <iframe
-        src={`https://raw.githubusercontent.com/fck-foundation/web/2c87d28298cfd75326d471c2e4d95d0e4135d8ca/intro/whitepaper.pdf`}
+        src={`https://docs.google.com/viewer?url=https://raw.githubusercontent.com/fck-foundation/web/master/intro/whitepaper.pdf&embedded=true`}
+        cross-origin="anonymous"
         width="100%"
         style={{ minHeight: "90vh", border: "none" }}
       />
