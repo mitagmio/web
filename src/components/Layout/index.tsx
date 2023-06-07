@@ -111,7 +111,15 @@ export const Layout = ({ children }: { children?: any }) => {
   };
 
   const menu = [
-    { title: t("analytics"), href: "/analytics" },
+    {
+      title: t("analytics"),
+      href: `/analytics/price/${
+        location.pathname.includes("price") ||
+        location.pathname.includes("volume")
+          ? location.pathname.split("/").pop()
+          : "FCK"
+      }`,
+    },
     { title: t("events"), href: "/events" },
     { title: t("roadMap"), href: "/roadmap" },
   ];
