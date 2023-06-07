@@ -1,5 +1,5 @@
 import { Sector } from "recharts";
-import { _ } from "utils/time";
+import { _ } from "utils";
 
 export const renderActiveShape = (props): React.ReactNode => {
   const RADIAN = Math.PI / 180;

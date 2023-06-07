@@ -21,7 +21,7 @@ import {
 import moment from "moment";
 import { AppContext } from "contexts/AppContext";
 import axios from "libs/axios";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import {
   useQuery,
   useQueryClient,
@@ -97,9 +97,9 @@ export const Volume = ({ timescale }) => {
           `https://api.fck.foundation/api/v2/analytics/liquidity?jetton_ids=${
             jetton.id
           }&time_min=${Math.floor(
-            Date.now() / 1000 - page * pagination[timescale] * 84
+            Date.now() / 1000 - page * pagination[timescale] * 24
           )}&time_max=${Math.floor(
-            Date.now() / 1000 - (page - 1) * pagination[timescale] * 84
+            Date.now() / 1000 - (page - 1) * pagination[timescale] * 24
           )}&timescale=${pagination[timescale]}`,
           { signal }
         )

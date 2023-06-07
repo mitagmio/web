@@ -2,8 +2,6 @@
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet";
 
-import WhitePaperFile from "../../assets/docs/whitepaper.pdf";
-
 export const WhitePaper = () => {
   const { t } = useTranslation();
   return (
@@ -14,7 +12,7 @@ export const WhitePaper = () => {
         <meta property="og:image" content="/img/whitepaper.png"></meta>
       </Helmet>
       <iframe
-        src={`${WhitePaperFile}#toolbar=0&navpanes=0`}
+        src={`https://raw.githubusercontent.com/fck-foundation/web/2c87d28298cfd75326d471c2e4d95d0e4135d8ca/intro/whitepaper.pdf`}
         width="100%"
         style={{ minHeight: "90vh", border: "none" }}
       />

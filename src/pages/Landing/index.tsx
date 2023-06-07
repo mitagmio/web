@@ -207,7 +207,7 @@ export function Home() {
                   <Button
                     color="primary"
                     css={{ minWidth: "auto" }}
-                    onClick={() => navigate("/analytics")}
+                    onPress={() => navigate("/analytics")}
                   >
                     {t("getStarted")}
                     <Spacer x={0.4} />

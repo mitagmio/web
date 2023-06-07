@@ -79,16 +79,16 @@ const WalletSwaps: React.FC<Props> = ({
     <Card variant="bordered">
       <Card.Header>
         <Button.Group size="sm">
-          <Button flat={tab !== "dex"} onClick={() => setTab("dex")}>
+          <Button flat={tab !== "dex"} onPress={() => setTab("dex")}>
             {t("swaps")}
           </Button>
           <Button
             flat={tab !== "transactions"}
-            onClick={() => setTab("transactions")}
+            onPress={() => setTab("transactions")}
           >
             {t("transactions")}
           </Button>
-          <Button flat={tab !== "nft"} onClick={() => setTab("nft")}>
+          <Button flat={tab !== "nft"} onPress={() => setTab("nft")}>
             {t("nft")}
           </Button>
         </Button.Group>

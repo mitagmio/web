@@ -150,7 +150,7 @@ export const Promote: React.FC<{
   return (
     <>
       {!hideTrigger && (
-        <Button color="gradient" onClick={onPromote}>
+        <Button color="gradient" onPress={onPromote}>
           <Grid.Container alignItems="center">
             {!!processing?.wait ? (
               <>
@@ -385,7 +385,7 @@ export const Promote: React.FC<{
                 flat
                 css={{ minWidth: "auto" }}
                 onPress={() => (!processing?.wait ? onVote() : undefined)}
-                disabled={!!dataFCK}
+                disabled={!!wallet && (!toPay || !dataFCK || toPay > dataFCK)}
               >
                 <Grid.Container alignItems="center">
                   {!!processing?.wait ? (

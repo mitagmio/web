@@ -1,8 +1,9 @@
 import { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { Spinner } from "@nextui-org/react";
+
 import "./assets/index.scss";
 import "./patch-local-storage-for-github-pages";
-import { Spinner } from "@nextui-org/react";
 
 const App = lazy(() => import("./App"));
 

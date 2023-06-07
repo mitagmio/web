@@ -80,13 +80,13 @@ export const NFT = () => {
           </Grid> */}
           <Grid>
             <Button.Group size="sm">
-              <Button flat={type !== "all"} onClick={() => setType("all")}>
+              <Button flat={type !== "all"} onPress={() => setType("all")}>
                 {t("all")}
               </Button>
-              <Button flat={type !== "sale"} onClick={() => setType("sale")}>
+              <Button flat={type !== "sale"} onPress={() => setType("sale")}>
                 {t("onSale")}
               </Button>
-              <Button flat={type !== "hold"} onClick={() => setType("hold")}>
+              <Button flat={type !== "hold"} onPress={() => setType("hold")}>
                 {t("notForSale")}
               </Button>
             </Button.Group>
@@ -153,7 +153,7 @@ export const NFT = () => {
                       <Grid>
                         <Badge color="success">
                           {parseFloat(
-                            normalize(nft?.sale?.price?.value, 9).toFixed(2)
+                            normalize(nft?.sale?.price?.value, 9).toFixed(9)
                           )}{" "}
                           TON
                         </Badge>

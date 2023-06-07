@@ -200,7 +200,7 @@ function App() {
       </Helmet>
       <ThemeProvider
         enableSystem
-        disableTransitionOnChange
+        enableColorScheme
         forcedTheme={themeName}
         themes={[
           "light",

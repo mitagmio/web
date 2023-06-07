@@ -24,7 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import axios from "libs/axios";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GEN02, GEN15 } from "assets/icons";

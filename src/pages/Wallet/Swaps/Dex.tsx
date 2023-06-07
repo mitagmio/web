@@ -247,7 +247,7 @@ export const Dex: React.FC<Props> = ({
           <Card.Body css={{ p: "$0" }}>
             <Button
               css={{ borderRadius: 0 }}
-              onClick={() =>
+              onPress={() =>
                 document.getElementById("tc-connect-button")?.click()
               }
             >

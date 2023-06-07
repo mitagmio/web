@@ -1,8 +1,4 @@
-export const _ = v => {
-  const value = parseFloat(v);
-
-  return value === 0 ? 0.000000001 : value;
-};
+import { _ } from "./number";
 
 export const scaleTime = (data, type: '1M' | '5M' | '30M' | '1H' | '4H' | '1D' | '30D') => {
   if (type == '5M') {

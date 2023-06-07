@@ -17,7 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import axios from "libs/axios";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ARR20, ARR24, GEN03, GEN04 } from "assets/icons";
@@ -229,6 +229,8 @@ export const Search: React.FC<Props> = () => {
           ...(widths.logo && { maxWidth: active ? "0%" : widths.logo }),
           ...(widths.logo && { width: active ? "0%" : widths.logo }),
           minWidth: 0,
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <Navbar.Brand
@@ -241,7 +243,7 @@ export const Search: React.FC<Props> = () => {
           onClick={() => navigate("/")}
         >
           <Grid.Container alignItems="center" wrap="nowrap">
-            <Grid css={{ display: "flex" }}>
+            <Grid css={{ display: "flex", ...(active && { display: "none" }), zIndex: 2 }}>
               <Badge
                 size="xs"
                 content={t("beta")}
@@ -269,8 +271,8 @@ export const Search: React.FC<Props> = () => {
             </Grid>
           </Grid.Container>
         </Navbar.Brand>
+        <Spacer x={0.4} />
       </Grid>
-      <Spacer x={0.4} />
       <Grid
         css={{
           transition: "all 300ms",
@@ -292,7 +294,7 @@ export const Search: React.FC<Props> = () => {
               padding: "$4",
               width: "100%",
             }}
-            onClick={() => setOpen(true)}
+            onPress={() => setOpen(true)}
           >
             <div
               style={{
@@ -326,14 +328,12 @@ export const Search: React.FC<Props> = () => {
         </Grid.Container>
       </Grid>
 
-      <Spacer x={0.4} />
-
-      <Grid className="findcheck__trigger">
+      <Grid className="findcheck__trigger" css={{ marginLeft: !active ? "$4" : "$0" }}>
         <Button
           flat
           size="sm"
           css={{ minWidth: 0, p: 8 }}
-          onClick={() => setActive(!active)}
+          onPress={() => setActive(!active)}
         >
           <GEN04 style={{ fill: "currentColor", fontSize: 18 }} />
         </Button>
@@ -343,16 +343,16 @@ export const Search: React.FC<Props> = () => {
         <div className={`jettons-list findcheck__popup`}>
           <Grid>
             <Button.Group size="sm">
-              <Button flat={tab !== "all"} onClick={() => setTab("all")}>
+              <Button flat={tab !== "all"} onPress={() => setTab("all")}>
                 {t("all")}
               </Button>
               <Button
                 flat={tab !== "wallets"}
-                onClick={() => setTab("wallets")}
+                onPress={() => setTab("wallets")}
               >
                 {t("wallets")}
               </Button>
-              <Button flat={tab !== "tokens"} onClick={() => setTab("tokens")}>
+              <Button flat={tab !== "tokens"} onPress={() => setTab("tokens")}>
                 {t("tokens")}
               </Button>
             </Button.Group>
@@ -451,8 +451,14 @@ export const Search: React.FC<Props> = () => {
                                       bordered
                                       src={jetton.image}
                                       name={
-                                        <div>
-                                          {jetton.symbol}{" "}
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          {jetton.symbol}
+                                          <Spacer x={0.2} />
                                           {!!jetton?.verified && (
                                             <Badge
                                               size="xs"
@@ -473,6 +479,7 @@ export const Search: React.FC<Props> = () => {
                                               />
                                             </Badge>
                                           )}
+                                          <Spacer x={0.2} />
                                           <Badge
                                             size="xs"
                                             variant="flat"

@@ -172,7 +172,7 @@ export const RoadMap = () => {
                 }
                 flat
                 css={{ minWidth: 24 }}
-                onClick={() => instanceRef.current?.prev()}
+                onPress={() => instanceRef.current?.prev()}
               />
             </Grid>
             <Grid>
@@ -187,7 +187,7 @@ export const RoadMap = () => {
                 }
                 flat
                 css={{ minWidth: 24 }}
-                onClick={() => instanceRef.current?.next()}
+                onPress={() => instanceRef.current?.next()}
               />
             </Grid>
           </Grid.Container>

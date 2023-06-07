@@ -153,7 +153,7 @@ const WalletHeader: React.FC<Props> = ({ selected, setSwaps }) => {
                               flat
                               size="sm"
                               css={{ minWidth: "auto" }}
-                              onClick={() =>
+                              onPress={() =>
                                 tonConnectUi.sendTransaction({
                                   validUntil: Date.now() + 1000000,
                                   messages: [

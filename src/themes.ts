@@ -15,8 +15,6 @@ export const dark = createTheme({
   theme: {
     colors: {
       ...colors.dark,
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -27,10 +25,6 @@ export const sky = createTheme({
   theme: {
     colors: {
       ...colors.sky,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -39,7 +33,7 @@ export const skyLight = createTheme({
   className: "sky-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.sky, background: "transparent" },
+    colors: { ...colors.sky },
   },
 });
 
@@ -49,10 +43,6 @@ export const arctic = createTheme({
   theme: {
     colors: {
       ...colors.arctic,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -61,7 +51,7 @@ export const arcticLight = createTheme({
   className: "arctic-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.arctic, background: "transparent" },
+    colors: { ...colors.arctic },
   },
 });
 
@@ -71,10 +61,6 @@ export const azure = createTheme({
   theme: {
     colors: {
       ...colors.azure,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -83,7 +69,7 @@ export const azureLight = createTheme({
   className: "azure-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.azure, background: "transparent" },
+    colors: { ...colors.azure },
   },
 });
 
@@ -93,10 +79,6 @@ export const iris = createTheme({
   theme: {
     colors: {
       ...colors.iris,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -105,7 +87,7 @@ export const irisLight = createTheme({
   className: "iris-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.iris, background: "transparent" },
+    colors: { ...colors.iris },
   },
 });
 
@@ -115,10 +97,6 @@ export const flamingo = createTheme({
   theme: {
     colors: {
       ...colors.flamingo,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -127,7 +105,7 @@ export const flamingoLight = createTheme({
   className: "flamingo-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.flamingo, background: "transparent" },
+    colors: { ...colors.flamingo },
   },
 });
 
@@ -137,10 +115,6 @@ export const coral = createTheme({
   theme: {
     colors: {
       ...colors.coral,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -149,7 +123,7 @@ export const coralLight = createTheme({
   className: "coral-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.coral, background: "transparent" },
+    colors: { ...colors.coral },
   },
 });
 
@@ -159,10 +133,6 @@ export const marine = createTheme({
   theme: {
     colors: {
       ...colors.marine,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -171,8 +141,7 @@ export const marineLight = createTheme({
   className: "marine-light-theme",
   type: "light",
   theme: {
-    
-    colors: { ...colors.marine, background: "transparent" },
+    colors: { ...colors.marine },
   },
 });
 
@@ -182,10 +151,6 @@ export const ocean = createTheme({
   theme: {
     colors: {
       ...colors.ocean,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -194,7 +159,7 @@ export const oceanLight = createTheme({
   className: "ocean-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.ocean, background: "transparent" },
+    colors: { ...colors.ocean },
   },
 });
 
@@ -203,12 +168,7 @@ export const fluid = createTheme({
   type: "dark",
   theme: {
     colors: {
-      white: "#000",
       ...colors.fluid,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -217,8 +177,7 @@ export const fluidLight = createTheme({
   className: "fluid-light-theme",
   type: "light",
   theme: {
-    
-    colors: { ...colors.fluid, background: "transparent" },
+    colors: { ...colors.fluid },
   },
 });
 
@@ -227,21 +186,16 @@ export const galaxy = createTheme({
   type: "dark",
   theme: {
     colors: {
-      white: "#000",
       ...colors.galaxy,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
 
 export const galaxyLight = createTheme({
-  className: "galaxy-theme",
+  className: "galaxy-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.galaxy, background: "transparent" },
+    colors: { ...colors.galaxy },
   },
 });
 
@@ -251,10 +205,6 @@ export const cosmos = createTheme({
   theme: {
     colors: {
       ...colors.cosmos,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -263,7 +213,7 @@ export const cosmosLight = createTheme({
   className: "cosmos-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.cosmos, background: "transparent" },
+    colors: { ...colors.cosmos },
   },
 });
 
@@ -273,10 +223,6 @@ export const andromeda = createTheme({
   theme: {
     colors: {
       ...colors.andromeda,
-      background: "transparent",
-      backgroundContrast: "rgb(0, 0, 0, 0.5)",
-      primarySolidContrast: "$dark",
-      secondarySolidContrast: "$dark",
     },
   },
 });
@@ -285,6 +231,6 @@ export const andromedaLight = createTheme({
   className: "andromeda-light-theme",
   type: "light",
   theme: {
-    colors: { ...colors.andromeda, background: "transparent" },
+    colors: { ...colors.andromeda },
   },
 });

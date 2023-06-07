@@ -21,7 +21,7 @@ import {
 } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ARR20, GEN03, GEN19, GRA12 } from "assets/icons";
 import { AppContext } from "contexts";
@@ -123,7 +123,7 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                   )
                 }
                 css={{ minWidth: "auto" }}
-                onClick={() => {
+                onPress={() => {
                   setIsDrag((i) => {
                     setOpen(!i);
                     return !i;
@@ -245,7 +245,7 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                 <Button
                   size="sm"
                   css={{ width: "100%" }}
-                  onClick={() =>
+                  onPress={() =>
                     setList((prevList) => [jetton.address, ...prevList])
                   }
                 >
@@ -269,7 +269,7 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                     <Button
                       size="sm"
                       flat={!location.pathname.includes("price")}
-                      onClick={() =>
+                      onPress={() =>
                         location.pathname.includes("volume") &&
                         navigate(
                           `/analytics/price/${location.pathname
@@ -300,7 +300,7 @@ export const Header: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                         borderTopLeftRadius: 0,
                         borderBottomLeftRadius: 0,
                       }}
-                      onClick={() =>
+                      onPress={() =>
                         location.pathname.includes("price") &&
                         navigate(
                           `/analytics/volume/${location.pathname

@@ -1,11 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useMemo,
-  useRef,
-} from "react";
+import { Dispatch, SetStateAction, useContext, useMemo, useRef } from "react";
 import cookie from "react-cookies";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +16,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import axios from "libs/axios";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { DroppableItems } from "components/DND/DroppableItems";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -204,35 +198,6 @@ export const Jettons: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                                               position: "relative",
                                             }}
                                           >
-                                            {isDrag && (
-                                              <Button
-                                                size="sm"
-                                                flat
-                                                icon={
-                                                  <ARR35
-                                                    style={{
-                                                      fill: "currentColor",
-                                                      fontSize: 18,
-                                                    }}
-                                                  />
-                                                }
-                                                css={{
-                                                  minWidth: "auto",
-                                                  pointerEvents: "none",
-                                                  position: "absolute",
-                                                  zIndex: 101,
-                                                  left: 12,
-                                                  width: 40,
-                                                  height: 40,
-                                                  top: "50%",
-                                                  transform:
-                                                    "translate3d(0, -50%, 0)",
-                                                  margin: "-2px -1px",
-                                                  borderRadius: "100%",
-                                                  opacity: 0.9,
-                                                }}
-                                              />
-                                            )}
                                             <Grid
                                               css={{
                                                 textAlign: "center",
@@ -346,6 +311,13 @@ export const Jettons: React.FC<Props> = ({ isDrag, setIsDrag }) => {
                                               css={{
                                                 minWidth: "auto",
                                               }}
+                                              onPress={() =>
+                                                setList((prevList) =>
+                                                  prevList.filter(
+                                                    (i) => i !== jetton.address
+                                                  )
+                                                )
+                                              }
                                             />
                                           ) : (
                                             <Grid.Container

@@ -154,7 +154,7 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                         >
                           <Grid
                             css={{
-                              maxWidth: "40%",
+                              maxWidth: "60%",
                               "@xs": { maxWidth: "80%" },
                             }}
                           >
@@ -176,7 +176,7 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                               </div>
                             </Text>
                           </Grid>
-                          <Grid>
+                          <Grid css={{ position: 'absolute', right: 0 }}>
                             <Badge
                               size="xs"
                               variant="flat"

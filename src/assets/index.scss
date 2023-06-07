@@ -67,7 +67,7 @@ code {
 }
 
 html:not([class*="light-theme"]) body {
-  --tg-theme-bg-color: #000;
+  // --tg-theme-bg-color: #000;
   // --tg-theme-text-color: ;
   // --tg-theme-hint-color: ;
   // --tg-theme-link-color: ;
@@ -98,13 +98,11 @@ html:not([class*="light-theme"]) body {
 
 .navbar {
   z-index: 999 !important;
-  border-bottom: var(--nextui--navbarBorderWeight) solid
-    var(--nextui--navbarBorderColor);
+  background: transparent;
 
   .nextui-navbar-container {
-    border-bottom: unset !important;
     background: unset;
-    max-width: 100%;
+    // max-width: 100%;
   }
 }
 
@@ -158,7 +156,11 @@ svg {
 }
 
 html[class*="light-theme"] .svgInline {
-  filter: invert(1);
+  filter: invert(1) grayscale(1);
+}
+
+.nextui-input-wrapper--with-value {
+  padding-right: 15px;
 }
 
 .diamond-item {
@@ -427,8 +429,8 @@ svg {
 
   &__popup {
     position: fixed;
-    top: 77px;
-    max-height: calc(100vh - 77px);
+    top: 75px;
+    max-height: calc(100vh - 75px);
     border-left: var(--nextui--navbarBorderWeight) solid
       var(--nextui--navbarBorderColor);
     border-right: var(--nextui--navbarBorderWeight) solid
@@ -441,6 +443,11 @@ svg {
     width: 100%;
     background: var(--nextui--navbarBackgroundColor);
     backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
+  }
+
+  .findcheck__input {
+    display: flex;
+    align-items: center;
   }
 
   @media (max-width: 600px) {
@@ -459,7 +466,7 @@ svg {
       transition: all 300ms;
 
       &.active {
-        width: 175px;
+        width: 125px;
       }
     }
 
@@ -467,15 +474,15 @@ svg {
       position: fixed;
       margin: 0;
       left: 0;
-      top: 54px;
+      top: 52px;
       max-width: 100vw;
     }
   }
 
   @media (min-width: 600px) and (max-width: 960px) {
     .findcheck__popup {
-      top: 54px;
-      max-height: calc(100vh - 54px);
+      top: 52px;
+      max-height: calc(100vh - 52px);
     }
   }
 }

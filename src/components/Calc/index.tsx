@@ -142,7 +142,7 @@ export const Calc: React.FC = () => {
                     minWidth: "auto",
                     overflow: "visible",
                   }}
-                  onClick={() =>
+                  onPress={() =>
                     globalThis.open(
                       `https://dedust.io/swap/${
                         from !== "TON"
@@ -236,13 +236,12 @@ export const Calc: React.FC = () => {
             </Grid.Container>
           </Grid>
           <Grid>
-            <Button flat size="sm" css={{ minWidth: "auto", p: 4 }}>
+            <Button flat size="sm" css={{ minWidth: "auto", p: 4 }} onPress={onSwap}>
               <ARR58
                 style={{
                   fill: "currentColor",
                   fontSize: 32,
                 }}
-                onClick={onSwap}
               />
             </Button>
           </Grid>

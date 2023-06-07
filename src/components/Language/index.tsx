@@ -22,7 +22,7 @@ export const LanguageSwitcher = () => {
         border: "1px solid $blue100",
       }}
       auto
-      onClick={() => setValue(value === "en" ? "ru" : "en")}
+      onPress={() => setValue(value === "en" ? "ru" : "en")}
     />
   );
 };

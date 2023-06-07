@@ -143,7 +143,7 @@ export const Layout = ({ children }: { children?: any }) => {
             isCompact={{ "@smMax": true, "@smMin": false }}
             shouldHideOnScroll
             disableScrollHandler
-            variant="sticky"
+            variant="floating"
           >
             <Container
               wrap="nowrap"
@@ -154,7 +154,7 @@ export const Layout = ({ children }: { children?: any }) => {
               <Grid>
                 <Grid.Container wrap="nowrap">
                   <Navbar.Toggle
-                    // isSelected={toggle}
+                    isSelected={toggle}
                     aria-label="toggle navigation"
                     showIn="sm"
                     onChange={(value) => setToggle(!!value)}

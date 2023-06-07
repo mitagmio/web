@@ -184,10 +184,10 @@ const WalletSwaps: React.FC<Props> = ({
           <Grid>{t("tokens")}</Grid>
           <Grid>
             <Button.Group size="sm">
-              <Button flat={isBalance} onClick={() => setIsBalance(false)}>
+              <Button flat={isBalance} onPress={() => setIsBalance(false)}>
                 {t("all")}
               </Button>
-              <Button flat={!isBalance} onClick={() => setIsBalance(true)}>
+              <Button flat={!isBalance} onPress={() => setIsBalance(true)}>
                 {t("isBalance")}
               </Button>
             </Button.Group>

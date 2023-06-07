@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { DropResult } from "react-beautiful-dnd";
 import { Button, Card, Grid, Popover, Spacer } from "@nextui-org/react";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { colors } from "colors";
 import { GEN15 } from "assets/icons";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -69,7 +69,7 @@ export const Change = () => {
         jetton?.id?.toString()
       ]?.prices?.map((item) => ({
         ...item,
-        pv: item.price_close,
+        pv: _(item.price_close),
       }))) || [];
     const dataChart = [...dataJetton].map((d, i) => ({
       ...d,

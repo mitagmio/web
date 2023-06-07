@@ -119,7 +119,7 @@ export const OurTeam = () => {
                                   />
                                 }
                                 css={{ minWidth: 24 }}
-                                onClick={() =>
+                                onPress={() =>
                                   window.open(user.telegram, "_blank")
                                 }
                               />

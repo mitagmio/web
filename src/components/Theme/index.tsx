@@ -7,6 +7,7 @@ import {
   Badge,
   Text,
   Spacer,
+  CSS,
 } from "@nextui-org/react";
 import { AppContext } from "contexts/AppContext";
 import { ABS13, ABS14 } from "assets/icons";
@@ -43,7 +44,7 @@ export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
             flat
             size="sm"
             css={{ minWidth: "100%", borderRadius: 0 }}
-            onClick={() => setEnabled(false)}
+            onPress={() => setEnabled(false)}
           >
             <ABS14
               style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
@@ -58,7 +59,7 @@ export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
             flat
             size="sm"
             css={{ minWidth: "100%", borderRadius: 0 }}
-            onClick={() => setEnabled(true)}
+            onPress={() => setEnabled(true)}
           >
             <ABS13
               style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}

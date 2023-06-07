@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Grid, Loading } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
-import { _ } from "utils/time";
+import { _ } from "utils";
 import { GEN02 } from "assets/icons";
 import { AppContext } from "contexts";
 import { Price } from "./Stats/Price";
