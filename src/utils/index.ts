@@ -1,3 +1,6 @@
 export * from './analytics'
 export * from './number'
 export * from './cookie'
+export * from './shapes'
+export * from './pay'
+export * from './time'

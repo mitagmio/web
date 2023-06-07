@@ -1,6 +1,5 @@
 import {
   Card,
-  Table,
   Grid,
   Image,
   Text,
@@ -11,27 +10,34 @@ import Skeleton from "react-loading-skeleton";
 
 import { FJetton } from "../Jetton";
 import { Link } from "react-router-dom";
+import { ARR20, GEN03 } from "assets/icons";
 
-type Item = {
+export type Item = {
+  id?: number;
   name: string;
   image: string;
   price: number;
-  volume: number;
-  color: string;
-  percent: number;
   chart: { value: number }[];
+  volume: number;
+  percent: number;
+  decimals: number;
+  color: string;
+  stats?: { promoting_points: number };
+  verified?: boolean;
 };
 
 interface Props {
   title: React.ReactNode;
   list: Item[];
   isLoading: boolean;
+  setVoteId: (value?: number) => void;
 }
 
 export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
   title,
   list,
   isLoading,
+  setVoteId,
 }) => {
   return (
     <Card css={{ p: "$6" }}>
@@ -53,8 +59,23 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
             </Grid.Container>
           ) : (
             list?.map(
-              ({ name, image, price, volume, percent, color, chart }, i) => (
-                <Grid key={i} xs={4}>
+              (
+                {
+                  id,
+                  name,
+                  image,
+                  price,
+                  volume,
+                  percent,
+                  color,
+                  chart,
+                  stats,
+                  decimals,
+                  verified,
+                },
+                i
+              ) => (
+                <Grid key={i} xs={4} sm={6} md={4}>
                   <Link
                     to={`/analytics/price/${name}`}
                     style={{ width: "100%" }}
@@ -66,13 +87,45 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                       className="card"
                     >
                       <Card.Header>
-                        <Grid.Container wrap="nowrap" justify="space-between">
+                        <Grid.Container
+                          wrap="nowrap"
+                          justify="space-between"
+                          alignItems="center"
+                        >
                           <Grid>
-                            <Image
-                              src={image}
-                              width={24}
-                              style={{ borderRadius: 100 }}
-                            />
+                            {verified ? (
+                              <Badge
+                                size="xs"
+                                css={{
+                                  p: 0,
+                                  background: "transparent",
+                                  right: "unset",
+                                  left: "$2",
+                                }}
+                                content={
+                                  <ARR20
+                                    style={{
+                                      fill: "var(--nextui-colors-primary)",
+                                      fontSize: 16,
+                                      borderRadius: 100,
+                                      overflow: "hidden",
+                                    }}
+                                  />
+                                }
+                              >
+                                <Image
+                                  src={image}
+                                  width={24}
+                                  style={{ borderRadius: 100 }}
+                                />
+                              </Badge>
+                            ) : (
+                              <Image
+                                src={image}
+                                width={24}
+                                style={{ borderRadius: 100 }}
+                              />
+                            )}
                           </Grid>
                           <Spacer x={0.4} />
                           <Grid>
@@ -86,23 +139,71 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                         <FJetton
                           index={i}
                           data={
-                            chart.length > 1
+                            chart?.length > 1
                               ? chart.map((v) => ({ pv: v.value }))
                               : [{ pv: 0 }, { pv: 0 }]
                           }
                           height={32}
                           color={color}
                         />
-                        <Text
-                          css={{
-                            overflow: "hidden",
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
+                        <Grid.Container
+                          justify="space-between"
+                          alignItems="center"
+                          gap={1}
+                          wrap="nowrap"
                         >
-                          {name}
-                        </Text>
-                        <Text
+                          <Grid
+                            css={{
+                              maxWidth: "60%",
+                              "@xs": { maxWidth: "80%" },
+                            }}
+                          >
+                            <Text
+                              css={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  maxWidth: "100%",
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {name}
+                              </div>
+                            </Text>
+                          </Grid>
+                          <Grid css={{ position: 'absolute', right: 0 }}>
+                            <Badge
+                              size="xs"
+                              variant="flat"
+                              color="primary"
+                              css={{
+                                flexWrap: "nowrap",
+                                p: "$0 $4 $0 $0",
+                                cursor: "pointer",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setVoteId(id);
+                              }}
+                            >
+                              <GEN03
+                                style={{
+                                  fill: "currentColor",
+                                  fontSize: 18,
+                                }}
+                              />
+                              <Spacer x={0.4} />
+                              {stats?.promoting_points || 0}
+                            </Badge>
+                          </Grid>
+                        </Grid.Container>
+                        {/* <Text
                           color="primary"
                           css={{
                             display: "flex",
@@ -115,11 +216,12 @@ export const FCard: React.FC<React.PropsWithChildren<Props>> = ({
                             textOverflow: "ellipsis",
                             position: "absolute",
                             left: "50%",
-                            transform: "translate3d(-50%, 0, 0)",
+                            top: "50%",
+                            transform: "translate3d(-50%, -50%, 0)",
                           }}
                         >
-                          <div>{price}</div> TON
-                        </Text>
+                          <div>{parseFloat(price.toFixed(decimals))}</div> TON
+                        </Text> */}
                       </Card.Body>
                     </Card>
                   </Link>

@@ -13,9 +13,21 @@ export const fck = {
     );
     return data;
   },
-  getRecentlyAdded: async (count) => {
+  getRecentlyAdded: async (count, time: number, timescale: number) => {
     const { data } = await axios.get(
-      `https://api.fck.foundation/api/v2/analytics/preview/recentlyAdded?onlyJettons=true&count=${count}`
+      `https://api.fck.foundation/api/v2/analytics/preview/recentlyAdded?onlyJettons=false&count=${count}&time_min=${time}&timescale=${timescale}`
+    );
+    return data;
+  },
+  getPromoting: async (count, time: number, timescale: number) => {
+    const { data } = await axios.get(
+      `https://api.fck.foundation/api/v2/analytics/preview/promoting?onlyJettons=false&count=${count}&time_min=${time}&timescale=${timescale}`
+    );
+    return data;
+  },
+  getTrending: async (count, time: number, timescale: number) => {
+    const { data } = await axios.get(
+      `https://api.fck.foundation/api/v2/analytics/preview/trending?onlyJettons=false&count=${count}&time_min=${time}&timescale=${timescale}`
     );
     return data;
   },

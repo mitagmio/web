@@ -7,11 +7,11 @@ import {
   Badge,
   Text,
   Spacer,
+  CSS,
 } from "@nextui-org/react";
 import { AppContext } from "contexts/AppContext";
 import { ABS13, ABS14 } from "assets/icons";
 import { ReactComponent as Logo } from "assets/logo.svg";
-import Skeleton from "react-loading-skeleton";
 
 interface Props {
   isLogo?: boolean;
@@ -20,8 +20,6 @@ interface Props {
 export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
   const { nftItems, enabled, theme, setEnabled, setTheme } =
     useContext(AppContext);
-
-    console.log(nftItems, enabled, theme);
 
   return isLogo ? (
     theme.id && !!nftItems?.length ? (
@@ -46,7 +44,7 @@ export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
             flat
             size="sm"
             css={{ minWidth: "100%", borderRadius: 0 }}
-            onClick={() => setEnabled(false)}
+            onPress={() => setEnabled(false)}
           >
             <ABS14
               style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}
@@ -61,7 +59,7 @@ export const ThemeSwitcher: React.FC<Props> = ({ isLogo }) => {
             flat
             size="sm"
             css={{ minWidth: "100%", borderRadius: 0 }}
-            onClick={() => setEnabled(true)}
+            onPress={() => setEnabled(true)}
           >
             <ABS13
               style={{ fill: "var(--nextui-colors-link)", fontSize: 24 }}

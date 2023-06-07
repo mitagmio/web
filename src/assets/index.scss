@@ -67,7 +67,7 @@ code {
 }
 
 html:not([class*="light-theme"]) body {
-  --tg-theme-bg-color: #000;
+  // --tg-theme-bg-color: #000;
   // --tg-theme-text-color: ;
   // --tg-theme-hint-color: ;
   // --tg-theme-link-color: ;
@@ -98,13 +98,11 @@ html:not([class*="light-theme"]) body {
 
 .navbar {
   z-index: 999 !important;
-  border-bottom: var(--nextui--navbarBorderWeight) solid
-    var(--nextui--navbarBorderColor);
+  background: transparent;
 
   .nextui-navbar-container {
-    border-bottom: unset !important;
     background: unset;
-    max-width: 100%;
+    // max-width: 100%;
   }
 }
 
@@ -142,8 +140,8 @@ html:not([class*="light-theme"]) .nextui-popover-content {
   top: -50%;
   left: -50%;
   z-index: -1;
-  width: 100vw;
-  height: 100vh;
+  min-width: 175vw;
+  min-height: 100vh;
   zoom: 2;
 
   svg {
@@ -158,7 +156,11 @@ svg {
 }
 
 html[class*="light-theme"] .svgInline {
-  filter: invert(1);
+  filter: invert(1) grayscale(1);
+}
+
+.nextui-input-wrapper--with-value {
+  padding-right: 15px;
 }
 
 .diamond-item {
@@ -201,9 +203,11 @@ html:not([class*="light-theme"]) .diamond-item {
 }
 
 .roadmap-body {
-  padding-top: 0;
-  max-height: 50vh;
-  overflow-y: auto;
+  padding-top: 0 !important;
+
+  thead {
+    display: none;
+  }
 }
 
 .chart-table,
@@ -226,10 +230,14 @@ html:not([class*="light-theme"]) .diamond-item {
   thead {
     display: none;
   }
+
+  @media (max-width: 600px) {
+  }
 }
 
 .chart-label {
   display: flex;
+  white-space: nowrap;
   gap: 4px;
   align-items: center;
   font-size: 16px;
@@ -243,12 +251,6 @@ html:not([class*="light-theme"]) .diamond-item {
   flex-wrap: wrap;
   gap: 4px;
   overflow: auto;
-  padding: 50px;
-  margin: -50px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   > div {
     width: 100%;
@@ -259,20 +261,26 @@ html:not([class*="light-theme"]) .diamond-item {
   }
 
   &.side {
+    padding: 50px;
+    margin: -50px;
 
     @media (max-width: 960px) {
+      transition: 300ms all;
       display: block;
       position: fixed;
       align-content: flex-start;
       background: var(--nextui--navbarBlurBackgroundColor);
+      backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
       z-index: 9999;
-      left: 0;
+      left: 16px;
       width: 100%;
-      bottom: 0;
+      top: 0;
+      left: 0;
       margin: 0;
       height: 100vh;
-      padding: 8px;
       opacity: 1;
+      margin: 0;
+      padding: 0;
 
       > div {
         padding: 8px 8px 0;
@@ -280,15 +288,14 @@ html:not([class*="light-theme"]) .diamond-item {
         margin-top: 50vh;
         background: var(--nextui-colors-background);
         transition: 300ms all;
+        transform: translate3d(0, 0, 0);
       }
 
       &:not(.open) {
-        display: none;
-        transform: translate3d(0, 100%, 0);
         opacity: 0;
+        height: 0;
 
         > div {
-          opacity: 0;
           transform: translate3d(0, 100%, 0);
         }
       }
@@ -381,7 +388,7 @@ html:not([class*="light-theme"]) .diamond-item {
   }
 
   &:hover &-body > * {
-    opacity: 0;
+    // opacity: 0;
   }
 
   &:hover &-body > p:last-child {
@@ -389,7 +396,7 @@ html:not([class*="light-theme"]) .diamond-item {
   }
 }
 
-.hide-scrollbar::-webkit-scrollbar {
+*::-webkit-scrollbar {
   display: none;
 }
 
@@ -397,4 +404,90 @@ html:not([class*="light-theme"]) .diamond-item {
   #tc-connect-button > div {
     display: none;
   }
+}
+
+svg {
+  vertical-align: middle;
+}
+
+.nextui-backdrop {
+  backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
+}
+
+.findcheck {
+  position: relative;
+  align-items: center;
+
+  &__input {
+    // width: 100%;
+  }
+
+  &__trigger {
+    width: fit-content;
+    display: none;
+  }
+
+  &__popup {
+    position: fixed;
+    top: 75px;
+    max-height: calc(100vh - 75px);
+    border-left: var(--nextui--navbarBorderWeight) solid
+      var(--nextui--navbarBorderColor);
+    border-right: var(--nextui--navbarBorderWeight) solid
+      var(--nextui--navbarBorderColor);
+    border-bottom: var(--nextui--navbarBorderWeight) solid
+      var(--nextui--navbarBorderColor);
+    padding: 16px !important;
+    max-width: 400px;
+    min-width: 325px;
+    width: 100%;
+    background: var(--nextui--navbarBackgroundColor);
+    backdrop-filter: saturate(180%) blur(var(--nextui--navbarBlur));
+  }
+
+  .findcheck__input {
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 600px) {
+    // position: absolute;
+    // left: 0;
+    // top: 0;
+    // max-height: 100vh;
+
+    .findcheck__trigger {
+      display: unset;
+    }
+
+    .findcheck__input {
+      width: 0px;
+      overflow: hidden;
+      transition: all 300ms;
+
+      &.active {
+        width: 125px;
+      }
+    }
+
+    .findcheck__popup {
+      position: fixed;
+      margin: 0;
+      left: 0;
+      top: 52px;
+      max-width: 100vw;
+    }
+  }
+
+  @media (min-width: 600px) and (max-width: 960px) {
+    .findcheck__popup {
+      top: 52px;
+      max-height: calc(100vh - 52px);
+    }
+  }
+}
+
+.flayout {
+  // overflow: auto;
+  // height: 100vh;
 }

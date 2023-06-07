@@ -8,6 +8,7 @@ import {
   useCallback,
 } from "react";
 import cookie from "react-cookies";
+import { ToastContainer } from "react-toastify";
 import {
   THEME,
   TonConnectUIProvider,
@@ -37,6 +38,14 @@ import { CHAIN } from "@tonconnect/sdk";
 import { useTheme } from "next-themes";
 import { Loading } from "@nextui-org/react";
 import { getCookie } from "utils";
+import { TonClient } from "ton";
+import { useLocation } from "react-router-dom";
+
+import "react-toastify/dist/ReactToastify.css";
+
+const client = new TonClient({
+  endpoint: "https://toncenter.com/api/v2/jsonRPC",
+});
 
 export type JType = {
   id: number;
@@ -46,34 +55,76 @@ export type JType = {
   address: string;
   decimals: number;
   verified: number;
+  data?: any[];
+  stats: { promoting_points: number };
 };
 
+export type JScale = "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "7D" | "30D";
+
 interface AppProps {
+  isBottom: boolean;
+  open: boolean;
+  authorized: boolean;
   address: string;
   rawAddress: string;
   nftItems?: NftItemRepr[];
+  jetton: Record<string, any>;
   theme: { color: string; id?: number };
   ton: Record<string, any>;
   isTLoading: boolean;
-  jettons: JType[];
   isJLoading: boolean;
   enabled: boolean;
+  client: TonClient;
+  timescale: JScale;
+  list: string[];
+  setList: Dispatch<any>;
+  page: number;
+  setPage: Dispatch<any>;
+  search?: string;
+  setSearch: Dispatch<any>;
+  jettons: JType[];
+  setJettons: Dispatch<any>;
+  setTimescale: Dispatch<any>;
+  setOpen: Dispatch<any>;
   setEnabled: Dispatch<any>;
   setTheme: Dispatch<any>;
+  setJetton: Dispatch<any>;
+  setAuthorized: Dispatch<any>;
+  setIsBottom: Dispatch<any>;
+  refetchJettons: () => Promise<any>;
 }
 
 const defaultAppContext: AppProps = {
+  isBottom: false,
+  open: false,
+  authorized: false,
   address: "",
   rawAddress: "",
   theme: { color: "" },
   nftItems: [],
   ton: {},
   isTLoading: false,
-  jettons: [],
   isJLoading: false,
   enabled: false,
+  jetton: {},
+  client,
+  timescale: "1D",
+  list: [],
+  setList: () => null,
+  page: 2,
+  setPage: () => null,
+  search: "",
+  setSearch: () => null,
+  jettons: [],
+  setJettons: () => null,
+  setTimescale: () => null,
+  setOpen: () => null,
   setEnabled: () => null,
   setTheme: () => null,
+  setJetton: () => null,
+  setAuthorized: () => null,
+  setIsBottom: () => null,
+  refetchJettons: () => Promise.resolve(null),
 };
 
 const key = "dark-mode";
@@ -100,15 +151,52 @@ const AppProviderWrapper = ({
             : "light",
         }
   );
-  console.log("document.cookie", getCookie("theme"));
   const [nftItems, setNFTItems] = useState<NftItemRepr[]>();
   const [enabled, setEnabled] = useState(
     getCookie(key)
       ? JSON.parse(decodeURIComponent(getCookie(key) || ""))
       : globalThis?.window?.matchMedia("(prefers-color-scheme: dark)").matches
   );
+  const [open, setOpen] = useState(false);
   const [data, setData] = useState({});
-  const [authorized, setAuthorized] = useState(false);
+  const [isBottom, setIsBottom] = useState(false);
+  const [jetton, setJetton] = useState<Record<string, any>>({});
+  const [authorized, setAuthorized] = useState(
+    !!globalThis.localStorage.getItem("access-token")
+  );
+  const [timescale, setTimescale] = useState<
+    "1M" | "5M" | "30M" | "1H" | "4H" | "1D" | "7D" | "30D"
+  >((cookie.load("timescale") as any) || "1D");
+
+  const tokens = cookie.load("tokens");
+  const [list, setList] = useState<string[]>(tokens || []);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState<string | undefined>();
+  const [jettons, setJettons] = useState<JType[]>([]);
+
+  useEffect(() => {
+    cookie.save("timescale", timescale, { path: "/" });
+  }, [timescale]);
+
+  useEffect(() => {
+    cookie.save("tokens", list, { path: "/" });
+  }, [list]);
+
+  useEffect(() => {
+    tonConnectUI.connectionRestored.then((restored) => {
+      if (restored) {
+        console.log(
+          "Connection restored. Wallet:",
+          JSON.stringify({
+            ...tonConnectUI.wallet,
+            ...tonConnectUI.walletInfo,
+          })
+        );
+      } else {
+        console.log("Connection was not restored.");
+      }
+    });
+  }, []);
 
   useEffect(
     () =>
@@ -130,9 +218,9 @@ const AppProviderWrapper = ({
           tonConnectUI.disconnect();
           setAuthorized(false);
           return;
+        } else {
+          setAuthorized(true);
         }
-
-        setAuthorized(true);
       }),
     [tonConnectUI]
   );
@@ -181,11 +269,24 @@ const AppProviderWrapper = ({
     refetchOnReconnect: false,
   });
 
-  const { data: jettons, isLoading: isJLoading } = useQuery({
+  const { isLoading: isJLoading, refetch } = useQuery({
     queryKey: ["jettons"],
     queryFn: fck.getJettons,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    onSuccess: (response) => {
+      const today = new Date();
+      today.setHours(today.getHours() - 24);
+
+      const listVerified = response
+        .filter(({ verified, address }) => verified && !list.includes(address))
+        .map(({ address }) => address);
+      if (listVerified.length) {
+        setList((prevState) => [...new Set([...listVerified, ...prevState])]);
+      }
+
+      setJettons(response);
+    },
   });
 
   useEffect(() => {
@@ -232,6 +333,15 @@ const AppProviderWrapper = ({
   return (
     <AppContext.Provider
       value={{
+        client,
+        isBottom,
+        setIsBottom,
+        open,
+        setOpen,
+        jetton,
+        setJetton,
+        authorized,
+        setAuthorized,
         address,
         rawAddress,
         nftItems,
@@ -239,10 +349,20 @@ const AppProviderWrapper = ({
         setTheme,
         ton,
         isTLoading,
-        jettons,
         isJLoading,
+        timescale,
+        setTimescale,
         enabled,
         setEnabled,
+        list,
+        setList,
+        page,
+        setPage,
+        search,
+        setSearch,
+        jettons,
+        setJettons,
+        refetchJettons: refetch,
       }}
     >
       {children}
@@ -252,11 +372,16 @@ const AppProviderWrapper = ({
 
 export const AppProvider = ({ children }) => {
   return (
-    <TonConnectUIProvider
-      manifestUrl="https://fck.foundation/tonconnect-manifest.json"
-      getConnectParameters={() => TonProofApi.connectWalletRequest}
-    >
-      <AppProviderWrapper>{children}</AppProviderWrapper>
-    </TonConnectUIProvider>
+    <>
+      <TonConnectUIProvider
+        manifestUrl="https://fck.foundation/tonconnect-manifest.json"
+        getConnectParameters={() => TonProofApi.connectWalletRequest}
+      >
+        <AppProviderWrapper>
+          <ToastContainer />
+          {children}
+        </AppProviderWrapper>
+      </TonConnectUIProvider>
+    </>
   );
 };

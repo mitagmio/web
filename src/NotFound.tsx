@@ -5,8 +5,6 @@ import { ReactComponent as Error } from "./assets/404.svg";
 const NotFound = () => {
   const location = useLocation();
 
-  console.log(location.pathname);
-
   return (
     <Container>
       <Grid.Container justify="center" alignItems="center">

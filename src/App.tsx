@@ -4,6 +4,7 @@ import {
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
+import { Helmet } from "react-helmet";
 import { ThemeProvider } from "next-themes";
 import { Loading, NextUIProvider } from "@nextui-org/react";
 import i18n from "i18next";
@@ -41,15 +42,16 @@ import {
   andromedaLight,
 } from "./themes";
 import { Layout } from "./components";
-import { Home, Countdown, OurTeam, RoadMap, Analytics, Chart } from "./pages";
+import { Home, Events, OurTeam, RoadMap, Analytics, Export } from "./pages";
 import NotFound from "./NotFound";
-import Ton from "./Ton";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "keen-slider/keen-slider.min.css";
 import "./assets/index.scss";
 import { Suspense, useContext, useMemo } from "react";
 import { Wallet } from "pages/Wallet";
+import { WhitePaper } from "pages/WhitePaper";
+import { Plitch } from "pages/Plitch";
 
 const queryClient = new QueryClient();
 
@@ -82,7 +84,7 @@ const router = createBrowserRouter([
       },
       {
         path: "events",
-        element: <Countdown />,
+        element: <Events />,
       },
       {
         path: "roadmap",
@@ -91,10 +93,6 @@ const router = createBrowserRouter([
       {
         path: "team",
         element: <OurTeam />,
-      },
-      {
-        path: "ton",
-        element: <Ton />,
       },
       {
         path: "analytics",
@@ -112,11 +110,19 @@ const router = createBrowserRouter([
         path: "wallet/:ID",
         element: <Wallet />,
       },
+      {
+        path: "/whitepaper",
+        element: <WhitePaper />,
+      },
+      {
+        path: "/plitch",
+        element: <Plitch />,
+      },
     ],
   },
   {
-    path: "/chart/:id",
-    element: <Chart />,
+    path: "/export/:id",
+    element: <Export />,
   },
   {
     path: "*",
@@ -141,7 +147,6 @@ function App() {
         : "light",
     [theme, enabled]
   );
-  console.log('themeName', themeName);
   const values = useMemo(
     () => ({
       light,
@@ -175,50 +180,69 @@ function App() {
   );
 
   return (
-    <ThemeProvider
-      enableSystem
-      disableTransitionOnChange
-      forcedTheme={themeName}
-      themes={[
-        "light",
-        "dark",
-        "sky",
-        "skyLight",
-        "arctic",
-        "arcticLight",
-        "azure",
-        "azureLight",
-        "iris",
-        "irisLight",
-        "flamingo",
-        "flamingoLight",
-        "corral",
-        "corralLight",
-        "marine",
-        "marineLight",
-        "ocean",
-        "oceanLight",
-        "fluid",
-        "fluidLight",
-        "galaxy",
-        "galaxyLight",
-        "cosmos",
-        "cosmosLight",
-        "andromeda",
-        "andromedaLight",
-      ]}
-      value={Object.keys(values).reduce((acc, curr) => {
-        acc[curr] = values[curr].className;
+    <>
+      <Helmet>
+        <title>Find & Check</title>
+        <meta
+          name="description"
+          content="An analytics chart platform tool, that allows users to create, view, and analyze data using various visualizations such as charts, graphs, and dashboards. These tools provide users with the ability to extract insights and make data-driven decisions by analyzing and understanding complex data sets."
+        ></meta>
+        <meta
+          property="og:description"
+          content="An analytics chart platform tool, that allows users to create, view, and analyze data using various visualizations such as charts, graphs, and dashboards. These tools provide users with the ability to extract insights and make data-driven decisions by analyzing and understanding complex data sets."
+        ></meta>
+        <meta property="og:title" content="Find & Check"></meta>
+        <meta property="og:image" content="/img/landing.png"></meta>
+        <meta
+          name="keywords"
+          content="Decentralization, Smart Contracts, ICO (Initial Coin Offering), Digital Assets, Mining, Public Ledger, Altcoinsm, Consensus Algorithm, Distributed Ledger Technology, Wallets, Cryptography, Peer-to-Peer Network, Hashing, Security, Ethereum Virtual Machine, Gas, Proof-of-Stake, Non-Fungible Tokens (NFTs), Stablecoins, Cross-Chain Interoperability"
+        ></meta>
+      </Helmet>
+      <ThemeProvider
+        enableSystem
+        enableColorScheme
+        forcedTheme={themeName}
+        themes={[
+          "light",
+          "dark",
+          "sky",
+          "skyLight",
+          "arctic",
+          "arcticLight",
+          "azure",
+          "azureLight",
+          "iris",
+          "irisLight",
+          "flamingo",
+          "flamingoLight",
+          "corral",
+          "corralLight",
+          "marine",
+          "marineLight",
+          "ocean",
+          "oceanLight",
+          "fluid",
+          "fluidLight",
+          "galaxy",
+          "galaxyLight",
+          "cosmos",
+          "cosmosLight",
+          "andromeda",
+          "andromedaLight",
+        ]}
+        value={Object.keys(values).reduce((acc, curr) => {
+          acc[curr] = values[curr].className;
 
-        return acc;
-      }, {})}
-    >
-      <NextUIProvider theme={values[themeName]}>
-        <Suspense fallback={<Loading />}>
-          {!globalThis ? <Loading /> : <RouterProvider router={router} />}
-        </Suspense>
-      </NextUIProvider>
-    </ThemeProvider>
+          return acc;
+        }, {})}
+      >
+        <NextUIProvider theme={values[themeName]}>
+          <Suspense fallback={<Loading />}>
+            {!globalThis ? <Loading /> : <RouterProvider router={router} />}
+          </Suspense>
+        </NextUIProvider>
+      </ThemeProvider>
+    </>
   );
 }
 

@@ -4,19 +4,20 @@ import {
   TonProofItemReplySuccess,
 } from "@tonconnect/sdk";
 import "./patch-local-storage-for-github-pages";
+import cookie from "react-cookies";
 
 class TonProofApiService {
-  private localStorageKey = "access-token";
+  private storageKey = "access-token";
 
   private host = "https://demo.tonconnect.dev";
 
-  public accessToken: string | null = null;
+  public accessToken?: string;
 
   public connectWalletRequest: Promise<ConnectAdditionalRequest> =
     Promise.resolve({});
 
   constructor() {
-    this.accessToken = globalThis.localStorage.getItem(this.localStorageKey);
+    this.accessToken = cookie.load(this.storageKey) as string;
 
     if (!this.accessToken) {
       this.generatePayload();
@@ -51,7 +52,7 @@ class TonProofApiService {
           body: JSON.stringify(reqBody),
           headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
         })
       ).json();
@@ -59,7 +60,8 @@ class TonProofApiService {
       console.log("PROF RESPONSE:", response);
 
       if (response?.data?.token) {
-        globalThis.localStorage.setItem(this.localStorageKey, response?.data?.token);
+        cookie.save(this.storageKey, response?.data?.token, { path: "/" });
+        globalThis.localStorage.setItem(this.storageKey, response?.data?.token);
         this.accessToken = response?.data?.token;
       }
     } catch (e) {
@@ -81,8 +83,8 @@ class TonProofApiService {
   }
 
   reset() {
-    this.accessToken = null;
-    globalThis.localStorage.removeItem(this.localStorageKey);
+    this.accessToken = undefined;
+    cookie.remove(this.storageKey);
     this.generatePayload();
   }
 }
